@@ -22,6 +22,7 @@ Used React Native Core Components: //TODO fyll i alla
 - [X] TouchableOpacity: Custom styled buttons and interactive elements
 - [X] View: Layout and container components
 - [X] Text: Display text
+- [X] ActivityIndicator: Spins to indicate buffering when starting game
 - [ ] TextInput: User input (pet name)
 - [ ] ?
 
@@ -68,7 +69,7 @@ Du ska i samband med inlämning hålla i en presentation där du för klassen pr
 Presentationen kommer att ske i mindre grupper under presentationsdagen - du kommer att ha ca 10 minuter att presentera på.
 
 Krav för godkänt:
-- [ ] Projektet använder minst 4 stycken RN-komponenter 
+- [X] Projektet använder minst 4 stycken RN-komponenter 
 - [ ] Projektet använder minst minst 4 stycken Expo komponenter.
 - [ ] De utvalda komponenterna MÅSTE antecknas i README filen tillsammans med en lista över genomförda krav.
 - [ ] React Navigation används för att skapa en bättre upplevelse i appen.
