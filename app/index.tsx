@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { useState } from "react";
-import { ActivityIndicator, StatusBar, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Image, StatusBar, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function StartScreen() {
   
@@ -24,7 +24,8 @@ export default function StartScreen() {
   return (
     <View style={styles.container}>
 
-      <Text style={styles.title}>Pet Maze Madness</Text>
+      {/* <Text style={styles.title}>Pet Maze Madness</Text> */}
+      <Image style={styles.logo} source={require('../assets/images/gamelogo.png')}/>
       <Text style={styles.description}>
         Hjälp ditt husdjur 🐹 ur laburinten!
       </Text>
@@ -34,7 +35,7 @@ export default function StartScreen() {
 
       {isLoading ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#57f05cff" />
+          <ActivityIndicator size="large" color="#45da9cff" />
           <Text style={styles.loadingText}>Laddar spel...</Text>
         </View>
       ) : (
@@ -82,7 +83,7 @@ const styles = StyleSheet.create({
     width: '90%',
   },
   startButton: {
-    backgroundColor: '#68d86cff',
+    backgroundColor: '#45da9cff',
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 12,
@@ -91,8 +92,8 @@ const styles = StyleSheet.create({
     width: '80%',
   },
   startButtonText: {
-    color: 'white',
-    fontSize: 16,
+    color: '#ffffffff',
+    fontSize: 20,
     fontWeight: 'bold',
     textAlign: 'center',
   },
@@ -114,5 +115,11 @@ const styles = StyleSheet.create({
     color: '#fcfcfc',
     fontSize: 16,
     marginTop: 12,
+  },
+  logo: {
+    marginTop: -50,
+    height: 320,
+    resizeMode: 'contain',
+    marginBottom: 20,
   },
 });
