@@ -18,9 +18,10 @@ Dev Testing App: Expo Go
 Emulator: Android Studio
 
 Used React Native Core Components: //TODO fyll i alla
-- [ ] TouchableOpacity: Custom styled buttons and interactive elements
-- [ ] View: Layout and container components
-- [ ] Text: Display text
+- [X] StatusBar: Used on startScreen to show battery status, and Title on some pages
+- [X] TouchableOpacity: Custom styled buttons and interactive elements
+- [X] View: Layout and container components
+- [X] Text: Display text
 - [ ] TextInput: User input (pet name)
 - [ ] ?
 
