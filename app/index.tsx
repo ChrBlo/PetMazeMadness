@@ -1,3 +1,4 @@
+import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { StatusBar, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
@@ -7,6 +8,10 @@ export default function StartScreen() {
 
   const handleStartGame = () => {
     navigation.navigate('Game');
+  };
+
+  const handleGoToSettings = () => {
+    navigation.navigate('Settings');
   };
     
   return (
@@ -20,6 +25,9 @@ export default function StartScreen() {
       </Text>
       <TouchableOpacity style={styles.startButton} onPress={handleStartGame}>
         <Text style={styles.startButtonText}>STARTA</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.settingsButton} onPress={handleGoToSettings}>
+        <Ionicons name="settings-outline" size={24} color="white" />
       </TouchableOpacity>
       <StatusBar barStyle="default"/>
     </View>
@@ -67,5 +75,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     textAlign: 'center',
+  },
+  settingsButton: {
+    backgroundColor: '#4b4b4bff',
+    paddingHorizontal: 8,
+    paddingVertical: 8,
+    borderRadius: 12,
+    position: 'absolute',
+    bottom: '10%',
+    left: '10%',
   },
 });
