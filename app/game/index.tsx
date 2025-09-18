@@ -1,14 +1,17 @@
 import { useNavigation } from "@react-navigation/native";
 import { Gyroscope } from 'expo-sensors';
 import { useEffect, useRef, useState } from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 const MAZE_SIZE = 300;
 const BALL_SIZE = 20;
+const WALL_CELL = 1;
+const GOAL_CELL = 2;
 
 // Maze layout
 // 0 = path
 // 1 = wall
+// 2 = goal
 const MAZE_LAYOUT = [
   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
   [1, 0, 0, 0, 1, 0, 0, 0, 0, 1],
@@ -19,20 +22,21 @@ const MAZE_LAYOUT = [
   [1, 1, 1, 0, 1, 1, 1, 1, 0, 1],
   [1, 0, 0, 0, 1, 0, 0, 0, 0, 1],
   [1, 0, 1, 1, 1, 0, 0, 0, 0, 1],
-  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+  [1, 1, 1, 1, 1, 2, 1, 1, 1, 1],
 ];
 const startPosition = { x: 1, y: 1 };
 const CELL_SIZE = MAZE_SIZE / MAZE_LAYOUT.length;
 
   const renderMaze = () => {
     const walls = [];
+    const goals = [];
 
     for (let row = 0; row < MAZE_LAYOUT.length; row++) {
       for (let col = 0; col < MAZE_LAYOUT[row].length; col++) {
         const cell = MAZE_LAYOUT[row][col];
         const key = `${row}-${col}`;
         
-        if (cell === 1) {
+        if (cell === WALL_CELL) {
           walls.push(
             <View
               key={key}
@@ -47,10 +51,27 @@ const CELL_SIZE = MAZE_SIZE / MAZE_LAYOUT.length;
               ]}
             />
           );
+        } else if (cell === GOAL_CELL) {
+          goals.push(
+            <View
+              key={key}
+              style={[
+                styles.goal,
+                {
+                  left: col * CELL_SIZE,
+                  top: row * CELL_SIZE,
+                  width: CELL_SIZE,
+                  height: CELL_SIZE,
+                }
+              ]}
+            >
+              <Text style={styles.goalText}>🏠</Text>
+            </View>
+          );
         }
       }
     }
-    return [...walls];
+    return [...walls, ...goals];
   };
 
 export default function GameScreen() {
@@ -60,6 +81,8 @@ export default function GameScreen() {
   const [subscription, setSubscription] = useState<any>(null);
   const [gyroscopeData, setGyroscopeData] = useState({ x: 0, y: 0, z: 0 });
   const animationRef = useRef<number | null>(null);
+  //GAME FEATURES
+  const [isGameWon, setIsGameWon] = useState(false);
 
   const getStartPosition = () => ({
     x: CELL_SIZE * (startPosition.x + 0.5),
@@ -88,8 +111,9 @@ export default function GameScreen() {
   }, []);
 
   useEffect(() => {
-    animationRef.current = requestAnimationFrame(updateBallPosition);
-
+    if (!isGameWon) {
+      animationRef.current = requestAnimationFrame(updateBallPosition);
+    }
     return () => {
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
@@ -153,19 +177,32 @@ export default function GameScreen() {
       { x: newX + ballRadius, y: newY + ballRadius },
     ];
 
+    const isPositionWithinMazeBounds = (x: number, y: number) => {
+      return x >= 0 && x < MAZE_LAYOUT[0].length && y >= 0 && y < MAZE_LAYOUT.length;
+    };
+
+    const getMazeCell = (x: number, y: number) => {
+      return isPositionWithinMazeBounds(x, y) ? MAZE_LAYOUT[y][x] : null;
+    };
+
     for (let point of checkPoints)
     {
       const pCellX = Math.floor(point.x / CELL_SIZE);
       const pCellY = Math.floor(point.y / CELL_SIZE);
       
-      if (pCellX >= 0 && pCellX < MAZE_LAYOUT[0].length &&
-        pCellY >= 0 && pCellY < MAZE_LAYOUT.length) {
-                              
-        if (MAZE_LAYOUT[pCellY][pCellX] === 1)
-        {
-          return true;
-        }
+      if (getMazeCell(pCellX, pCellY) === 1) {
+        return true;
       }
+    }
+
+    // Check if reached goal
+    if (getMazeCell(cellX, cellY) === GOAL_CELL)
+    {
+      setIsGameWon(true);
+    
+      Alert.alert('Grattis!', 'Den lille råttan flydde! 🌈⭐', [
+        { text: 'Testa igen' }
+      ]);
     }
 
     return false;
@@ -281,5 +318,13 @@ const styles = StyleSheet.create({
   },
   animalEmoji: {
     fontSize: 12,
+  },
+  goal: {
+    position: 'absolute',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  goalText: {
+    fontSize: 22,
   },
 });
