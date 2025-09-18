@@ -1,7 +1,14 @@
+import { useNavigation } from "@react-navigation/native";
 import { StatusBar, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function StartScreen() {
+    
+  const navigation = useNavigation<any>();
 
+  const handleStartGame = () => {
+    navigation.navigate('Game');
+  };
+    
   return (
     <View style={styles.container}>
       <Text style={styles.title}>🐹 Djur på rymmen</Text>
@@ -11,7 +18,7 @@ export default function StartScreen() {
       <Text style={styles.instructions}>
         Luta din telefon i alla riktningar för att guida ditt husdjur mot friheten!
       </Text>
-      <TouchableOpacity style={styles.startButton}>
+      <TouchableOpacity style={styles.startButton} onPress={handleStartGame}>
         <Text style={styles.startButtonText}>STARTA</Text>
       </TouchableOpacity>
       <StatusBar barStyle="default"/>
