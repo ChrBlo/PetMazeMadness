@@ -1,7 +1,9 @@
 import { useNavigation } from "@react-navigation/native";
+import { useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 const MAZE_SIZE = 300;
+const BALL_SIZE = 20;
 const WALL_THICKNESS = 10;
 
 // Maze layout
@@ -19,6 +21,7 @@ const MAZE_LAYOUT = [
   [1, 0, 1, 1, 1, 0, 0, 0, 0, 1],
   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
 ];
+const startPosition = { x: 1, y: 1 };
 const CELL_SIZE = MAZE_SIZE / MAZE_LAYOUT.length;
 
   const renderMaze = () => {
@@ -38,8 +41,8 @@ const CELL_SIZE = MAZE_SIZE / MAZE_LAYOUT.length;
                 {
                   left: col * CELL_SIZE,
                   top: row * CELL_SIZE,
-                  width: CELL_SIZE,
-                  height: CELL_SIZE,
+                  width: CELL_SIZE + 1,
+                  height: CELL_SIZE + 1,
                 }
               ]}
             />
@@ -51,20 +54,39 @@ const CELL_SIZE = MAZE_SIZE / MAZE_LAYOUT.length;
   };
 
 export default function GameScreen() {
-  
   const navigation = useNavigation<any>();
+
+  const getStartPosition = () => ({
+    x: CELL_SIZE * (startPosition.x + 0.5),
+    y: CELL_SIZE * (startPosition.y + 0.5)
+  });
+
+  const [ballPosition, setBallPosition] = useState(() => getStartPosition());
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Rädda husdjuret! 🐾</Text>
         <Text style={styles.instructions}>
-          Luta din telefon i ALLA riktningar för att guida ditt husdjur ut ur laburinten!
+          Luta din telefon i ALLA riktningar för att guida hem ditt husdjur!
         </Text>
       </View>
       <View style={styles.gameContainer}>
         <View style={styles.maze}>
           {renderMaze()}
+
+          {/* Hamsterbollen */}
+          <View
+            style={[
+              styles.ball,
+              {
+                left: ballPosition.x - BALL_SIZE / 2,
+                top: ballPosition.y - BALL_SIZE / 2,
+              }
+            ]}
+          >
+            <Text style={styles.animalEmoji}>🐹</Text>
+          </View>
         </View>
       </View>
       <View>
@@ -86,6 +108,7 @@ const styles = StyleSheet.create({
   header: {
     alignItems: 'center',
     marginBottom: 20,
+    width: '80%',
   },
   title: {
     fontSize: 24,
@@ -100,7 +123,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   goToStartMenuButton: {
-    backgroundColor: '#68d86cff',
+    backgroundColor: '#45da9cff',
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 12,
@@ -120,5 +143,25 @@ const styles = StyleSheet.create({
     backgroundColor: '#f0f0f0',
     position: 'relative',
     borderRadius: 5,
+  },
+  ball: {
+    width: BALL_SIZE,
+    height: BALL_SIZE,
+    borderRadius: BALL_SIZE / 2,
+    backgroundColor: '#fff56bff',
+    position: 'absolute',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  animalEmoji: {
+    fontSize: 12,
   },
 });

@@ -87,8 +87,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 12,
-    marginBottom: 15,
-    marginTop: 15,
+    marginBottom: 12,
+    marginTop: 12,
     width: '80%',
   },
   startButtonText: {
