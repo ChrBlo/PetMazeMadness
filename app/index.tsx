@@ -1,7 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import { Image } from 'expo-image';
 import { useState } from "react";
-import { ActivityIndicator, Image, StatusBar, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, StatusBar, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function StartScreen() {
   
@@ -120,5 +121,6 @@ const styles = StyleSheet.create({
     height: 320,
     resizeMode: 'contain',
     marginBottom: 20,
+    width: '80%',
   },
 });
