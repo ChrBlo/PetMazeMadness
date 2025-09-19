@@ -7,15 +7,17 @@ const MAZE_SIZE = 300;
 const BALL_SIZE = 20;
 const WALL_CELL = 1;
 const GOAL_CELL = 2;
+const DANGER_CELL = 3;
 
 // Maze layout
 // 0 = path
 // 1 = wall
 // 2 = goal
+// 3 = danger
 const MAZE_LAYOUT = [
   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
   [1, 0, 0, 0, 1, 0, 0, 0, 0, 1],
-  [1, 0, 1, 0, 1, 0, 1, 1, 0, 1],
+  [3, 0, 1, 0, 1, 0, 1, 1, 0, 1],
   [1, 0, 1, 0, 0, 0, 0, 1, 0, 1],
   [1, 0, 1, 1, 1, 1, 0, 1, 0, 1],
   [1, 0, 0, 0, 0, 0, 0, 1, 0, 1],
@@ -30,13 +32,15 @@ const CELL_SIZE = MAZE_SIZE / MAZE_LAYOUT.length;
   const renderMaze = () => {
     const walls = [];
     const goals = [];
+    const explosiveWalls = [];
 
     for (let row = 0; row < MAZE_LAYOUT.length; row++) {
       for (let col = 0; col < MAZE_LAYOUT[row].length; col++) {
         const cell = MAZE_LAYOUT[row][col];
         const key = `${row}-${col}`;
         
-        if (cell === WALL_CELL) {
+        if (cell === WALL_CELL)
+        {
           walls.push(
             <View
               key={key}
@@ -51,7 +55,9 @@ const CELL_SIZE = MAZE_SIZE / MAZE_LAYOUT.length;
               ]}
             />
           );
-        } else if (cell === GOAL_CELL) {
+        }
+        else if (cell === GOAL_CELL)
+        {
           goals.push(
             <View
               key={key}
@@ -69,9 +75,26 @@ const CELL_SIZE = MAZE_SIZE / MAZE_LAYOUT.length;
             </View>
           );
         }
+        else if (cell === DANGER_CELL)
+        {
+          explosiveWalls.push(
+            <View
+              key={key}
+              style={[
+                styles.explosiveWall,
+                {
+                  left: col * CELL_SIZE,
+                  top: row * CELL_SIZE,
+                  width: CELL_SIZE + 0.5,
+                  height: CELL_SIZE + 0.5,
+                }
+              ]}
+            />
+          );
+        }
       }
     }
-    return [...walls, ...goals];
+    return [...walls, ...goals, ...explosiveWalls];
   };
 
 export default function GameScreen() {
@@ -83,6 +106,11 @@ export default function GameScreen() {
   const animationRef = useRef<number | null>(null);
   //GAME FEATURES
   const [isGameWon, setIsGameWon] = useState(false);
+
+  const [isDead, setIsDead] = useState(false);
+  const [showExplosion, setShowExplosion] = useState(false);
+  const [explosionPosition, setExplosionPosition] = useState({ x: 0, y: 0 });
+
 
   const getStartPosition = () => ({
     x: CELL_SIZE * (startPosition.x + 0.5),
@@ -97,7 +125,8 @@ export default function GameScreen() {
       Gyroscope.addListener(gyroscopeData => {
         setGyroscopeData(gyroscopeData);
       })
-    );
+      );
+      Gyroscope.setUpdateInterval(16); //ca 60fps
   };
 
   const _unsubscribe = () => {
@@ -111,7 +140,7 @@ export default function GameScreen() {
   }, []);
 
   useEffect(() => {
-    if (!isGameWon) {
+    if (!isGameWon && !isDead) {
       animationRef.current = requestAnimationFrame(updateBallPosition);
     }
     return () => {
@@ -119,7 +148,7 @@ export default function GameScreen() {
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [gyroscopeData, ballPosition]);
+  }, [gyroscopeData, ballPosition, isGameWon, isDead]);
   // ----------------------------
 
   // UPDATE BALL POSITION -------
@@ -190,7 +219,16 @@ export default function GameScreen() {
       const pCellX = Math.floor(point.x / CELL_SIZE);
       const pCellY = Math.floor(point.y / CELL_SIZE);
       
-      if (getMazeCell(pCellX, pCellY) === 1) {
+      // Check for explosive wall collision FIRST
+      if (MAZE_LAYOUT[pCellY][pCellX] === DANGER_CELL)
+      {
+        triggerExplosion(newX, newY);
+        return true;
+      }
+
+      // Check for regular walls
+      if (getMazeCell(pCellX, pCellY) === WALL_CELL)
+      {
         return true;
       }
     }
@@ -208,6 +246,19 @@ export default function GameScreen() {
     return false;
   };
   // ----------------------------
+
+  // EXPLOSION ------------------
+  const triggerExplosion = (x: number, y: number) => {
+    setExplosionPosition({ x, y });
+    setShowExplosion(true);
+    setIsDead(true);
+
+    // Hide explosion after 1 second
+    setTimeout(() => {
+      setShowExplosion(false);
+    }, 1000);
+  };
+  //-----------------------------
 
   return (
     <View style={styles.container}>
@@ -233,9 +284,25 @@ export default function GameScreen() {
               }
             ]}
           >
-            <Text style={styles.animalEmoji}>🐹</Text>
+            <Text style={styles.animalEmoji}>
+              {isDead ? '💀' : '🐹'}
+            </Text>
           </View>
 
+          {/* EXPLOSION */}
+          {showExplosion && (
+            <View
+              style={[
+                styles.explosion,
+                {
+                  left: explosionPosition.x - 15,
+                  top: explosionPosition.y - 15,
+                }
+              ]}
+            >
+              <Text style={styles.explosionText}>💥</Text>
+            </View>
+          )}
         </View>
       </View>
 
@@ -326,5 +393,22 @@ const styles = StyleSheet.create({
   },
   goalText: {
     fontSize: 22,
+  },
+  explosiveWall: {
+    backgroundColor: '#ff4639ff',
+    position: 'absolute',
+    borderWidth: 1,
+    borderColor: '#ff4639ff',
+  },
+  explosion: {
+    position: 'absolute',
+    width: 30,
+    height: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 1000,
+  },
+  explosionText: {
+    fontSize: 28,
   },
 });

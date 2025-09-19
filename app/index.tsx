@@ -24,7 +24,6 @@ export default function StartScreen() {
   return (
     <View style={styles.container}>
 
-      {/* <Text style={styles.title}>Pet Maze Madness</Text> */}
       <Image style={styles.logo} source={require('../assets/images/gamelogo.png')}/>
       <Text style={styles.description}>
         Hjälp ditt husdjur 🐹 ur laburinten!
