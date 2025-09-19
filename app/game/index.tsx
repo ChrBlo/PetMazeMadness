@@ -1,4 +1,5 @@
 import { useNavigation } from "@react-navigation/native";
+import { useAudioPlayer } from 'expo-audio';
 import { Gyroscope } from 'expo-sensors';
 import { useEffect, useRef, useState } from "react";
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
@@ -8,6 +9,9 @@ const BALL_SIZE = 20;
 const WALL_CELL = 1;
 const GOAL_CELL = 2;
 const DANGER_CELL = 3;
+
+const explodingWallSound = require('../../assets/sounds/explosion.mp3');
+const victorySound = require('../../assets/sounds/whopee.mp3');
 
 // Maze layout
 // 0 = path
@@ -113,6 +117,8 @@ export default function GameScreen() {
 
   const [tryCount, setTryCount] = useState(1);
 
+  const victory = useAudioPlayer(victorySound);
+  const explosion = useAudioPlayer(explodingWallSound);
 
   const getStartPosition = () => ({
     x: CELL_SIZE * (startPosition.x + 0.5),
@@ -240,6 +246,9 @@ export default function GameScreen() {
     {
       setIsGameWon(true);
     
+      victory.seekTo(0);
+      victory.play();
+
       Alert.alert('Grattis!', 'Den lille råttan flydde! 🌈⭐', [
         { text: 'Testa igen' }
       ]);
@@ -254,6 +263,9 @@ export default function GameScreen() {
     setExplosionPosition({ x, y });
     setShowExplosion(true);
     setIsDead(true);
+
+    explosion.seekTo(0);
+    explosion.play();
 
     // Hide explosion after 1 second
     setTimeout(() => {
