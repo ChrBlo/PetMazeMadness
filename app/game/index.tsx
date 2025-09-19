@@ -111,6 +111,8 @@ export default function GameScreen() {
   const [showExplosion, setShowExplosion] = useState(false);
   const [explosionPosition, setExplosionPosition] = useState({ x: 0, y: 0 });
 
+  const [tryCount, setTryCount] = useState(1);
+
 
   const getStartPosition = () => ({
     x: CELL_SIZE * (startPosition.x + 0.5),
@@ -260,6 +262,15 @@ export default function GameScreen() {
   };
   //-----------------------------
 
+  // RESET GAME -----------------
+  const resetGame = () => {
+    setTryCount(tryCount => tryCount +1);
+    setBallPosition(getStartPosition());
+    setIsGameWon(false);
+    setIsDead(false);
+    setShowExplosion(false);
+  };
+
   return (
     <View style={styles.container}>
 
@@ -267,6 +278,12 @@ export default function GameScreen() {
         <Text style={styles.title}>Rädda husdjuret! 🐾</Text>
         <Text style={styles.instructions}>
           Luta din telefon i ALLA riktningar för att guida hem ditt husdjur!
+        </Text>
+      </View>
+
+      <View style={styles.stats}>
+        <Text style={styles.statsText}>
+          Försök: {tryCount}
         </Text>
       </View>
 
@@ -306,11 +323,15 @@ export default function GameScreen() {
         </View>
       </View>
 
-      <View>
+      <View style={styles.controls}>
+        <TouchableOpacity style={styles.resetButton} onPress={resetGame}>
+          <Text style={styles.resetButtonText}>Starta om</Text>
+        </TouchableOpacity>
         <TouchableOpacity style={styles.goToStartMenuButton} onPress={() => navigation.goBack()}>
-          <Text style={ styles.goToStartMenuText}>Till menyn</Text>
+          <Text style={styles.goToStartMenuText}>Till menyn</Text>
         </TouchableOpacity>
       </View>
+
     </View>
   );
 }
@@ -318,7 +339,7 @@ export default function GameScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#222120ff',
+    backgroundColor: '#221c17ff',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -410,5 +431,33 @@ const styles = StyleSheet.create({
   },
   explosionText: {
     fontSize: 28,
+  },
+  controls: {
+    marginTop: 30,
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: 15,
+  },
+  resetButton: {
+    marginTop: 30,
+    backgroundColor: '#45da9cff',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 12,
+  },
+  resetButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  stats: {
+    marginTop: 30,
+  },
+  statsText: {
+    fontSize: 16,
+    color: '#bbb',
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 5,
   },
 });
