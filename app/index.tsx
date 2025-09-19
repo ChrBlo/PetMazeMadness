@@ -1,34 +1,63 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { Image } from 'expo-image';
-import { useState } from "react";
-import { ActivityIndicator, StatusBar, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useCallback, useState } from "react";
+import { ActivityIndicator, Alert, StatusBar, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { WeatherForecaster } from '../api/weather-forecast';
 
+interface StartScreenProps {
+  route: any;
+}
 
-export default function StartScreen() {
+export default function StartScreen({ route }: StartScreenProps) {
   
   const navigation = useNavigation<any>();
   const [isLoading, setIsLoading] = useState(false);
+  const [weatherCheckEnabled, setWeatherCheckEnabled] = useState(true);
+  const [currentWeather, setCurrentWeather] = useState<string | null>(null);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (route.params?.weatherCheckEnabled !== undefined) {
+        setWeatherCheckEnabled(route.params.weatherCheckEnabled);
+      }
+    }, [route.params?.weatherCheckEnabled])
+  );
+
+  const niceWeather = (currentWeather !== 'rain' && currentWeather !== 'rainshowers_day' && currentWeather !== 'thunderstorm');
 
   const handleStartGame = () => {
-    setIsLoading(true);
+    if (weatherCheckEnabled && niceWeather) {
+      Alert.alert(
+        'Det är fint väder ute!',
+        'Ut och lek med dig istället!',
+        [
+          { text: 'OK, du har rätt!' },
+        ]
+      );
+      return;
+    }
+      setIsLoading(true);
 
-    setTimeout(() => {
-      setIsLoading(false);
-      navigation.navigate('Game');
-    }, 800);
+      setTimeout(() => {
+        setIsLoading(false);
+        navigation.navigate('Game');
+      }, 800);
   };
 
   const handleGoToSettings = () => {
-    navigation.navigate('Settings');
+    navigation.navigate('Settings', { weatherCheckEnabled });
+  };
+
+  const handleWeatherUpdate = (symbolCode: string | null) => {
+    setCurrentWeather(symbolCode);
   };
     
   return (
     <View style={styles.container}>
 
       <View style={styles.weather}>
-        <WeatherForecaster />
+        <WeatherForecaster onWeatherUpdate={handleWeatherUpdate} />
       </View>
       
       <Image style={styles.logo} source={require('../assets/images/gamelogo.png')}/>

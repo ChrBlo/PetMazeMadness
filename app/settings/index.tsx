@@ -1,22 +1,39 @@
-import { useNavigation } from "@react-navigation/native";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useState } from 'react';
+import { StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
 
-export default function SettingsScreen() {
-  
-  const navigation = useNavigation<any>();
+interface SettingsScreenProps {
+  route: any;
+  navigation: any;
+}
+
+export default function SettingsScreen({ route, navigation }: SettingsScreenProps) {
+    
+  const [weatherCheckEnabled, setWeatherCheckEnabled] = useState(
+    route.params?.weatherCheckEnabled || true
+  );
+
+  const goBack = () => {
+    navigation.navigate('Start', { weatherCheckEnabled });
+  };
 
   return (
     <View style={styles.container}>
-      <View >
-        <Text>
-          HÄR KOMMER INSTÄLLNINGAR FÖR SPELET!
+      <Text style={styles.title}>Inställningar</Text>
+      
+      <View style={styles.settingRow}>
+        <Text style={styles.settingLabel}>
+          Blockera spel vid fint väder
         </Text>
+        <Switch
+          value={weatherCheckEnabled}
+          onValueChange={setWeatherCheckEnabled}
+          trackColor={{ false: '#767577', true: '#45da9cff' }}
+        />
       </View>
-      <View>
-        <TouchableOpacity style={styles.goToStartMenuButton} onPress={() => navigation.goBack()}>
-          <Text>Till menyn</Text>
-        </TouchableOpacity>
-      </View>
+      
+      <TouchableOpacity style={styles.backButton} onPress={goBack}>
+        <Text style={styles.backButtonText}>Tillbaka</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -24,15 +41,36 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#222120ff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: '#221c17ff',
+    padding: 20,
+    paddingTop: 80,
   },
-  goToStartMenuButton: {
-    backgroundColor: '#68d86cff',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#eee',
+    marginBottom: 30,
+  },
+  settingRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 30,
+  },
+  settingLabel: {
+    fontSize: 16,
+    color: '#eee',
+    flex: 1,
+  },
+  backButton: {
+    backgroundColor: '#45da9cff',
+    padding: 15,
     borderRadius: 12,
-    width: '80%',
+  },
+  backButtonText: {
+    textAlign: 'center',
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });

@@ -23,6 +23,7 @@ Used React Native Core Components:
 - [X] View: Layout and container components
 - [X] Text: Display text
 - [X] ActivityIndicator: Spins to indicate buffering when starting game
+- [X] Switch: For game settings, like weather-block etc.
 - [ ] TextInput: User input (pet name)
 
 Used Expo SDK 54 Components:

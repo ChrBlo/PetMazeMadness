@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 interface WeatherData {
   temperature: number;
@@ -7,8 +7,12 @@ interface WeatherData {
   symbolCode: string;
 }
 
-export const WeatherForecaster: React.FC = () => {
-  
+interface WeatherForecasterProps {
+  onWeatherUpdate?: (symbolCode: string | null) => void;
+}
+
+export const WeatherForecaster: React.FC<WeatherForecasterProps> = ({ onWeatherUpdate }) => {
+
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -42,6 +46,8 @@ export const WeatherForecaster: React.FC = () => {
         icon: getWeatherIcon(symbolCode),
         symbolCode: symbolCode
       });
+
+      onWeatherUpdate?.(symbolCode);
     }
     catch (error)
     {
