@@ -33,7 +33,7 @@ Used Expo SDK 54 Components:
 - [ ] ?
 
 Other External modules/APIs used: //TODO
-- [ ] ?
+- [ ] yr.no weather forecast open API (https://developer.yr.no/doc)
 - [ ] ?
 
 ## Installation 🚀 //TODO

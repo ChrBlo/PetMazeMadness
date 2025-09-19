@@ -3,6 +3,8 @@ import { useNavigation } from "@react-navigation/native";
 import { Image } from 'expo-image';
 import { useState } from "react";
 import { ActivityIndicator, StatusBar, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { WeatherForecaster } from '../api/weather-forecast';
+
 
 export default function StartScreen() {
   
@@ -25,6 +27,10 @@ export default function StartScreen() {
   return (
     <View style={styles.container}>
 
+      <View style={styles.weather}>
+        <WeatherForecaster />
+      </View>
+      
       <Image style={styles.logo} source={require('../assets/images/gamelogo.png')}/>
       <Text style={styles.description}>
         Hjälp ditt husdjur 🐹 ur laburinten!
@@ -54,6 +60,11 @@ export default function StartScreen() {
 }
 
 const styles = StyleSheet.create({
+  weather: {
+    position: 'absolute',
+    top: 15,
+    right: 15,
+  },
   container: {
     flex: 1,
     backgroundColor: '#221c17ff',
