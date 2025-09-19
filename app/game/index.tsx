@@ -1,5 +1,6 @@
 import { useNavigation } from "@react-navigation/native";
 import { useAudioPlayer } from 'expo-audio';
+import * as Haptics from 'expo-haptics';
 import { Gyroscope } from 'expo-sensors';
 import { useEffect, useRef, useState } from "react";
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
@@ -228,7 +229,7 @@ export default function GameScreen() {
       const pCellY = Math.floor(point.y / CELL_SIZE);
       
       // Check for explosive wall collision FIRST
-      if (MAZE_LAYOUT[pCellY][pCellX] === DANGER_CELL)
+      if (getMazeCell(pCellX, pCellY) === DANGER_CELL)
       {
         triggerExplosion(newX, newY);
         return true;
@@ -249,6 +250,8 @@ export default function GameScreen() {
       victory.seekTo(0);
       victory.play();
 
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success); 
+      
       Alert.alert('Grattis!', 'Den lille råttan flydde! 🌈⭐', [
         { text: 'Testa igen' }
       ]);
@@ -267,6 +270,8 @@ export default function GameScreen() {
     explosion.seekTo(0);
     explosion.play();
 
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error); 
+
     // Hide explosion after 1 second
     setTimeout(() => {
       setShowExplosion(false);
@@ -276,6 +281,7 @@ export default function GameScreen() {
 
   // RESET GAME -----------------
   const resetGame = () => {
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success); 
     setTryCount(tryCount => tryCount +1);
     setBallPosition(getStartPosition());
     setIsGameWon(false);

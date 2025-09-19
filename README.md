@@ -18,7 +18,7 @@ Dev Testing App: Expo Go
 Emulator: Android Studio
 
 Used React Native Core Components: //TODO fyll i alla
-- [X] StatusBar: Used on startScreen to show battery status, and Title on some pages
+- [X] StatusBar: Used on startScreen to show battery status
 - [X] TouchableOpacity: Custom styled buttons and interactive elements
 - [X] View: Layout and container components
 - [X] Text: Display text
@@ -27,9 +27,9 @@ Used React Native Core Components: //TODO fyll i alla
 - [ ] TextInput: User input (pet name)
 
 Used Expo SDK 54 Components: //TODO fyll i alla
-- [ ] Gyroscope (expo-sensors): Motion detection for game controls
-- [ ] Haptics (expo-haptics): Vibration feedback system
-- [ ] Audio (expo-audio): Sound effects management
+- [X] Gyroscope (expo-sensors): Motion detection for game controls
+- [X] Haptics (expo-haptics): Vibration feedback system
+- [X] Audio (expo-audio): Sound effects management
 - [ ] ?
 - [ ] ?
 
@@ -85,12 +85,13 @@ Krav för väl godkänt:
 - [ ] Appen ska förberedas för lansering till en Appstore (Deadline samma dag som kursen slutar)
 
 
-
 ## Acknowledgments ⭐ 
 https://reactnative.dev/docs/components-and-apis#basic-components
 https://docs.expo.dev/versions/latest/
 https://icons.expo.fyi/Index
-Sound effects from freesound.org //TODO add links to used sounds
+Sound effects from https://pixabay.com
+- https://pixabay.com/sound-effects/search/fart/ - used sound file called: "fart"
+- https://pixabay.com/sound-effects/search/woopee/ - used sound file called: "woopee.."
 
 ## Device Requirements📱 //TODO
 Physical device required - Gyroscope sensors don't work in simulators
