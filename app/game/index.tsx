@@ -4,6 +4,10 @@ import * as Haptics from 'expo-haptics';
 import { Gyroscope } from 'expo-sensors';
 import { useEffect, useRef, useState } from "react";
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { MazeRenderer } from "../../components/maze-renderer";
+import { MAZE_LEVELS, MazeLevel, getCurrentLevel } from '../../data/maze-layouts';
+import { DEATH_EMOJI, getDefaultPet, getPetById } from '../../data/pets';
+import { getPosition } from "../../utils/game-helpers";
 
 const MAZE_SIZE = 300;
 const BALL_SIZE = 20;
@@ -14,95 +18,7 @@ const DANGER_CELL = 3;
 const explodingWallSound = require('../../assets/sounds/explosion.mp3');
 const victorySound = require('../../assets/sounds/whopee.mp3');
 
-// Maze layout
-// 0 = path
-// 1 = wall
-// 2 = goal
-// 3 = danger
-const MAZE_LAYOUT = [
-  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-  [1, 0, 0, 0, 1, 0, 0, 0, 0, 1],
-  [3, 0, 1, 0, 1, 0, 1, 1, 0, 1],
-  [1, 0, 1, 0, 0, 0, 0, 1, 0, 1],
-  [1, 0, 1, 1, 1, 1, 0, 1, 0, 1],
-  [1, 0, 0, 0, 0, 0, 0, 1, 0, 1],
-  [1, 1, 1, 0, 1, 1, 1, 1, 0, 1],
-  [1, 0, 0, 0, 1, 0, 0, 0, 0, 1],
-  [1, 0, 1, 1, 1, 0, 0, 0, 0, 1],
-  [1, 1, 1, 1, 1, 2, 1, 1, 1, 1],
-];
-const startPosition = { x: 1, y: 1 };
-const CELL_SIZE = MAZE_SIZE / MAZE_LAYOUT.length;
-
-  const renderMaze = () => {
-    const walls = [];
-    const goals = [];
-    const explosiveWalls = [];
-
-    for (let row = 0; row < MAZE_LAYOUT.length; row++) {
-      for (let col = 0; col < MAZE_LAYOUT[row].length; col++) {
-        const cell = MAZE_LAYOUT[row][col];
-        const key = `${row}-${col}`;
-        
-        if (cell === WALL_CELL)
-        {
-          walls.push(
-            <View
-              key={key}
-              style={[
-                styles.wall,
-                {
-                  left: col * CELL_SIZE,
-                  top: row * CELL_SIZE,
-                  width: CELL_SIZE + 1,
-                  height: CELL_SIZE + 1,
-                }
-              ]}
-            />
-          );
-        }
-        else if (cell === GOAL_CELL)
-        {
-          goals.push(
-            <View
-              key={key}
-              style={[
-                styles.goal,
-                {
-                  left: col * CELL_SIZE,
-                  top: row * CELL_SIZE,
-                  width: CELL_SIZE,
-                  height: CELL_SIZE,
-                }
-              ]}
-            >
-              <Text style={styles.goalText}>🏠</Text>
-            </View>
-          );
-        }
-        else if (cell === DANGER_CELL)
-        {
-          explosiveWalls.push(
-            <View
-              key={key}
-              style={[
-                styles.explosiveWall,
-                {
-                  left: col * CELL_SIZE,
-                  top: row * CELL_SIZE,
-                  width: CELL_SIZE + 0.5,
-                  height: CELL_SIZE + 0.5,
-                }
-              ]}
-            />
-          );
-        }
-      }
-    }
-    return [...walls, ...goals, ...explosiveWalls];
-  };
-
-export default function GameScreen() {
+export default function GameScreen({ route }: { route: any }) {
   //SCREEN NAV
   const navigation = useNavigation<any>();
   // GYRO
@@ -111,24 +27,27 @@ export default function GameScreen() {
   const animationRef = useRef<number | null>(null);
   //GAME FEATURES
   const [isGameWon, setIsGameWon] = useState(false);
-
   const [isDead, setIsDead] = useState(false);
   const [showExplosion, setShowExplosion] = useState(false);
   const [explosionPosition, setExplosionPosition] = useState({ x: 0, y: 0 });
-
   const [tryCount, setTryCount] = useState(1);
-
   const victory = useAudioPlayer(victorySound);
   const explosion = useAudioPlayer(explodingWallSound);
-
-  const getStartPosition = () => ({
-    x: CELL_SIZE * (startPosition.x + 0.5),
-    y: CELL_SIZE * (startPosition.y + 0.5)
-  });
-
+  //GAME LEVELS
+  const [currentLevelId, setCurrentLevelId] = useState(1);
+  const [currentLevel, setCurrentLevel] = useState<MazeLevel>(getCurrentLevel(1));
+  const [completedLevels, setCompletedLevels] = useState<Set<number>>(new Set());
+  // PET
+  const selectedPetId = route.params?.selectedPetId || getDefaultPet().id;
+  const petName = route.params?.petName || getDefaultPet().defaultName;
+  const selectedPet = getPetById(selectedPetId);
+  // MAZE AND POSITIONING
+  const MAZE_LAYOUT = currentLevel.layout;
+  const CELL_SIZE = MAZE_SIZE / MAZE_LAYOUT.length;
+  const getStartPosition = () => getPosition(currentLevel, MAZE_SIZE);
   const [ballPosition, setBallPosition] = useState(() => getStartPosition());
 
-  // THIS IS FOR THE GYRO TO WORK
+  // GYRO
     const _subscribe = () => {
     setSubscription(
       Gyroscope.addListener(gyroscopeData => {
@@ -158,7 +77,6 @@ export default function GameScreen() {
       }
     };
   }, [gyroscopeData, ballPosition, isGameWon, isDead]);
-  // ----------------------------
 
   // UPDATE BALL POSITION -------
   const updateBallPosition = () => {
@@ -191,7 +109,6 @@ export default function GameScreen() {
       return prevPosition;
     });
   };
-  // ----------------------------
 
   // CHECK WALL COLLISION
   const checkCollision = (newX: number, newY: number) => {
@@ -246,20 +163,20 @@ export default function GameScreen() {
     if (getMazeCell(cellX, cellY) === GOAL_CELL)
     {
       setIsGameWon(true);
+      setCompletedLevels(prev => new Set([...prev, currentLevelId]))
     
       victory.seekTo(0);
       victory.play();
 
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success); 
       
-      Alert.alert('Grattis!', 'Den lille råttan flydde! 🌈⭐', [
-        { text: 'Testa igen' }
+      Alert.alert('Grattis!', `${petName} flydde! 🌈⭐`, [
+        { text: 'Spela nästa', onPress: nextLevel}
       ]);
     }
 
     return false;
   };
-  // ----------------------------
 
   // EXPLOSION ------------------
   const triggerExplosion = (x: number, y: number) => {
@@ -277,7 +194,6 @@ export default function GameScreen() {
       setShowExplosion(false);
     }, 1000);
   };
-  //-----------------------------
 
   // RESET GAME -----------------
   const resetGame = () => {
@@ -289,11 +205,42 @@ export default function GameScreen() {
     setShowExplosion(false);
   };
 
+  // NEXT LEVEL -----------------
+    const nextLevel = () => {
+    const nextId = currentLevelId + 1;
+    if (nextId <= MAZE_LEVELS.length) {
+      setCurrentLevelId(nextId);
+      const newLevel = getCurrentLevel(nextId);
+      setCurrentLevel(newLevel);
+      setBallPosition(getPosition(newLevel, MAZE_SIZE));
+      setTryCount(1);
+      setIsGameWon(false);
+      setIsDead(false);
+      setShowExplosion(false);
+    }
+  };
+
+  // PREVIOUS LEVEL -------------
+  const previousLevel = () => {
+    const prevId = currentLevelId - 1;
+    if (prevId >= 1) {
+      setCurrentLevelId(prevId);
+      const prevLevel = getCurrentLevel(prevId);
+      setCurrentLevel(prevLevel);
+      setBallPosition(getPosition(prevLevel, MAZE_SIZE));
+      setTryCount(1);
+      setIsGameWon(false);
+      setIsDead(false);
+      setShowExplosion(false);
+    }
+  };
+  //-----------------------------
+
   return (
     <View style={styles.container}>
 
       <View style={styles.header}>
-        <Text style={styles.title}>Rädda husdjuret! 🐾</Text>
+        <Text style={styles.title}>Rädda {petName}! 🐾</Text>
         <Text style={styles.instructions}>
           Luta din telefon i ALLA riktningar för att guida hem ditt husdjur!
         </Text>
@@ -307,7 +254,13 @@ export default function GameScreen() {
 
       <View style={styles.gameContainer}>
         <View style={styles.maze}>
-          {renderMaze()}
+        <MazeRenderer
+          mazeLayout={MAZE_LAYOUT}
+          cellSize={CELL_SIZE}
+          wallCell={WALL_CELL}
+          goalCell={GOAL_CELL}
+          dangerCell={DANGER_CELL}
+        />
 
           {/* PET BALL */}
           <View
@@ -320,7 +273,7 @@ export default function GameScreen() {
             ]}
           >
             <Text style={styles.animalEmoji}>
-              {isDead ? '💀' : '🐹'}
+              {isDead ? DEATH_EMOJI : selectedPet.emoji}
             </Text>
           </View>
 
@@ -348,6 +301,26 @@ export default function GameScreen() {
         <TouchableOpacity style={styles.goToStartMenuButton} onPress={() => navigation.goBack()}>
           <Text style={styles.goToStartMenuText}>Till menyn</Text>
         </TouchableOpacity>
+      </View>
+
+      <View style={styles.controls}>
+      
+        <TouchableOpacity 
+          style={[styles.levelButton, currentLevelId <= 1 && styles.disabledButton]} 
+          onPress={previousLevel}
+          disabled={currentLevelId <= 1}
+        >
+          <Text style={styles.levelButtonText}>← Förra</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.levelButton, !completedLevels.has(currentLevelId) && styles.disabledButton]}
+          onPress={nextLevel}
+          disabled={!completedLevels.has(currentLevelId)}
+        >
+          <Text style={styles.levelButtonText}>Nästa →</Text>
+        </TouchableOpacity>
+        
       </View>
 
     </View>
@@ -390,10 +363,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
-  wall: {
-    backgroundColor: '#3d3d3dff',
-    position: 'absolute',
-  },
   gameContainer: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -424,20 +393,6 @@ const styles = StyleSheet.create({
   },
   animalEmoji: {
     fontSize: 12,
-  },
-  goal: {
-    position: 'absolute',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  goalText: {
-    fontSize: 22,
-  },
-  explosiveWall: {
-    backgroundColor: '#ff4639ff',
-    position: 'absolute',
-    borderWidth: 1,
-    borderColor: '#ff4639ff',
   },
   explosion: {
     position: 'absolute',
@@ -477,5 +432,20 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     marginBottom: 5,
+  },
+  levelButton: {
+    backgroundColor: '#3d3d3dff',
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    borderRadius: 12,
+  },
+  levelButtonText: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  disabledButton: {
+    backgroundColor: '#666',
+    opacity: 0.5,
   },
 });

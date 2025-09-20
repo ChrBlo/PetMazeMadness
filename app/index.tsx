@@ -4,6 +4,7 @@ import { Image } from 'expo-image';
 import { useCallback, useState } from "react";
 import { ActivityIndicator, Alert, StatusBar, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { WeatherForecaster } from '../api/weather-forecast';
+import { getDefaultPet, getPetById } from '../data/pets';
 
 interface StartScreenProps {
   route: any;
@@ -15,6 +16,10 @@ export default function StartScreen({ route }: StartScreenProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [weatherCheckEnabled, setWeatherCheckEnabled] = useState(true);
   const [currentWeather, setCurrentWeather] = useState<string | null>(null);
+  const selectedPetId = route.params?.selectedPetId || getDefaultPet().id;
+  const petName = route.params?.petName || getDefaultPet().defaultName;
+  const selectedPet = getPetById(selectedPetId);
+  const niceWeather = (currentWeather !== 'rain' && currentWeather !== 'rainshowers_day' && currentWeather !== 'thunderstorm');
 
   useFocusEffect(
     useCallback(() => {
@@ -24,7 +29,6 @@ export default function StartScreen({ route }: StartScreenProps) {
     }, [route.params?.weatherCheckEnabled])
   );
 
-  const niceWeather = (currentWeather !== 'rain' && currentWeather !== 'rainshowers_day' && currentWeather !== 'thunderstorm');
 
   const handleStartGame = () => {
     if (weatherCheckEnabled && niceWeather) {
@@ -41,12 +45,16 @@ export default function StartScreen({ route }: StartScreenProps) {
 
       setTimeout(() => {
         setIsLoading(false);
-        navigation.navigate('Game');
+        navigation.navigate('Game', { selectedPetId, petName });
       }, 800);
   };
 
   const handleGoToSettings = () => {
-    navigation.navigate('Settings', { weatherCheckEnabled });
+    navigation.navigate('Settings', { 
+      weatherCheckEnabled,
+      selectedPetId,
+      petName
+    });
   };
 
   const handleWeatherUpdate = (symbolCode: string | null) => {
@@ -62,7 +70,7 @@ export default function StartScreen({ route }: StartScreenProps) {
       
       <Image style={styles.logo} source={require('../assets/images/gamelogo.png')}/>
       <Text style={styles.description}>
-        Hjälp ditt husdjur 🐹 ur laburinten!
+        Hjälp {petName} ur laburinten!
       </Text>
       <Text style={styles.instructions}>
         Luta din telefon i alla riktningar för att guida ditt husdjur mot friheten!
