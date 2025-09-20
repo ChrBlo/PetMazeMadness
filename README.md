@@ -24,7 +24,10 @@ Used React Native Core Components:
 - [X] Text: Display text
 - [X] ActivityIndicator: Spins to indicate buffering when starting game
 - [X] Switch: For game settings, like weather-block etc.
-- [ ] TextInput: User input (pet name)
+- [X] TextInput: User input (pet name)
+- [X] Modal: Pet selection and pet name edit
+- [X] ScrollView: Pet selection
+- [X] ?
 
 Used Expo SDK 54 Components:
 - [X] Gyroscope (expo-sensors): Motion detection for game controls
@@ -34,7 +37,7 @@ Used Expo SDK 54 Components:
 - [ ] ?
 
 Other External modules/APIs used: //TODO
-- [ ] yr.no weather forecast open API (https://developer.yr.no/doc)
+- [ ] yr.no weather forecast open API (https://developer.yr.no/doc) - Used in a game settings that blocks game if nice weather
 - [ ] ?
 
 ## Installation 🚀 //TODO
