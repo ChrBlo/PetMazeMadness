@@ -31,10 +31,11 @@ export default function SettingsScreen({ route, navigation }: SettingsScreenProp
   const handlePetSelection = (petId: string) => {
     setSelectedPetId(petId);
     const newPet = getPetById(petId);
-    // Update name to default if current name matches old pet's default
+
     if (petName === selectedPet.defaultName) {
       setPetName(newPet.defaultName);
     }
+
     setShowPetSelector(false);
   };
 
@@ -130,7 +131,7 @@ export default function SettingsScreen({ route, navigation }: SettingsScreenProp
         </View>
       </Modal>
 
-      {/* Name Editor Modal */}
+      {/* Name Edit Modal */}
       <Modal
         animationType="fade"
         transparent={true}
@@ -150,6 +151,13 @@ export default function SettingsScreen({ route, navigation }: SettingsScreenProp
               maxLength={15}
               autoFocus
             />
+            <TouchableOpacity 
+              style={styles.clearButton}
+              onPress={() => setDefaultPetName('')}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.clearButtonText}>✕</Text>
+            </TouchableOpacity>
             <View style={styles.nameModalButtons}>
               <TouchableOpacity style={styles.nameButton} onPress={handleNameCancel}>
                 <Text style={styles.nameButtonText}>Avbryt</Text>
@@ -315,6 +323,23 @@ const styles = StyleSheet.create({
   nameButtonText: {
     color: 'white',
     fontSize: 16,
+    fontWeight: 'bold',
+  },
+  clearButton: {
+    position: 'absolute',
+    right: 35,
+    top: '69%',
+    transform: [{ translateY: -12 }],
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  clearButtonText: {
+    color: '#eee',
+    fontSize: 14,
     fontWeight: 'bold',
   },
 });
