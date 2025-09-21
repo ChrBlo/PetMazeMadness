@@ -86,6 +86,10 @@ export const MazeRenderer: React.FC<MazeRendererProps> = ({
       {
         const snackKey = `${row}-${col}`;
         if (!eatenSnacks.has(snackKey)) {
+          const fruits = ['🍎', '🍉', '🍌', '🍇', '🍓', '🍒'];
+          const seed = (row * 100 + col) % fruits.length;
+          const fruit = fruits[seed];
+
           healthSnacks.push(
             <View
               key={key}
@@ -99,7 +103,7 @@ export const MazeRenderer: React.FC<MazeRendererProps> = ({
                 }
               ]}
             >
-              <Text style={styles.healthSnackText}>🍉</Text>
+              <Text style={styles.healthSnackText}>{fruit}</Text>
             </View>
           );
         }
@@ -134,6 +138,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   healthSnackText: {
-    fontSize: 12,
+    fontSize: 15,
   },
 });

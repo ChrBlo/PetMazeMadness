@@ -311,7 +311,7 @@ export default function GameScreen({ route }: { route: any }) {
     <View style={styles.container}>
 
       <View style={styles.header}>
-        <Text style={styles.title}>Rädda {petName} {selectedPet.emoji}! 🐾</Text>
+        <Text style={styles.title}>Rädda {petName} {selectedPet.emoji}!</Text>
         <Text style={styles.instructions}>
           Luta din telefon i ALLA riktningar för att guida hem ditt husdjur!
         </Text>
