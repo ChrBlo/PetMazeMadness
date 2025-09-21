@@ -6,6 +6,8 @@ interface MazeRendererProps {
   wallCell: number;
   goalCell: number;
   dangerCell: number;
+  snackCell: number;
+  eatenSnacks: Set<string>;
 }
 
 export const MazeRenderer: React.FC<MazeRendererProps> = ({
@@ -13,18 +15,22 @@ export const MazeRenderer: React.FC<MazeRendererProps> = ({
   cellSize,
   wallCell,
   goalCell,
-  dangerCell
+  dangerCell,
+  snackCell,
+  eatenSnacks                      
 }) => {
   const walls = [];
   const goals = [];
   const explosiveWalls = [];
+  const healthSnacks = [];
     
   for (let row = 0; row < mazeLayout.length; row++) {
     for (let col = 0; col < mazeLayout[row].length; col++) {
       const cell = mazeLayout[row][col];
       const key = `${row}-${col}`;
           
-      if (cell === wallCell) {
+      if (cell === wallCell)
+      {
         walls.push(
           <View
             key={key}
@@ -40,7 +46,8 @@ export const MazeRenderer: React.FC<MazeRendererProps> = ({
           />
         );
       }
-      else if (cell === goalCell) {
+      else if (cell === goalCell)
+      {
         goals.push(
           <View
             key={key}
@@ -58,7 +65,8 @@ export const MazeRenderer: React.FC<MazeRendererProps> = ({
           </View>
         );
       }
-      else if (cell === dangerCell) {
+      else if (cell === dangerCell)
+      {
         explosiveWalls.push(
           <View
             key={key}
@@ -74,9 +82,31 @@ export const MazeRenderer: React.FC<MazeRendererProps> = ({
           />
         );
       }
+      else if (cell === snackCell)
+      {
+        const snackKey = `${row}-${col}`;
+        if (!eatenSnacks.has(snackKey)) {
+          healthSnacks.push(
+            <View
+              key={key}
+              style={[
+                styles.healthSnack,
+                {
+                  left: col * cellSize,
+                  top: row * cellSize,
+                  width: cellSize,
+                  height: cellSize,
+                }
+              ]}
+            >
+              <Text style={styles.healthSnackText}>🍉</Text>
+            </View>
+          );
+        }
+      }
     }
   }
-  return [...walls, ...goals, ...explosiveWalls];
+  return [...walls, ...goals, ...explosiveWalls, ...healthSnacks];
 };
 
 const styles = StyleSheet.create({
@@ -97,5 +127,13 @@ const styles = StyleSheet.create({
     position: 'absolute',
     borderWidth: 1,
     borderColor: '#ff4639ff',
+  },
+  healthSnack: {
+    position: 'absolute',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  healthSnackText: {
+    fontSize: 12,
   },
 });

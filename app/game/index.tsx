@@ -14,9 +14,12 @@ const BALL_SIZE = 20;
 const WALL_CELL = 1;
 const GOAL_CELL = 2;
 const DANGER_CELL = 3;
+const SNACK_CELL = 4;
 
 const explodingWallSound = require('../../assets/sounds/explosion.mp3');
 const victorySound = require('../../assets/sounds/whopee.mp3');
+const snackSound = require('../../assets/sounds/snackSound1.mp3');
+const spawnSound = require('../../assets/sounds/plop.mp3');
 
 export default function GameScreen({ route }: { route: any }) {
   //SCREEN NAV
@@ -31,8 +34,8 @@ export default function GameScreen({ route }: { route: any }) {
   const [showExplosion, setShowExplosion] = useState(false);
   const [explosionPosition, setExplosionPosition] = useState({ x: 0, y: 0 });
   const [tryCount, setTryCount] = useState(1);
-  const victory = useAudioPlayer(victorySound);
-  const explosion = useAudioPlayer(explodingWallSound);
+  const [extraLives, setExtraLives] = useState(0);
+  const [eatenSnacks, setEatenSnacks] = useState<Set<string>>(new Set());
   //GAME LEVELS
   const [currentLevelId, setCurrentLevelId] = useState(1);
   const [currentLevel, setCurrentLevel] = useState<MazeLevel>(getCurrentLevel(1));
@@ -46,6 +49,11 @@ export default function GameScreen({ route }: { route: any }) {
   const CELL_SIZE = MAZE_SIZE / MAZE_LAYOUT.length;
   const getStartPosition = () => getPosition(currentLevel, MAZE_SIZE);
   const [ballPosition, setBallPosition] = useState(() => getStartPosition());
+  //SOUND EFFECTS
+  const victory = useAudioPlayer(victorySound);
+  const explosion = useAudioPlayer(explodingWallSound);
+  const snack = useAudioPlayer(snackSound);
+  const plop = useAudioPlayer(spawnSound);
 
   // GYRO
     const _subscribe = () => {
@@ -159,6 +167,21 @@ export default function GameScreen({ route }: { route: any }) {
       }
     }
 
+    // Check if reached snack
+    if (getMazeCell(cellX, cellY) === SNACK_CELL)
+    {
+      const snackKey = `${cellY}-${cellX}`;
+
+      if (!eatenSnacks.has(snackKey)) {
+        setExtraLives(extraLives => extraLives + 1);
+        setEatenSnacks(prev => new Set([...prev, snackKey]));
+      
+        snack.seekTo(0);
+        snack.play();
+      }
+    }
+    
+
     // Check if reached goal
     if (getMazeCell(cellX, cellY) === GOAL_CELL)
     {
@@ -180,19 +203,38 @@ export default function GameScreen({ route }: { route: any }) {
 
   // EXPLOSION ------------------
   const triggerExplosion = (x: number, y: number) => {
-    setExplosionPosition({ x, y });
-    setShowExplosion(true);
-    setIsDead(true);
+    if (extraLives > 0) {
+      setExtraLives(extraLives => extraLives - 1);
 
-    explosion.seekTo(0);
-    explosion.play();
+      // calculate hamsters position when death occured
+      const cellX = Math.floor(x / CELL_SIZE);
+      const cellY = Math.floor(y / CELL_SIZE);
+      
+      // Center the hamster in that cell
+      const centeredX = cellX * CELL_SIZE + CELL_SIZE / 2;
+      const centeredY = cellY * CELL_SIZE + CELL_SIZE / 2;
+      setBallPosition({ x: centeredX, y: centeredY });
+      
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+      
+      plop.seekTo(0);
+      plop.play();
+    }
+    else {
+      setExplosionPosition({ x, y });
+      setShowExplosion(true);
+      setIsDead(true);
+      
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
 
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error); 
+      explosion.seekTo(0);
+      explosion.play();
 
-    // Hide explosion after 1 second
-    setTimeout(() => {
-      setShowExplosion(false);
-    }, 1000);
+      // Hide explosion after 1 second
+      setTimeout(() => {
+        setShowExplosion(false);
+      }, 1000);
+    }
   };
 
   // RESET GAME -----------------
@@ -203,6 +245,9 @@ export default function GameScreen({ route }: { route: any }) {
     setIsGameWon(false);
     setIsDead(false);
     setShowExplosion(false);
+    setExtraLives(0);
+    setEatenSnacks(new Set());
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
   };
 
   // NEXT LEVEL -----------------
@@ -213,6 +258,7 @@ export default function GameScreen({ route }: { route: any }) {
       const newLevel = getCurrentLevel(nextId);
       setCurrentLevel(newLevel);
       setBallPosition(getPosition(newLevel, MAZE_SIZE));
+      setEatenSnacks(new Set());
       setTryCount(1);
       setIsGameWon(false);
       setIsDead(false);
@@ -228,6 +274,7 @@ export default function GameScreen({ route }: { route: any }) {
       const prevLevel = getCurrentLevel(prevId);
       setCurrentLevel(prevLevel);
       setBallPosition(getPosition(prevLevel, MAZE_SIZE));
+      setEatenSnacks(new Set());
       setTryCount(1);
       setIsGameWon(false);
       setIsDead(false);
@@ -240,7 +287,7 @@ export default function GameScreen({ route }: { route: any }) {
     <View style={styles.container}>
 
       <View style={styles.header}>
-        <Text style={styles.title}>Rädda {petName}! 🐾</Text>
+        <Text style={styles.title}>Rädda {petName} {selectedPet.emoji}! 🐾</Text>
         <Text style={styles.instructions}>
           Luta din telefon i ALLA riktningar för att guida hem ditt husdjur!
         </Text>
@@ -250,16 +297,22 @@ export default function GameScreen({ route }: { route: any }) {
         <Text style={styles.statsText}>
           Försök: {tryCount}
         </Text>
+        <Text style={styles.separator}></Text>
+        <Text style={styles.statsText}>
+          {extraLives > 0 ? `${selectedPet.emoji}: ${extraLives}` : ''}
+        </Text>
       </View>
 
       <View style={styles.gameContainer}>
         <View style={styles.maze}>
-        <MazeRenderer
-          mazeLayout={MAZE_LAYOUT}
-          cellSize={CELL_SIZE}
-          wallCell={WALL_CELL}
-          goalCell={GOAL_CELL}
-          dangerCell={DANGER_CELL}
+          <MazeRenderer
+            mazeLayout={MAZE_LAYOUT}
+            cellSize={CELL_SIZE}
+            wallCell={WALL_CELL}
+            goalCell={GOAL_CELL}
+            dangerCell={DANGER_CELL}
+            snackCell={SNACK_CELL}
+            eatenSnacks={eatenSnacks}
         />
 
           {/* PET BALL */}
@@ -425,6 +478,10 @@ const styles = StyleSheet.create({
   },
   stats: {
     marginTop: 30,
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: 15,
+    width: '76%',
   },
   statsText: {
     fontSize: 16,
@@ -432,6 +489,9 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     marginBottom: 5,
+  },
+  separator: {
+    flex: 1,
   },
   levelButton: {
     backgroundColor: '#3d3d3dff',
