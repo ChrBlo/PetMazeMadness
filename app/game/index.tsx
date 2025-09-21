@@ -156,8 +156,15 @@ export default function GameScreen({ route }: { route: any }) {
       // Check for explosive wall collision FIRST
       if (getMazeCell(pCellX, pCellY) === DANGER_CELL)
       {
-        triggerExplosion(newX, newY);
-        return true;
+        if (extraLives > 0) {
+          triggerRespawn(pCellX, pCellY);
+          return false;
+        }
+        else
+        {
+          triggerExplosion(newX, newY);
+          return true;
+        }
       }
 
       // Check for regular walls
@@ -203,38 +210,55 @@ export default function GameScreen({ route }: { route: any }) {
 
   // EXPLOSION ------------------
   const triggerExplosion = (x: number, y: number) => {
-    if (extraLives > 0) {
-      setExtraLives(extraLives => extraLives - 1);
-
-      // calculate hamsters position when death occured
-      const cellX = Math.floor(x / CELL_SIZE);
-      const cellY = Math.floor(y / CELL_SIZE);
-      
-      // Center the hamster in that cell
-      const centeredX = cellX * CELL_SIZE + CELL_SIZE / 2;
-      const centeredY = cellY * CELL_SIZE + CELL_SIZE / 2;
-      setBallPosition({ x: centeredX, y: centeredY });
-      
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
-      
-      plop.seekTo(0);
-      plop.play();
-    }
-    else {
       setExplosionPosition({ x, y });
       setShowExplosion(true);
       setIsDead(true);
       
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-
       explosion.seekTo(0);
       explosion.play();
-
-      // Hide explosion after 1 second
+      
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+    
       setTimeout(() => {
         setShowExplosion(false);
       }, 1000);
+  };
+
+  // RESPAWN LOGIC --------------
+  const triggerRespawn = (cellX: number, cellY: number) => {
+    setExtraLives(prev => prev - 1);
+
+    let respawnX = cellX;
+    let respawnY = cellY;
+    
+    // Search for nearest safe cell
+    for (let radius = 1; radius < 5; radius++) {
+      let found = false;
+      for (let dy = -radius; dy <= radius && !found; dy++) {
+        for (let dx = -radius; dx <= radius && !found; dx++) {
+          const checkY = respawnY + dy;
+          const checkX = respawnX + dx;
+          
+          if (checkY >= 0 && checkY < MAZE_LAYOUT.length &&
+            checkX >= 0 && checkX < MAZE_LAYOUT[0].length &&
+            MAZE_LAYOUT[checkY][checkX] === 0) {
+            respawnX = checkX;
+            respawnY = checkY;
+            found = true;
+          }
+        }
+      }
+      if (found) break;
     }
+    
+    const centeredX = respawnX * CELL_SIZE + CELL_SIZE / 2;
+    const centeredY = respawnY * CELL_SIZE + CELL_SIZE / 2;
+    setBallPosition({ x: centeredX, y: centeredY });
+    
+    plop.seekTo(0);
+    plop.play();
+
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
   };
 
   // RESET GAME -----------------
