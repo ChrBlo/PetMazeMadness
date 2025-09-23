@@ -4,7 +4,7 @@ import { Image } from 'expo-image';
 import { useCallback, useState } from "react";
 import { ActivityIndicator, Alert, StatusBar, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { WeatherForecaster } from '../api/weather-forecast';
-import { getDefaultPet, getPetById } from '../data/pets';
+import { getDefaultPet } from '../data/pets';
 
 interface StartScreenProps {
   route: any;
@@ -18,8 +18,9 @@ export default function StartScreen({ route }: StartScreenProps) {
   const [currentWeather, setCurrentWeather] = useState<string | null>(null);
   const selectedPetId = route.params?.selectedPetId || getDefaultPet().id;
   const petName = route.params?.petName || getDefaultPet().defaultName;
-  const selectedPet = getPetById(selectedPetId);
+  // const selectedPet = getPetById(selectedPetId);
   const niceWeather = (currentWeather !== 'rain' && currentWeather !== 'rainshowers_day' && currentWeather !== 'thunderstorm');
+  // const gyroMode = route.params?.gyroMode || 'normal';
 
   useFocusEffect(
     useCallback(() => {
@@ -28,7 +29,6 @@ export default function StartScreen({ route }: StartScreenProps) {
       }
     }, [route.params?.weatherCheckEnabled])
   );
-
 
   const handleStartGame = () => {
     if (weatherCheckEnabled && niceWeather) {
@@ -45,7 +45,11 @@ export default function StartScreen({ route }: StartScreenProps) {
 
       setTimeout(() => {
         setIsLoading(false);
-        navigation.navigate('Game', { selectedPetId, petName });
+        navigation.navigate('Game', {
+          selectedPetId, 
+          petName,
+          gyroMode: route.params?.gyroMode || 'normal'
+        });
       }, 800);
   };
 
@@ -53,7 +57,8 @@ export default function StartScreen({ route }: StartScreenProps) {
     navigation.navigate('Settings', { 
       weatherCheckEnabled,
       selectedPetId,
-      petName
+      petName,
+      gyroMode: route.params?.gyroMode || 'normal'
     });
   };
 

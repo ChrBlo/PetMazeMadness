@@ -27,17 +27,16 @@ Used React Native Core Components:
 - [X] TextInput: User input (pet name)
 - [X] Modal: Pet selection and pet name edit
 - [X] ScrollView: Pet selection
-- [X] ?
 
 Used Expo SDK 54 Components:
-- [X] Gyroscope (expo-sensors): Motion detection for game controls
+- [X] Gyroscope (expo-sensors): Game controls - CHAOS mode
+- [X] Accelerometer (expo-sensors): Game controls - NORMAL mode
 - [X] Haptics (expo-haptics): Vibration feedback system
 - [X] Audio (expo-audio): Sound effects management
 - [X] Image: For game logotype on startScreen
-- [ ] ?
 
 Other External modules/APIs used: //TODO
-- [ ] yr.no weather forecast open API (https://developer.yr.no/doc) - Used in a game settings that blocks game if nice weather
+- [X] yr.no weather forecast open API (https://developer.yr.no/doc) - Used in a game settings that blocks game if nice weather
 - [ ] ?
 
 ## Installation 🚀 //TODO
@@ -84,7 +83,7 @@ Krav för godkänt:
 Krav för väl godkänt:
 - [X] Alla punkter för godkänt är uppfyllda
 - [ ] Ytterligare en valfri extern modul används i projektet (ex. react-hook-form).
-- [ ] Appen ska prata med ett Web-API för att hämta data.
+- [X] Appen ska prata med ett Web-API för att hämta data.
 - [ ] Appen ska förberedas för lansering till en Appstore (Deadline samma dag som kursen slutar)
 
 

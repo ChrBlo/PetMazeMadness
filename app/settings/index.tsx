@@ -2,22 +2,30 @@ import { useState } from 'react';
 import { Modal, ScrollView, StyleSheet, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { getDefaultPet, getPetById, PETS } from '../../data/pets';
 
-
 interface SettingsScreenProps {
   route: any;
   navigation: any;
 }
 
+enum GyroMode {
+  NORMAL = 'normal',
+  CHAOS = 'chaos'
+}
+
 export default function SettingsScreen({ route, navigation }: SettingsScreenProps) {
     
+  const [selectedGyroMode, setSelectedGyroMode] = useState<GyroMode>(
+    route.params?.gyroMode || GyroMode.NORMAL
+  );
+
   const [weatherCheckEnabled, setWeatherCheckEnabled] = useState(
     route.params?.weatherCheckEnabled || true
   );
-
+  
   const [selectedPetId, setSelectedPetId] = useState(
     route.params?.selectedPetId || getDefaultPet().id
   );
-
+  
   const [petName, setPetName] = useState(
     route.params?.petName || getPetById(route.params?.selectedPetId || getDefaultPet().id).defaultName
   );
@@ -53,7 +61,8 @@ export default function SettingsScreen({ route, navigation }: SettingsScreenProp
     navigation.navigate('Start', {
       weatherCheckEnabled, 
       selectedPetId,
-      petName
+      petName,
+      gyroMode: selectedGyroMode
     });
   };
 
@@ -90,6 +99,26 @@ export default function SettingsScreen({ route, navigation }: SettingsScreenProp
           <Text style={styles.settingLabel}>Namn</Text>
           <Text style={styles.petNameDisplay}>{petName}</Text>
         </TouchableOpacity>
+      </View>
+
+      <Text style={styles.settingsLabel}>Spelstyrning</Text>
+      <View style={styles.settingRow}>
+
+        <Text style={styles.settingLabel}>Gyro-läge</Text>
+        <View style={styles.segmentedControl}>
+          <TouchableOpacity 
+            style={[styles.segment, selectedGyroMode === GyroMode.NORMAL && styles.activeSegment]}
+            onPress={() => setSelectedGyroMode(GyroMode.NORMAL)}
+          >
+            <Text style={styles.segmentText}>Normal</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={[styles.segment, selectedGyroMode === GyroMode.CHAOS && styles.activeSegment]}
+            onPress={() => setSelectedGyroMode(GyroMode.CHAOS)}
+          >
+            <Text style={styles.segmentText}>Kaos</Text>
+          </TouchableOpacity>
+        </View>
       </View>
       
       <TouchableOpacity style={styles.backButton} onPress={goBack}>
@@ -339,6 +368,24 @@ const styles = StyleSheet.create({
   },
   clearButtonText: {
     color: '#eee',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  segmentedControl: {
+    flexDirection: 'row',
+    backgroundColor: '#3d3d3dff',
+    borderRadius: 8,
+  },
+  segment: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  activeSegment: {
+    backgroundColor: '#45da9cff',
+  },
+  segmentText: {
+    color: 'white',
     fontSize: 14,
     fontWeight: 'bold',
   },

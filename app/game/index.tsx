@@ -1,13 +1,14 @@
 import { useNavigation } from "@react-navigation/native";
 import { useAudioPlayer } from 'expo-audio';
 import * as Haptics from 'expo-haptics';
-import { Gyroscope } from 'expo-sensors';
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { MazeRenderer } from "../../components/maze-renderer";
 import { MAZE_LEVELS, MazeLevel, getCurrentLevel } from '../../data/maze-layouts';
 import { DEATH_EMOJI, getDefaultPet, getPetById } from '../../data/pets';
-import { getPosition } from "../../utils/game-helpers";
+import { useGamePhysics } from '../../hooks/useGamePhysics';
+import { GyroMode, useGameSensors } from '../../hooks/useGameSensors';
+import { getMazeCell, getPosition, findNearestSafeCell } from "../../utils/game-helpers";
 
 const MAZE_SIZE = 300;
 const BALL_SIZE = 20;
@@ -25,9 +26,7 @@ export default function GameScreen({ route }: { route: any }) {
   //SCREEN NAV
   const navigation = useNavigation<any>();
   // GYRO
-  const [subscription, setSubscription] = useState<any>(null);
-  const [gyroscopeData, setGyroscopeData] = useState({ x: 0, y: 0, z: 0 });
-  const animationRef = useRef<number | null>(null);
+  const [gyroMode] = useState<GyroMode>(route.params?.gyroMode || GyroMode.NORMAL);
   //GAME FEATURES
   const [isGameWon, setIsGameWon] = useState(false);
   const [isDead, setIsDead] = useState(false);
@@ -48,75 +47,12 @@ export default function GameScreen({ route }: { route: any }) {
   const MAZE_LAYOUT = currentLevel.layout;
   const CELL_SIZE = MAZE_SIZE / MAZE_LAYOUT.length;
   const getStartPosition = () => getPosition(currentLevel, MAZE_SIZE);
-  const [ballPosition, setBallPosition] = useState(() => getStartPosition());
   //SOUND EFFECTS
   const victory = useAudioPlayer(victorySound);
   const explosion = useAudioPlayer(explodingWallSound);
   const snack = useAudioPlayer(snackSound);
   const plop = useAudioPlayer(spawnSound);
 
-  // GYRO
-    const _subscribe = () => {
-    setSubscription(
-      Gyroscope.addListener(gyroscopeData => {
-        setGyroscopeData(gyroscopeData);
-      })
-      );
-      Gyroscope.setUpdateInterval(16); //ca 60fps
-  };
-
-  const _unsubscribe = () => {
-    subscription && subscription.remove();
-    setSubscription(null);
-  };
-
-  useEffect(() => {
-    _subscribe();
-    return () => _unsubscribe();
-  }, []);
-
-  useEffect(() => {
-    if (!isGameWon && !isDead) {
-      animationRef.current = requestAnimationFrame(updateBallPosition);
-    }
-    return () => {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
-    };
-  }, [gyroscopeData, ballPosition, isGameWon, isDead]);
-
-  // UPDATE BALL POSITION -------
-  const updateBallPosition = () => {
-    setBallPosition(prevPosition => {
-      // Use gyroscope data to simulate gravity
-      const gravity = 0.6;
-      const friction = 0.80;
-      
-      // Calculate new velocity based on gyroscope
-      let velX = gyroscopeData.y * gravity;
-      let velY = gyroscopeData.x * gravity;
-      
-      // Apply friction
-      velX *= friction;
-      velY *= friction;
-      
-      // Calculate new position
-      const newX = prevPosition.x + velX;
-      const newY = prevPosition.y + velY;
-      
-      // Check for collisions
-      if (!checkCollision(newX, newY)) {
-        return { x: newX, y: newY };
-      } else if (!checkCollision(newX, prevPosition.y)) {
-        return { x: newX, y: prevPosition.y };
-      } else if (!checkCollision(prevPosition.x, newY)) {
-        return { x: prevPosition.x, y: newY };
-      }
-      
-      return prevPosition;
-    });
-  };
 
   // CHECK WALL COLLISION
   const checkCollision = (newX: number, newY: number) => {
@@ -140,23 +76,16 @@ export default function GameScreen({ route }: { route: any }) {
       { x: newX + ballRadius, y: newY + ballRadius },
     ];
 
-    const isPositionWithinMazeBounds = (x: number, y: number) => {
-      return x >= 0 && x < MAZE_LAYOUT[0].length && y >= 0 && y < MAZE_LAYOUT.length;
-    };
-
-    const getMazeCell = (x: number, y: number) => {
-      return isPositionWithinMazeBounds(x, y) ? MAZE_LAYOUT[y][x] : null;
-    };
-
     for (let point of checkPoints)
     {
       const pCellX = Math.floor(point.x / CELL_SIZE);
       const pCellY = Math.floor(point.y / CELL_SIZE);
       
       // Check for explosive wall collision FIRST
-      if (getMazeCell(pCellX, pCellY) === DANGER_CELL)
+      if (getMazeCell(pCellX, pCellY, MAZE_LAYOUT) === DANGER_CELL)
       {
-        if (extraLives > 0) {
+        if (extraLives > 0)
+        {
           triggerRespawn(pCellX, pCellY);
           return false;
         }
@@ -168,18 +97,19 @@ export default function GameScreen({ route }: { route: any }) {
       }
 
       // Check for regular walls
-      if (getMazeCell(pCellX, pCellY) === WALL_CELL)
+      if (getMazeCell(pCellX, pCellY, MAZE_LAYOUT) === WALL_CELL)
       {
         return true;
       }
     }
 
     // Check if reached snack
-    if (getMazeCell(cellX, cellY) === SNACK_CELL)
+    if (getMazeCell(cellX, cellY, MAZE_LAYOUT) === SNACK_CELL)
     {
       const snackKey = `${cellY}-${cellX}`;
 
-      if (!eatenSnacks.has(snackKey)) {
+      if (!eatenSnacks.has(snackKey))
+      {
         setExtraLives(extraLives => extraLives + 1);
         setEatenSnacks(prev => new Set([...prev, snackKey]));
       
@@ -188,9 +118,8 @@ export default function GameScreen({ route }: { route: any }) {
       }
     }
     
-
     // Check if reached goal
-    if (getMazeCell(cellX, cellY) === GOAL_CELL)
+    if (getMazeCell(cellX, cellY, MAZE_LAYOUT) === GOAL_CELL)
     {
       setIsGameWon(true);
       setCompletedLevels(prev => new Set([...prev, currentLevelId]))
@@ -227,33 +156,14 @@ export default function GameScreen({ route }: { route: any }) {
   // RESPAWN LOGIC --------------
   const triggerRespawn = (cellX: number, cellY: number) => {
     setExtraLives(prev => prev - 1);
-
-    let respawnX = cellX;
-    let respawnY = cellY;
+  
+    const safeCell = findNearestSafeCell(cellX, cellY, MAZE_LAYOUT);
     
-    // Search for nearest safe cell
-    for (let radius = 1; radius < 5; radius++) {
-      let found = false;
-      for (let dy = -radius; dy <= radius && !found; dy++) {
-        for (let dx = -radius; dx <= radius && !found; dx++) {
-          const checkY = respawnY + dy;
-          const checkX = respawnX + dx;
-          
-          if (checkY >= 0 && checkY < MAZE_LAYOUT.length &&
-            checkX >= 0 && checkX < MAZE_LAYOUT[0].length &&
-            MAZE_LAYOUT[checkY][checkX] === 0) {
-            respawnX = checkX;
-            respawnY = checkY;
-            found = true;
-          }
-        }
-      }
-      if (found) break;
+    if (safeCell) {
+      const centeredX = safeCell.x * CELL_SIZE + CELL_SIZE / 2;
+      const centeredY = safeCell.y * CELL_SIZE + CELL_SIZE / 2;
+      setBallPosition({ x: centeredX, y: centeredY });
     }
-    
-    const centeredX = respawnX * CELL_SIZE + CELL_SIZE / 2;
-    const centeredY = respawnY * CELL_SIZE + CELL_SIZE / 2;
-    setBallPosition({ x: centeredX, y: centeredY });
     
     plop.seekTo(0);
     plop.play();
@@ -265,12 +175,13 @@ export default function GameScreen({ route }: { route: any }) {
   const resetGame = () => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success); 
     setTryCount(tryCount => tryCount +1);
-    setBallPosition(getStartPosition());
+    resetPosition();
     setIsGameWon(false);
     setIsDead(false);
     setShowExplosion(false);
     setExtraLives(0);
     setEatenSnacks(new Set());
+    setVelocity({ x: 0, y: 0 });
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
   };
 
@@ -287,6 +198,7 @@ export default function GameScreen({ route }: { route: any }) {
       setIsGameWon(false);
       setIsDead(false);
       setShowExplosion(false);
+      setVelocity({ x: 0, y: 0 });
     }
   };
 
@@ -303,8 +215,29 @@ export default function GameScreen({ route }: { route: any }) {
       setIsGameWon(false);
       setIsDead(false);
       setShowExplosion(false);
+      setVelocity({ x: 0, y: 0 });
     }
   };
+
+  // CUSTOM HOOKS ----------------
+  const { accelData, gyroData } = useGameSensors(gyroMode);
+  
+  const { 
+    ballPosition, 
+    setBallPosition, 
+    velocity, 
+    setVelocity, 
+    resetPosition 
+  } = useGamePhysics({
+    gyroMode,
+    accelData,
+    gyroData,
+    checkCollision,
+    isGameWon,
+    isDead,
+    initialPosition: getStartPosition()
+  });
+
   //-----------------------------
 
   return (
@@ -370,18 +303,19 @@ export default function GameScreen({ route }: { route: any }) {
           )}
         </View>
       </View>
-
+      
+      {/* BUTTONS */}
       <View style={styles.controls}>
         <TouchableOpacity style={styles.resetButton} onPress={resetGame}>
           <Text style={styles.resetButtonText}>Starta om</Text>
         </TouchableOpacity>
+
         <TouchableOpacity style={styles.goToStartMenuButton} onPress={() => navigation.goBack()}>
           <Text style={styles.goToStartMenuText}>Till menyn</Text>
         </TouchableOpacity>
       </View>
 
       <View style={styles.controls}>
-      
         <TouchableOpacity 
           style={[styles.levelButton, currentLevelId <= 1 && styles.disabledButton]} 
           onPress={previousLevel}
@@ -397,7 +331,6 @@ export default function GameScreen({ route }: { route: any }) {
         >
           <Text style={styles.levelButtonText}>Nästa →</Text>
         </TouchableOpacity>
-        
       </View>
 
     </View>
