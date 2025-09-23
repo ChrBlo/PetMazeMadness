@@ -27,11 +27,14 @@ export const useGameTimer = (isActive: boolean) => {
   };
 
   useEffect(() => {
-    if (isActive && startTime) {
+      if (isActive && startTime)
+      {
       intervalRef.current = setInterval(() => {
         setGameTime(Date.now() - startTime);
       }, 100);
-    } else {
+    }
+    else
+    {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
       }

@@ -150,16 +150,25 @@ export default function GameScreen({ route }: { route: any }) {
 
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     
-      ScoreManager.recordCompletion(currentLevelId, completionTime).then(isNewRecord => {
+      ScoreManager.recordCompletionWithDetails(
+        currentLevelId,
+        completionTime,
+        selectedPetId,
+        petName,
+        selectedPet.emoji,
+        currentAttempt,
+        levelStats?.totalDeaths || 0
+      ).then(({ isNewRecord }) => {
         const message = isNewRecord
           ? `${petName} flydde! 🌈⭐\nNYTT REKORD: ${formatTime(completionTime)}!`
           : `${petName} flydde! 🌈⭐\nTid: ${formatTime(completionTime)}`;
-        
+  
         Alert.alert('Grattis!', `${petName} flydde! 🌈⭐`, [
           { text: 'Spela nästa', onPress: nextLevel }
         ]);
       });
     }
+    
     return false;
   };
 
@@ -281,7 +290,7 @@ export default function GameScreen({ route }: { route: any }) {
     <View style={styles.container}>
 
       <View style={styles.header}>
-        <Text style={styles.title}>Rädda {petName} {selectedPet.emoji}!</Text>
+        <Text style={styles.title}>Rädda {petName}! {selectedPet.emoji}</Text>
         <Text style={styles.instructions}>
           Luta din telefon i ALLA riktningar för att guida hem ditt husdjur!
         </Text>
@@ -409,7 +418,6 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    marginBottom: 20,
     width: '80%',
   },
   title: {
@@ -483,7 +491,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     gap: 15,
-    width: '76%'
+    width: '76%',
   },
   resetButton: {
     marginTop: 10,
@@ -542,14 +550,14 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   level: {
-    marginTop: 20,
+    marginTop: 10,
     alignItems: 'center',
   },
   levelText: {
     fontSize: 24,
     fontWeight: 'bold',
     color: '#eee',
-    marginBottom: -15,
+    marginBottom: -30,
   },
   statsButton: {
     backgroundColor: '#3894d1ff',

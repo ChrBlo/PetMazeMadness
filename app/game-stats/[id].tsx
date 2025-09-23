@@ -1,7 +1,9 @@
 import { useNavigation } from "@react-navigation/native";
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useEffect, useState } from "react";
+import { FlatList, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { MazeRenderer } from "../../components/maze-renderer";
 import { getCurrentLevel } from '../../data/maze-layouts';
+import { CompletionRecord, ScoreManager } from "../../utils/score-manager";
 
 const MAZE_SIZE = 300;
 const WALL_CELL = 1;
@@ -16,10 +18,42 @@ export default function MazeStatisticsScreen({ route }: { route: any }) {
   const MAZE_LAYOUT = currentLevel.layout;
   const CELL_SIZE = MAZE_SIZE / MAZE_LAYOUT.length;
   const eatenSnacks = new Set<string>();
+  const [topResults, setTopResults] = useState<CompletionRecord[]>([]);
+  
+   useEffect(() => {
+    const loadLeaderboard = async () => {
+      const results = await ScoreManager.getTopCompletions(levelId, 10);
+      setTopResults(results);
+    };
+    loadLeaderboard();
+   }, [levelId]);
+  
+  const totalDeaths = topResults.reduce((sum, result) => sum + result.deaths, 0);
+  const totalCompletions = topResults.length;
+  const totalAttempts = topResults.reduce((sum, result) => sum + result.attempts, 0);
+  
+  const renderLeaderboardItem = ({ item, index }: { item: CompletionRecord, index: number }) => (
+    <View style={styles.leaderboardItem}>
+      <Text style={styles.rank}>#{index + 1}</Text>
+      <Text style={styles.petInfo}>{item.petName} {item.petEmoji}</Text>
+      <Text style={styles.time}>{formatTime(item.completionTime)}</Text>
+    </View>
+  );
+
+  const formatTime = (timeValue: number): string => {
+    const seconds = timeValue > 1000 ? timeValue / 1000 : timeValue;
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    const hundredths = Math.floor((seconds % 1) * 100);
+    return `${mins}:${secs.toString().padStart(2, '0')}:${hundredths.toString().padStart(2, '0')}`;
+  };
 
   return (
-    <ScrollView style={styles.container}>
-
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.scrollContent}
+      showsVerticalScrollIndicator={true}
+    >
         <View style={styles.level}>
           <Text style={styles.levelText}>{currentLevel.name}</Text>
         </View>
@@ -35,16 +69,32 @@ export default function MazeStatisticsScreen({ route }: { route: any }) {
               snackCell={SNACK_CELL}
               eatenSnacks={eatenSnacks}
             />
-          </View>
-          <TouchableOpacity style={styles.goToStartMenuButton} onPress={() => navigation.goBack()}>
-            <Text style={styles.goToStartMenuText}>Tillbaka till spelet</Text>
-          </TouchableOpacity>
-      </View>
-      
-      <View style={styles.level}>
-        <Text style={styles.levelText}>Top 10</Text>
-      </View>
+        </View>
 
+        <View style={styles.totals}>
+          <Text style={styles.totalStats}>
+            Totalt  👑:{totalCompletions}  |  💀:{totalDeaths}  |  💪: {totalAttempts}
+          </Text>
+        </View>
+        
+        <View style={styles.leaderboardContainer}>
+        <Text style={styles.leaderboardTitle}>Topp 10</Text>
+        {topResults.length > 0 ? (
+          <FlatList
+            data={topResults}
+            renderItem={renderLeaderboardItem}
+            keyExtractor={(item, index) => index.toString()}
+            scrollEnabled={false}
+          />
+        ) : (
+          <Text style={styles.noResults}>Inga resultat än</Text>
+        )}
+
+      </View>
+        <TouchableOpacity style={styles.goToStartMenuButton} onPress={() => navigation.goBack()}>
+          <Text style={styles.goToStartMenuText}>Tillbaka till spelet</Text>
+        </TouchableOpacity>
+      </View>
     </ScrollView>
   );
 }
@@ -54,9 +104,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#221c17ff',
   },
+  scrollContent: {
+    paddingBottom: 50,
+    
+  },
   level: {
     alignItems: 'center',
-    marginTop: 70,
+    marginTop: 80,
     marginBottom: 20,
   },
   levelText: {
@@ -76,7 +130,6 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   goToStartMenuButton: {
-    marginTop: 30,
     backgroundColor: '#45da9cff',
     paddingHorizontal: 20,
     paddingVertical: 10,
@@ -89,5 +142,66 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     textAlign: 'center',
+  },
+  leaderboardContainer: {
+    margin: 20,
+    padding: 15,
+    borderRadius: 10,
+    width: '87%',
+    alignItems: 'center',
+  },
+  leaderboardTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#45da9cff',
+    textAlign: 'center',
+    marginBottom: 15,
+  },
+  leaderboardItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 15,
+    backgroundColor: '#3a3a3a',
+    borderRadius: 5,
+    marginBottom: 5,
+    width: '100%',
+  },
+  rank: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#45da9cff',
+    width: 30,
+  },
+  petInfo: {
+    fontSize: 14,
+    color: '#eee',
+    flex: 1,
+  },
+  time: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#45da9cff',
+  },
+  stats: {
+    fontSize: 12,
+    color: '#bbb',
+    width: 100,
+    textAlign: 'right',
+  },
+  noResults: {
+    textAlign: 'center',
+    color: '#bbb',
+    fontStyle: 'italic',
+  },
+  totals: {
+    alignItems: 'center',
+    marginVertical: 15,
+  },
+  totalStats: {
+    fontSize: 16,
+    color: '#eee',
+    fontWeight: 'bold',
   },
 });

@@ -16,6 +16,17 @@ export interface GameProgress {
   unlockedLevels: number[];
 }
 
+export interface CompletionRecord {
+  levelId: number;
+  petId: string;
+  petName: string;
+  petEmoji: string;
+  completionTime: number;
+  attempts: number;
+  deaths: number;
+  timestamp: number;
+}
+
 export class ScoreManager {
   private static getKey(levelId: number): string {
     return `level_${levelId}_stats`;
@@ -130,5 +141,59 @@ export class ScoreManager {
   static async isLevelUnlocked(levelId: number): Promise<boolean> {
     const progress = await this.getGameProgress();
     return progress.unlockedLevels.includes(levelId);
+  }
+
+  private static getCompletionsKey(levelId: number): string {
+    return `completions_level_${levelId}`;
+  }
+
+  static async recordCompletionWithDetails(
+    levelId: number,
+    completionTime: number,
+    petId: string,
+    petName: string,
+    petEmoji: string,
+    attempts: number,
+    deaths: number
+  ): Promise<{ isNewRecord: boolean; stats: LevelStats }> {
+  
+    const result = await this.recordCompletion(levelId, completionTime);
+      
+    const completionRecord: CompletionRecord = {
+      levelId,
+      petId,
+      petName,
+      petEmoji,
+      completionTime,
+      attempts,
+      deaths,
+      timestamp: Date.now()
+    };
+      
+    const key = this.getCompletionsKey(levelId);
+    const existingCompletions = await store.get(key);
+    const completions: CompletionRecord[] = existingCompletions || [];
+      
+    completions.push(completionRecord);
+      
+    const sortedCompletions = completions
+      .sort((a, b) => a.completionTime - b.completionTime)
+      .slice(0, 10); // Store max 10
+      
+    await store.save(key, sortedCompletions);
+      
+    return result;
+  }
+
+  static async getTopCompletions(levelId: number, limit: number = 10): Promise<CompletionRecord[]> {
+  
+    const key = this.getCompletionsKey(levelId);
+    const completions = await store.get(key);
+      
+    if (!completions) return [];
+      
+    return completions
+      .sort((a: CompletionRecord, b: CompletionRecord) => a.completionTime - b.completionTime)
+      .slice(0, limit);
   }
 }
