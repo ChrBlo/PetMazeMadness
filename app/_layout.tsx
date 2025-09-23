@@ -1,9 +1,11 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import React from "react";
+import MazeStatisticsScreen from "./game-stats/[id]";
 import GameScreen from "./game/index";
 import StartScreen from "./index";
 import SettingsScreen from "./settings/index";
+
 
 const Stack = createNativeStackNavigator();
 
@@ -15,6 +17,7 @@ export default function RootLayout() {
           <Stack.Screen name="Start" component={StartScreen} options={{ title: "Start", headerShown: false }} />
           <Stack.Screen name="Game" component={GameScreen} options={{ title: "Game", headerShown: false }} />
           <Stack.Screen name="Settings" component={SettingsScreen} options={{ title: "Game settings", headerShown: false }} />
+          <Stack.Screen name="GameStats" component={MazeStatisticsScreen} options={{ title: "Maze statistics", headerShown: false }} />
         </Stack.Navigator>
       </NavigationContainer>
     </>

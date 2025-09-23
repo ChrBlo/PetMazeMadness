@@ -1,3 +1,4 @@
+import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { useAudioPlayer } from 'expo-audio';
 import * as Haptics from 'expo-haptics';
@@ -75,6 +76,10 @@ export default function GameScreen({ route }: { route: any }) {
     };
     loadStats();
   }, [currentLevelId]);
+
+  const handleGoToMazeStats = () => {
+    navigation.navigate('GameStats', {levelId: currentLevelId});
+  };
   
   // CHECK WALL COLLISION
   const checkCollision = (newX: number, newY: number) => {
@@ -358,6 +363,8 @@ export default function GameScreen({ route }: { route: any }) {
           <Text style={styles.resetButtonText}>Starta om</Text>
         </TouchableOpacity>
 
+        <Text style={styles.separator}></Text>
+
         <TouchableOpacity style={styles.goToStartMenuButton} onPress={() => navigation.goBack()}>
           <Text style={styles.goToStartMenuText}>Till menyn</Text>
         </TouchableOpacity>
@@ -371,6 +378,14 @@ export default function GameScreen({ route }: { route: any }) {
         >
           <Text style={styles.levelButtonText}>← Förra</Text>
         </TouchableOpacity>
+
+        <Text style={styles.separator}></Text>
+
+        <TouchableOpacity style={styles.statsButton} onPress={handleGoToMazeStats}>
+          <Ionicons name="stats-chart-outline" size={24} color="white" />
+        </TouchableOpacity>
+        
+        <Text style={styles.separator}></Text>
 
         <TouchableOpacity
           style={[styles.levelButton, !completedLevels.has(currentLevelId) && styles.disabledButton]}
@@ -410,7 +425,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   goToStartMenuButton: {
-    marginTop: 30,
+    marginTop: 10,
     backgroundColor: '#3d3d3dff',
     paddingHorizontal: 20,
     paddingVertical: 10,
@@ -464,13 +479,14 @@ const styles = StyleSheet.create({
     fontSize: 28,
   },
   controls: {
-    marginTop: 30,
+    marginTop: 15,
     alignItems: 'center',
     flexDirection: 'row',
     gap: 15,
+    width: '76%'
   },
   resetButton: {
-    marginTop: 30,
+    marginTop: 10,
     backgroundColor: '#45da9cff',
     paddingHorizontal: 20,
     paddingVertical: 10,
@@ -511,9 +527,10 @@ const styles = StyleSheet.create({
   },
   levelButton: {
     backgroundColor: '#3d3d3dff',
-    paddingHorizontal: 15,
+    paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 12,
+    marginTop: 10,
   },
   levelButtonText: {
     color: 'white',
@@ -533,5 +550,11 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#eee',
     marginBottom: -15,
+  },
+  statsButton: {
+    backgroundColor: '#3894d1ff',
+    paddingHorizontal: 8,
+    paddingVertical: 8,
+    borderRadius: 12,
   },
 });

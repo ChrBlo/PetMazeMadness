@@ -26,7 +26,7 @@ Used React Native Core Components:
 - [X] Switch: For game settings, like weather-block etc.
 - [X] TextInput: User input (pet name)
 - [X] Modal: Pet selection and pet name edit
-- [X] ScrollView: Pet selection
+- [X] ScrollView: used inside modal for pet selection & maze[id] statistics screen
 
 Used Expo SDK 54 Components:
 - [X] Gyroscope (expo-sensors): Game controls - CHAOS mode
@@ -34,10 +34,11 @@ Used Expo SDK 54 Components:
 - [X] Haptics (expo-haptics): Vibration feedback system
 - [X] Audio (expo-audio): Sound effects management
 - [X] Image: For game logotype on startScreen
+- [X] Ionicons: used in gameScreen on button navigation user to maze stats
 
 Other External modules/APIs used: //TODO
 - [X] yr.no weather forecast open API (https://developer.yr.no/doc) - Used in a game settings that blocks game if nice weather
-- [ ] ?
+- [X] added react-native-simple-store for storing score data
 
 ## Installation 🚀 //TODO
 1. Clone repository:
