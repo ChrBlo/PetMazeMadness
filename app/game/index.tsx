@@ -282,6 +282,10 @@ export default function GameScreen({ route }: { route: any }) {
         </Text>
       </View>
 
+      <View style={styles.level}>
+        <Text style={styles.levelText}>{currentLevel.name}</Text>
+      </View>
+      
       <View style={styles.stats}>
         <Text style={styles.statsText}>
           Försök: {levelStats?.totalAttempts || 0}
@@ -519,5 +523,15 @@ const styles = StyleSheet.create({
   disabledButton: {
     backgroundColor: '#666',
     opacity: 0.5,
+  },
+  level: {
+    marginTop: 20,
+    alignItems: 'center',
+  },
+  levelText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#eee',
+    marginBottom: -15,
   },
 });
