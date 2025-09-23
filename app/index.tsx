@@ -97,12 +97,12 @@ export default function StartScreen({ route }: StartScreenProps) {
         </View>
       ) : (
         <TouchableOpacity style={styles.startButton} onPress={handleStartGame}>
-          <Text style={styles.startButtonText}>STARTA</Text>
+          <Text style={styles.startButtonText}>🎮  STARTA  🎮</Text>
         </TouchableOpacity>
       )}
 
       <TouchableOpacity style={styles.settingsButton} onPress={handleGoToSettings}>
-        <Ionicons name="settings-outline" size={24} color="white" />
+        <Text style={styles.settingsButtonText}>🛠️  INSTÄLLNINGAR  🛠️</Text>
       </TouchableOpacity>
       
       <StatusBar barStyle="default"/>
@@ -147,7 +147,7 @@ const styles = StyleSheet.create({
   startButton: {
     backgroundColor: '#45da9cff',
     paddingHorizontal: 20,
-    paddingVertical: 10,
+    paddingVertical: 20,
     borderRadius: 12,
     marginBottom: 12,
     marginTop: 12,
@@ -160,13 +160,19 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   settingsButton: {
-    backgroundColor: '#4b4b4bff',
-    paddingHorizontal: 8,
-    paddingVertical: 8,
+    backgroundColor: '#3894d1ff',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
     borderRadius: 12,
-    position: 'absolute',
-    bottom: '10%',
-    left: '10%',
+    marginBottom: 12,
+    marginTop: 22,
+    width: '80%',
+  },
+  settingsButtonText: {
+    color: '#ffffffff',
+    fontSize: 20,
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
   loadingContainer: {
     alignItems: 'center',
@@ -176,7 +182,7 @@ const styles = StyleSheet.create({
   loadingText: {
     color: '#fcfcfc',
     fontSize: 16,
-    marginTop: 12,
+    marginTop: 32,
   },
   logo: {
     marginTop: -50,
