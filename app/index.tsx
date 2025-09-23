@@ -1,10 +1,11 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { Image } from 'expo-image';
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { ActivityIndicator, Alert, StatusBar, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { WeatherForecaster } from '../api/weather-forecast';
 import { getDefaultPet } from '../data/pets';
+import { ScoreManager } from "../utils/score-manager";
 
 interface StartScreenProps {
   route: any;
@@ -18,9 +19,8 @@ export default function StartScreen({ route }: StartScreenProps) {
   const [currentWeather, setCurrentWeather] = useState<string | null>(null);
   const selectedPetId = route.params?.selectedPetId || getDefaultPet().id;
   const petName = route.params?.petName || getDefaultPet().defaultName;
-  // const selectedPet = getPetById(selectedPetId);
   const niceWeather = (currentWeather !== 'rain' && currentWeather !== 'rainshowers_day' && currentWeather !== 'thunderstorm');
-  // const gyroMode = route.params?.gyroMode || 'normal';
+  const [currentLevel, setCurrentLevel] = useState(1);
 
   useFocusEffect(
     useCallback(() => {
@@ -29,6 +29,14 @@ export default function StartScreen({ route }: StartScreenProps) {
       }
     }, [route.params?.weatherCheckEnabled])
   );
+
+  useEffect(() => {
+  const loadStartLevel = async () => {
+    const level = await ScoreManager.getStartLevel();
+    setCurrentLevel(level);
+  };
+  loadStartLevel();
+}, []);
 
   const handleStartGame = () => {
     if (weatherCheckEnabled && niceWeather) {
@@ -48,7 +56,8 @@ export default function StartScreen({ route }: StartScreenProps) {
         navigation.navigate('Game', {
           selectedPetId, 
           petName,
-          gyroMode: route.params?.gyroMode || 'normal'
+          gyroMode: route.params?.gyroMode || 'normal',
+          initialLevel: currentLevel,
         });
       }, 800);
   };

@@ -1,14 +1,16 @@
 import { useNavigation } from "@react-navigation/native";
 import { useAudioPlayer } from 'expo-audio';
 import * as Haptics from 'expo-haptics';
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { MazeRenderer } from "../../components/maze-renderer";
 import { MAZE_LEVELS, MazeLevel, getCurrentLevel } from '../../data/maze-layouts';
 import { DEATH_EMOJI, getDefaultPet, getPetById } from '../../data/pets';
 import { useGamePhysics } from '../../hooks/useGamePhysics';
 import { GyroMode, useGameSensors } from '../../hooks/useGameSensors';
-import { getMazeCell, getPosition, findNearestSafeCell } from "../../utils/game-helpers";
+import { useGameTimer } from '../../hooks/useGameTimer';
+import { findNearestSafeCell, getMazeCell, getPosition } from "../../utils/game-helpers";
+import { LevelStats, ScoreManager } from '../../utils/score-manager';
 
 const MAZE_SIZE = 300;
 const BALL_SIZE = 20;
@@ -32,12 +34,15 @@ export default function GameScreen({ route }: { route: any }) {
   const [isDead, setIsDead] = useState(false);
   const [showExplosion, setShowExplosion] = useState(false);
   const [explosionPosition, setExplosionPosition] = useState({ x: 0, y: 0 });
-  const [tryCount, setTryCount] = useState(1);
   const [extraLives, setExtraLives] = useState(0);
   const [eatenSnacks, setEatenSnacks] = useState<Set<string>>(new Set());
+  // SCORE AND ATTEMPTS
+  const [levelStats, setLevelStats] = useState<LevelStats | null>(null);
+  const [currentAttempt, setCurrentAttempt] = useState(1);
+  const {gameTime, formatTime, startTimer, stopTimer, resetTimer} = useGameTimer(!isGameWon && !isDead);
   //GAME LEVELS
-  const [currentLevelId, setCurrentLevelId] = useState(1);
-  const [currentLevel, setCurrentLevel] = useState<MazeLevel>(getCurrentLevel(1));
+  const [currentLevelId, setCurrentLevelId] = useState(route.params?.initialLevel || 1);
+  const [currentLevel, setCurrentLevel] = useState<MazeLevel>(getCurrentLevel(route.params?.initialLevel || 1));
   const [completedLevels, setCompletedLevels] = useState<Set<number>>(new Set());
   // PET
   const selectedPetId = route.params?.selectedPetId || getDefaultPet().id;
@@ -53,14 +58,31 @@ export default function GameScreen({ route }: { route: any }) {
   const snack = useAudioPlayer(snackSound);
   const plop = useAudioPlayer(spawnSound);
 
+  useEffect(() => {
+    const loadInitialData = async () => {
+      const progress = await ScoreManager.getGameProgress();
+      setCompletedLevels(new Set(progress.completedLevels));
+    };
+    startTimer();
+    loadInitialData();
+  }, []);
 
+  useEffect(() => {
+    const loadStats = async () => {
+      const stats = await ScoreManager.getLevelStats(currentLevelId);
+      setLevelStats(stats);
+      setCurrentAttempt(stats.totalAttempts + 1);
+    };
+    loadStats();
+  }, [currentLevelId]);
+  
   // CHECK WALL COLLISION
   const checkCollision = (newX: number, newY: number) => {
     const ballRadius = BALL_SIZE / 2;
     
     // Check bounds
     if (newX - ballRadius < 0 || newX + ballRadius > MAZE_SIZE ||
-        newY - ballRadius < 0 || newY + ballRadius > MAZE_SIZE) {
+      newY - ballRadius < 0 || newY + ballRadius > MAZE_SIZE) {
       return true;
     }
 
@@ -76,40 +98,33 @@ export default function GameScreen({ route }: { route: any }) {
       { x: newX + ballRadius, y: newY + ballRadius },
     ];
 
-    for (let point of checkPoints)
-    {
+    for (let point of checkPoints) {
       const pCellX = Math.floor(point.x / CELL_SIZE);
       const pCellY = Math.floor(point.y / CELL_SIZE);
       
       // Check for explosive wall collision FIRST
-      if (getMazeCell(pCellX, pCellY, MAZE_LAYOUT) === DANGER_CELL)
-      {
-        if (extraLives > 0)
-        {
+      if (getMazeCell(pCellX, pCellY, MAZE_LAYOUT) === DANGER_CELL) {
+        if (extraLives > 0) {
           triggerRespawn(pCellX, pCellY);
           return false;
         }
-        else
-        {
+        else {
           triggerExplosion(newX, newY);
           return true;
         }
       }
 
       // Check for regular walls
-      if (getMazeCell(pCellX, pCellY, MAZE_LAYOUT) === WALL_CELL)
-      {
+      if (getMazeCell(pCellX, pCellY, MAZE_LAYOUT) === WALL_CELL) {
         return true;
       }
     }
 
     // Check if reached snack
-    if (getMazeCell(cellX, cellY, MAZE_LAYOUT) === SNACK_CELL)
-    {
+    if (getMazeCell(cellX, cellY, MAZE_LAYOUT) === SNACK_CELL) {
       const snackKey = `${cellY}-${cellX}`;
 
-      if (!eatenSnacks.has(snackKey))
-      {
+      if (!eatenSnacks.has(snackKey)) {
         setExtraLives(extraLives => extraLives + 1);
         setEatenSnacks(prev => new Set([...prev, snackKey]));
       
@@ -119,38 +134,47 @@ export default function GameScreen({ route }: { route: any }) {
     }
     
     // Check if reached goal
-    if (getMazeCell(cellX, cellY, MAZE_LAYOUT) === GOAL_CELL)
-    {
+    if (getMazeCell(cellX, cellY, MAZE_LAYOUT) === GOAL_CELL) {
       setIsGameWon(true);
-      setCompletedLevels(prev => new Set([...prev, currentLevelId]))
-    
+      setCompletedLevels(prev => new Set([...prev, currentLevelId]));
+
+      const completionTime = stopTimer();
+      
       victory.seekTo(0);
       victory.play();
 
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success); 
-      
-      Alert.alert('Grattis!', `${petName} flydde! 🌈⭐`, [
-        { text: 'Spela nästa', onPress: nextLevel}
-      ]);
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    
+      ScoreManager.recordCompletion(currentLevelId, completionTime).then(isNewRecord => {
+        const message = isNewRecord
+          ? `${petName} flydde! 🌈⭐\nNYTT REKORD: ${formatTime(completionTime)}!`
+          : `${petName} flydde! 🌈⭐\nTid: ${formatTime(completionTime)}`;
+        
+        Alert.alert('Grattis!', `${petName} flydde! 🌈⭐`, [
+          { text: 'Spela nästa', onPress: nextLevel }
+        ]);
+      });
     }
-
     return false;
   };
 
   // EXPLOSION ------------------
-  const triggerExplosion = (x: number, y: number) => {
-      setExplosionPosition({ x, y });
-      setShowExplosion(true);
-      setIsDead(true);
-      
-      explosion.seekTo(0);
-      explosion.play();
-      
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+  const triggerExplosion = async (x: number, y: number) => {
+    setExplosionPosition({ x, y });
+    setShowExplosion(true);
+    setIsDead(true);
     
-      setTimeout(() => {
-        setShowExplosion(false);
-      }, 1000);
+    const updatedStats = await ScoreManager.recordDeath(currentLevelId);
+    setLevelStats(updatedStats);
+      
+    explosion.seekTo(0);
+    explosion.play();
+      
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+    
+    setTimeout(() => {
+      setShowExplosion(false);
+    }, 1000);
   };
 
   // RESPAWN LOGIC --------------
@@ -172,9 +196,8 @@ export default function GameScreen({ route }: { route: any }) {
   };
 
   // RESET GAME -----------------
-  const resetGame = () => {
+  const resetGame = async () => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success); 
-    setTryCount(tryCount => tryCount +1);
     resetPosition();
     setIsGameWon(false);
     setIsDead(false);
@@ -182,6 +205,11 @@ export default function GameScreen({ route }: { route: any }) {
     setExtraLives(0);
     setEatenSnacks(new Set());
     setVelocity({ x: 0, y: 0 });
+
+    const updatedStats = await ScoreManager.recordAttempt(currentLevelId);
+    setLevelStats(updatedStats); // Update local stats immediately
+    setCurrentAttempt(updatedStats.totalAttempts);
+
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
   };
 
@@ -194,11 +222,13 @@ export default function GameScreen({ route }: { route: any }) {
       setCurrentLevel(newLevel);
       setBallPosition(getPosition(newLevel, MAZE_SIZE));
       setEatenSnacks(new Set());
-      setTryCount(1);
       setIsGameWon(false);
       setIsDead(false);
       setShowExplosion(false);
       setVelocity({ x: 0, y: 0 });
+
+      ScoreManager.recordAttempt(currentLevelId);
+      startTimer();
     }
   };
 
@@ -211,11 +241,13 @@ export default function GameScreen({ route }: { route: any }) {
       setCurrentLevel(prevLevel);
       setBallPosition(getPosition(prevLevel, MAZE_SIZE));
       setEatenSnacks(new Set());
-      setTryCount(1);
       setIsGameWon(false);
       setIsDead(false);
       setShowExplosion(false);
       setVelocity({ x: 0, y: 0 });
+
+      ScoreManager.recordAttempt(currentLevelId);
+      startTimer();
     }
   };
 
@@ -252,7 +284,7 @@ export default function GameScreen({ route }: { route: any }) {
 
       <View style={styles.stats}>
         <Text style={styles.statsText}>
-          Försök: {tryCount}
+          Försök: {levelStats?.totalAttempts || 0}
         </Text>
         <Text style={styles.separator}></Text>
         <Text style={styles.statsText}>
@@ -302,6 +334,18 @@ export default function GameScreen({ route }: { route: any }) {
             </View>
           )}
         </View>
+      </View>
+
+      <View style={styles.gameTimer}>
+        <Text style={styles.gameTimerText}>
+          Tid: {formatTime(gameTime)}
+        </Text>
+        <Text style={styles.separator}></Text>
+        {levelStats?.bestTime && (
+          <Text style={styles.gameTimerText}>
+            Bästa tid: {formatTime(levelStats.bestTime)}
+          </Text>
+        )}
       </View>
       
       {/* BUTTONS */}
@@ -437,7 +481,6 @@ const styles = StyleSheet.create({
     marginTop: 30,
     alignItems: 'center',
     flexDirection: 'row',
-    gap: 15,
     width: '76%',
   },
   statsText: {
@@ -446,6 +489,18 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     marginBottom: 5,
+  },
+  gameTimer: {
+    marginTop: 6,
+    alignItems: 'center',
+    flexDirection: 'row',
+    width: '76%',
+  },
+  gameTimerText: {
+    fontSize: 16,
+    color: '#bbb',
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
   separator: {
     flex: 1,
