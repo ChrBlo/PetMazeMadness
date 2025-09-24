@@ -247,7 +247,8 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
     if (nextId <= MAZE_LEVELS.length)
     {
       resetGameState(); // Jotai - reset atoms
-
+      resetTimer();
+      
       setCurrentLevelId(nextId);
       const newLevel = getCurrentLevel(nextId);
       setCurrentLevel(newLevel);
@@ -267,6 +268,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
     if (prevId >= 1)
     {
       resetGameState();
+      resetTimer();
 
       setCurrentLevelId(prevId);
       const prevLevel = getCurrentLevel(prevId);
@@ -301,6 +303,8 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
   });
 
   //-----------------------------
+    const formatTime = (timeMs: number) => `${(timeMs / 1000).toFixed(1)}s`;
+
 
   return (
     <View style={styles.container}>
@@ -372,7 +376,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
 
       <View style={styles.gameTimer}>
         <Text style={styles.gameTimerText}>
-          Tid: {formatTime(gameTime)}
+          Tid: {`${(gameTime / 1000).toFixed(2)}s`}
         </Text>
         <Text style={styles.separator}></Text>
         {levelStats?.bestTime && (
