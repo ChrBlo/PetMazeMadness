@@ -31,7 +31,7 @@ export const useGameTimer = (isActive: boolean) => {
   useEffect(() => {
     if (isActive && startTime)
     {
-      intervalRef.current = setInterval(() => {setGameTime(Date.now() - startTime);}, 100);
+      intervalRef.current = setInterval(() => { setGameTime(Date.now() - startTime);}, 100);
     }
     else
     {
@@ -48,4 +48,11 @@ export const useGameTimer = (isActive: boolean) => {
       }
     };
   }, [isActive, startTime]);
+
+  return {
+    gameTime,
+    startTimer,
+    stopTimer,
+    resetTimer
+  };
 };
