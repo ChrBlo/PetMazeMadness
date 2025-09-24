@@ -5,6 +5,7 @@ import { getCurrentLevel } from "../../data/maze-layouts";
 import { getDefaultPet } from '../../data/pets';
 import { GyroMode } from "../../hooks/useGameSensors";
 import { CompletionRecord, ScoreManager } from "../../utils/score-manager";
+import { formatTime } from "../../utils/game-helpers";
 import { GameStatsScreenProps } from "../_layout";
 
 const MAZE_SIZE = 300;
@@ -70,14 +71,6 @@ export default function MazeStatisticsScreen({ route, navigation }: GameStatsScr
       <Text style={styles.time}>    {formatTime(item.completionTime)}</Text>
     </View>
   );
-
-  const formatTime = (timeValue: number): string => {
-    const seconds = timeValue > 1000 ? timeValue / 1000 : timeValue;
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    const hundredths = Math.floor((seconds % 1) * 100);
-    return `${mins}:${secs.toString().padStart(2, '0')}:${hundredths.toString().padStart(2, '0')}`;
-  };
 
   return (
     <ScrollView

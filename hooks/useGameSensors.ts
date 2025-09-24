@@ -48,8 +48,13 @@ export const useGameSensors = (gyroMode: GyroMode): UseGameSensorsReturn => {
   useEffect(() => {
     _unsubscribe();
     
-    if (gyroMode === GyroMode.NORMAL) _subscribeAccel();
-    else _subscribeGyro();
+    if (gyroMode === GyroMode.NORMAL) {
+      _subscribeAccel();
+    }
+    else
+    {
+      _subscribeGyro();
+    }
 
     return () => {
       _unsubscribe();

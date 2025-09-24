@@ -51,7 +51,8 @@ export const useGamePhysics = ({gyroMode, accelData, gyroData, checkCollision, i
       let newVelX = velocity.x;
       let newVelY = velocity.y;
 
-      if (gyroMode === GyroMode.NORMAL) {
+      if (gyroMode === GyroMode.NORMAL)
+      {
         const gravity = 1.2;
         const friction = 0.9;
         const maxSpeed = 20;
@@ -71,11 +72,13 @@ export const useGamePhysics = ({gyroMode, accelData, gyroData, checkCollision, i
         let finalX = newX;
         let finalY = newY;
 
-        if (checkCollision(newX, prevPosition.y)) {
+        if (checkCollision(newX, prevPosition.y))
+        {
           finalX = prevPosition.x;
           newVelX = 0;
         }
-        if (checkCollision(prevPosition.x, newY)) {
+        if (checkCollision(prevPosition.x, newY))
+        {
           finalY = prevPosition.y;
           newVelY = 0;
         }
@@ -109,12 +112,14 @@ export const useGamePhysics = ({gyroMode, accelData, gyroData, checkCollision, i
   };
 
   useEffect(() => {
-    if (!isGameWon && !isDead) {
+    if (!isGameWon && !isDead)
+    {
       animationRef.current = requestAnimationFrame(updateBallPosition);
     }
 
     return () => {
-      if (animationRef.current) {
+      if (animationRef.current)
+      {
         cancelAnimationFrame(animationRef.current);
       }
     };

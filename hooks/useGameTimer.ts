@@ -12,7 +12,8 @@ export const useGameTimer = (isActive: boolean) => {
   };
 
   const stopTimer = () => {
-    if (intervalRef.current) {
+    if (intervalRef.current)
+    {
       clearInterval(intervalRef.current);
     }
     return gameTime;
@@ -21,39 +22,30 @@ export const useGameTimer = (isActive: boolean) => {
   const resetTimer = () => {
     setGameTime(0);
     setStartTime(null);
-    if (intervalRef.current) {
+    if (intervalRef.current)
+    {
       clearInterval(intervalRef.current);
     }
   };
 
   useEffect(() => {
-      if (isActive && startTime)
-      {
-      intervalRef.current = setInterval(() => {
-        setGameTime(Date.now() - startTime);
-      }, 100);
+    if (isActive && startTime)
+    {
+      intervalRef.current = setInterval(() => {setGameTime(Date.now() - startTime);}, 100);
     }
     else
     {
-      if (intervalRef.current) {
+      if (intervalRef.current)
+      {
         clearInterval(intervalRef.current);
       }
     }
 
     return () => {
-      if (intervalRef.current) {
+      if (intervalRef.current)
+      {
         clearInterval(intervalRef.current);
       }
     };
   }, [isActive, startTime]);
-
-  const formatTime = (timeMs: number) => `${(timeMs / 1000).toFixed(1)}s`;
-
-  return {
-    gameTime,
-    formatTime,
-    startTimer,
-    stopTimer,
-    resetTimer
-  };
 };

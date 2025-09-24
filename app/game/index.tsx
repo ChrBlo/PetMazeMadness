@@ -11,7 +11,7 @@ import { DEATH_EMOJI, getDefaultPet } from '../../data/pets';
 import { useGamePhysics } from '../../hooks/useGamePhysics';
 import { GyroMode, useGameSensors } from '../../hooks/useGameSensors';
 import { useGameTimer } from '../../hooks/useGameTimer';
-import { findNearestSafeCell, getMazeCell, getPosition } from "../../utils/game-helpers";
+import { findNearestSafeCell, formatTime, getMazeCell, getPosition } from "../../utils/game-helpers";
 import { LevelStats, ScoreManager } from '../../utils/score-manager';
 import { GameScreenProps } from "../_layout";
 
@@ -45,7 +45,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
   const [levelStats, setLevelStats] = useState<LevelStats | null>(null);
   const [currentAttempt, setCurrentAttempt] = useState(1);
   const [extraLivesUsed, setExtraLivesUsed] = useState(0);
-  const {gameTime, formatTime, startTimer, stopTimer, resetTimer} = useGameTimer(!isGameWon && !isDead);
+  const {gameTime, startTimer, stopTimer, resetTimer} = useGameTimer(!isGameWon && !isDead);
   //GAME LEVELS
   const [currentLevelId, setCurrentLevelId] = useState(route.params?.initialLevel || 1);
   const [currentLevel, setCurrentLevel] = useState<MazeLevel>(getCurrentLevel(route.params?.initialLevel || 1));
@@ -223,6 +223,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
   // RESET GAME -----------------
   const resetGame = async () => {
     resetGameState();
+    resetTimer();
 
     resetPosition();
     setShowExplosion(false);
@@ -234,6 +235,8 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
     const updatedStats = await ScoreManager.recordAttempt(currentLevelId);
     setLevelStats(updatedStats);
     setCurrentAttempt(updatedStats.totalAttempts);
+
+    startTimer();
     
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
   };

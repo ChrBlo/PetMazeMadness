@@ -35,3 +35,11 @@ export const findNearestSafeCell = (startX: number, startY: number, mazeLayout: 
   }
   return null;
 };
+
+export const formatTime = (timeValue: number): string => {
+  const seconds = timeValue > 1000 ? timeValue / 1000 : timeValue;
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  const hundredths = Math.floor((seconds % 1) * 100);
+  return `${mins}:${secs.toString().padStart(2, '0')}:${hundredths.toString().padStart(2, '0')}`;
+};
