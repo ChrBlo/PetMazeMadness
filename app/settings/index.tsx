@@ -106,7 +106,7 @@ export default function SettingsScreen({ route, navigation }: SettingsScreenProp
       </View>
       
       <TouchableOpacity style={styles.backButton} onPress={goBack}>
-        <Text style={styles.backButtonText}>Spara inställningar</Text>
+        <Text style={styles.backButtonText}>SPARA INSTÄLLNINGAR</Text>
       </TouchableOpacity>
 
       {/* Pet Selector Modal */}
@@ -198,7 +198,9 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     color: '#eee',
-    marginBottom: 50,
+    marginTop: 40,
+    marginBottom: 40,
+    textAlign: 'center',
   },
   petSelection: {
     marginTop: 30,
@@ -236,15 +238,15 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   backButton: {
-    backgroundColor: '#45da9cff',
-    padding: 15,
+    backgroundColor: '#3894d1ff',
+    padding: 10,
     borderRadius: 12,
     marginTop: 20,
   },
   backButtonText: {
     textAlign: 'center',
-    color: 'white',
-    fontSize: 16,
+    color: '#ffffffff',
+    fontSize: 20,
     fontWeight: 'bold',
   },
   modalOverlay: {

@@ -1,8 +1,10 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useAudioPlayer } from 'expo-audio';
 import * as Haptics from 'expo-haptics';
+import { useAtom, useSetAtom } from 'jotai';
 import { useEffect, useState } from "react";
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { isDeadAtom, isGameWonAtom, recordDeathAtom, recordWinAtom, resetGameStateAtom } from '../../atoms/gameAtoms';
 import { MazeRenderer } from "../../components/maze-renderer";
 import { MAZE_LEVELS, MazeLevel, getCurrentLevel } from '../../data/maze-layouts';
 import { DEATH_EMOJI, getDefaultPet } from '../../data/pets';
@@ -26,11 +28,15 @@ const snackSound = require('../../assets/sounds/snackSound1.mp3');
 const spawnSound = require('../../assets/sounds/plop.mp3');
 
 export default function GameScreen({ route, navigation }: GameScreenProps) {
+  // JOTAI STATE HANDLING
+  const [isGameWon] = useAtom(isGameWonAtom);
+  const [isDead] = useAtom(isDeadAtom);
+  const recordWin = useSetAtom(recordWinAtom);
+  const recordDeath = useSetAtom(recordDeathAtom);
+  const resetGameState = useSetAtom(resetGameStateAtom);
   // GYRO
   const [gyroMode] = useState<GyroMode>(route.params?.gyroMode || GyroMode.NORMAL);
   //GAME FEATURES
-  const [isGameWon, setIsGameWon] = useState(false);
-  const [isDead, setIsDead] = useState(false);
   const [showExplosion, setShowExplosion] = useState(false);
   const [explosionPosition, setExplosionPosition] = useState({ x: 0, y: 0 });
   const [extraLives, setExtraLives] = useState(0);
@@ -38,6 +44,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
   // SCORE AND ATTEMPTS
   const [levelStats, setLevelStats] = useState<LevelStats | null>(null);
   const [currentAttempt, setCurrentAttempt] = useState(1);
+  const [extraLivesUsed, setExtraLivesUsed] = useState(0);
   const {gameTime, formatTime, startTimer, stopTimer, resetTimer} = useGameTimer(!isGameWon && !isDead);
   //GAME LEVELS
   const [currentLevelId, setCurrentLevelId] = useState(route.params?.initialLevel || 1);
@@ -110,17 +117,34 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
       const pCellY = Math.floor(point.y / CELL_SIZE);
       
       // Check for explosive wall collision FIRST
-      if (getMazeCell(pCellX, pCellY, MAZE_LAYOUT) === DANGER_CELL) {
-        if (extraLives > 0) {
+      if (getMazeCell(pCellX, pCellY, MAZE_LAYOUT) === DANGER_CELL)
+      {
+        if (extraLives > 0)
+        {
           triggerRespawn(pCellX, pCellY);
           return false;
         }
-        else {
-          triggerExplosion(newX, newY);
+        else
+        {
+          setExplosionPosition({ x: newX, y: newY });
+          setShowExplosion(true);
+          
+          // Record death - Jotai
+          recordDeath(currentLevelId).then((updatedStats) => {
+            if (updatedStats) {
+              setLevelStats(updatedStats);
+            }
+          });
+          
+          explosion.seekTo(0);
+          explosion.play();
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+          
+          setTimeout(() => setShowExplosion(false), 1000);
           return true;
         }
       }
-
+      
       // Check for regular walls
       if (getMazeCell(pCellX, pCellY, MAZE_LAYOUT) === WALL_CELL) {
         return true;
@@ -142,61 +166,45 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
     
     // Check if reached goal
     if (getMazeCell(cellX, cellY, MAZE_LAYOUT) === GOAL_CELL) {
-      setIsGameWon(true);
-      setCompletedLevels(prev => new Set([...prev, currentLevelId]));
-
       const completionTime = stopTimer();
+      setCompletedLevels(prev => new Set([...prev, currentLevelId]));
       
       victory.seekTo(0);
       victory.play();
-
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    
-      ScoreManager.recordCompletionWithDetails(
+      
+      // Record win - Jotai
+      recordWin({
         currentLevelId,
         completionTime,
-        selectedPet.id,
-        selectedPet.name,
-        selectedPet.emoji,
+        selectedPet,
         currentAttempt,
-        levelStats?.totalDeaths || 0,
-        gyroMode.toString()
-      ).then(({ isNewRecord }) => {
-        const message = isNewRecord
-          ? `${petName} flydde! 🌈⭐\nNYTT REKORD: ${formatTime(completionTime)}!`
-          : `${petName} flydde! 🌈⭐\nTid: ${formatTime(completionTime)}`;
-  
-        Alert.alert('Grattis!', `${petName} flydde! 🌈⭐`, [
-          { text: 'Spela nästa', onPress: nextLevel }
-        ]);
+        totalDeaths: levelStats?.totalDeaths || 0,
+        extraLivesUsed,
+        gyroMode: gyroMode.toString()
+      }).then((result) => {
+        if (result?.isNewRecord)
+        {
+          Alert.alert('Grattis!', `${petName} flydde! 🌈⭐\nNYTT REKORD: ${formatTime(completionTime)}!`, [
+            { text: 'Spela nästa', onPress: nextLevel }
+          ]);
+        }
+        else
+        {
+          Alert.alert('Grattis!', `${petName} flydde! 🌈⭐`, [
+            { text: 'Spela nästa', onPress: nextLevel }
+          ]);
+        }
       });
     }
     
     return false;
   };
 
-  // EXPLOSION ------------------
-  const triggerExplosion = async (x: number, y: number) => {
-    setExplosionPosition({ x, y });
-    setShowExplosion(true);
-    setIsDead(true);
-    
-    const updatedStats = await ScoreManager.recordDeath(currentLevelId);
-    setLevelStats(updatedStats);
-      
-    explosion.seekTo(0);
-    explosion.play();
-      
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-    
-    setTimeout(() => {
-      setShowExplosion(false);
-    }, 1000);
-  };
-
   // RESPAWN LOGIC --------------
   const triggerRespawn = (cellX: number, cellY: number) => {
     setExtraLives(prev => prev - 1);
+    setExtraLivesUsed(prev => prev + 1);
   
     const safeCell = findNearestSafeCell(cellX, cellY, MAZE_LAYOUT);
     
@@ -214,37 +222,38 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
 
   // RESET GAME -----------------
   const resetGame = async () => {
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success); 
+    resetGameState();
+
     resetPosition();
-    setIsGameWon(false);
-    setIsDead(false);
     setShowExplosion(false);
     setExtraLives(0);
     setEatenSnacks(new Set());
     setVelocity({ x: 0, y: 0 });
-
+    setExtraLivesUsed(0);
+    
     const updatedStats = await ScoreManager.recordAttempt(currentLevelId);
-    setLevelStats(updatedStats); // Update local stats immediately
+    setLevelStats(updatedStats);
     setCurrentAttempt(updatedStats.totalAttempts);
-
+    
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
   };
 
   // NEXT LEVEL -----------------
     const nextLevel = () => {
     const nextId = currentLevelId + 1;
-    if (nextId <= MAZE_LEVELS.length) {
+    if (nextId <= MAZE_LEVELS.length)
+    {
+      resetGameState(); // Jotai - reset atoms
+
       setCurrentLevelId(nextId);
       const newLevel = getCurrentLevel(nextId);
       setCurrentLevel(newLevel);
       setBallPosition(getPosition(newLevel, MAZE_SIZE));
       setEatenSnacks(new Set());
-      setIsGameWon(false);
-      setIsDead(false);
       setShowExplosion(false);
       setVelocity({ x: 0, y: 0 });
 
-      ScoreManager.recordAttempt(currentLevelId);
+      ScoreManager.recordAttempt(nextId);
       startTimer();
     }
   };
@@ -252,18 +261,19 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
   // PREVIOUS LEVEL -------------
   const previousLevel = () => {
     const prevId = currentLevelId - 1;
-    if (prevId >= 1) {
+    if (prevId >= 1)
+    {
+      resetGameState();
+
       setCurrentLevelId(prevId);
       const prevLevel = getCurrentLevel(prevId);
       setCurrentLevel(prevLevel);
       setBallPosition(getPosition(prevLevel, MAZE_SIZE));
       setEatenSnacks(new Set());
-      setIsGameWon(false);
-      setIsDead(false);
       setShowExplosion(false);
       setVelocity({ x: 0, y: 0 });
 
-      ScoreManager.recordAttempt(currentLevelId);
+      ScoreManager.recordAttempt(prevId);
       startTimer();
     }
   };

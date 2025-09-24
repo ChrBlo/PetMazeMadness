@@ -24,6 +24,7 @@ export interface CompletionRecord {
   completionTime: number;
   attempts: number;
   deaths: number;
+  extraLivesUsed: number;
   timestamp: number;
   gyroMode: string;
 }
@@ -156,6 +157,7 @@ export class ScoreManager {
     petEmoji: string,
     attempts: number,
     deaths: number,
+    extraLivesUsed: number,
     gyroMode: string
   ): Promise<{ isNewRecord: boolean; stats: LevelStats }> {
   
@@ -169,6 +171,7 @@ export class ScoreManager {
       completionTime,
       attempts,
       deaths,
+      extraLivesUsed,
       timestamp: Date.now(),
       gyroMode
     };
@@ -217,7 +220,7 @@ export class ScoreManager {
   {
     filteredCompletions = filteredCompletions.filter((completion: CompletionRecord) => completion.gyroMode === gyroMode);
   }
-  return completions.filter((completion: CompletionRecord) => completion.petId === petId);
+  return filteredCompletions;
 }
 
 static async clearAllData(): Promise<void> {

@@ -63,16 +63,13 @@ export default function MazeStatisticsScreen({ route, navigation }: GameStatsScr
   const renderLeaderboardItem = ({ item, index }: { item: CompletionRecord, index: number }) => (
     <View style={styles.leaderboardItem}>
       <Text style={styles.rank}>#{index + 1}</Text>
-      <Text style={styles.petInfo}>{item.petName} {item.petEmoji}</Text>
-      <Text style={styles.time}>{formatTime(item.completionTime)}</Text>
+      <Text style={styles.petInfo}>{item.petEmoji} {item.petName}</Text>
+      <Text style={styles.extraLives}>
+        {item.extraLivesUsed > 0 ? `${item.petEmoji}: ${item.extraLivesUsed}  ` : ``}
+      </Text>      
+      <Text style={styles.time}>    {formatTime(item.completionTime)}</Text>
     </View>
   );
-
-  const renderPetStats = (mode: GyroMode, results: CompletionRecord[], label: string) => (
-  <Text style={styles.totalStats}>
-    {currentGyroMode === mode && currentPet.emoji} {label}: 👑{results.length} 💀{results.reduce((sum, r) => sum + r.deaths, 0)}
-  </Text>
-);
 
   const formatTime = (timeValue: number): string => {
     const seconds = timeValue > 1000 ? timeValue / 1000 : timeValue;
@@ -105,47 +102,12 @@ export default function MazeStatisticsScreen({ route, navigation }: GameStatsScr
           />
         </View>
       </View>
-
-      <View style={styles.statsTable}>
-        <View style={styles.statsHeader}>
-          <Text style={styles.statsEmojiHeader}></Text>
-          <Text style={styles.statsGyroHeaderText}>   Gyro</Text>
-          <Text style={styles.statsHeaderText}>👑</Text>
-          <Text style={styles.statsHeaderText}>💀</Text>
-        </View>
-        
-        <View style={styles.statsRow}>
-          <Text style={styles.statsEmojiText}>
-            {currentGyroMode === GyroMode.NORMAL ? currentPet.emoji : ''}
-          </Text>
-          <Text style={styles.statsModeText}>Normal</Text>
-          <Text style={styles.statsValueText}>
-            {currentPetNormalResults.length}
-          </Text>
-          <Text style={styles.statsValueText}>
-            {currentPetNormalResults.reduce((sum, r) => sum + r.deaths, 0)}
-          </Text>
-        </View>
-        
-        <View style={styles.statsRow}>
-          <Text style={styles.statsEmojiText}>
-            {currentGyroMode === GyroMode.CHAOS ? currentPet.emoji : ''}
-          </Text>
-          <Text style={styles.statsModeText}>Kaos</Text>
-          <Text style={styles.statsValueText}>
-            {currentPetChaosResults.length}
-          </Text>
-          <Text style={styles.statsValueText}>
-            {currentPetChaosResults.reduce((sum, r) => sum + r.deaths, 0)}
-          </Text>
-        </View>
-      </View>
       
       {renderLeaderboard(normalResults, "Topp 10 - Normal", currentGyroMode === GyroMode.NORMAL)}
       {renderLeaderboard(chaosResults, "Topp 10 - Kaos", currentGyroMode === GyroMode.CHAOS)}
 
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.goToStartMenuButton} onPress={() => navigation.goBack()}>
+        <TouchableOpacity style={styles.goToGameButton} onPress={() => navigation.goBack()}>
           <Text style={styles.goToStartMenuText}>Tillbaka till spelet</Text>
         </TouchableOpacity>
       </View>
@@ -183,14 +145,15 @@ const styles = StyleSheet.create({
     position: 'relative',
     borderRadius: 5,
   },
-  goToStartMenuButton: {
+  goToGameButton: {
+    marginTop: 20,
     backgroundColor: '#45da9cff',
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 12,
     width: '90%',
   },
-    buttonContainer: {
+  buttonContainer: {
     width: '100%',
     alignItems: 'center',
     paddingHorizontal: 20,
@@ -202,9 +165,10 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   leaderboardContainer: {
+    marginTop: 30,
     padding: 15,
     borderRadius: 10,
-    width: '87%',
+    width: '90%',
     alignItems: 'center',
   },
   leaderboardTitle: {
@@ -219,7 +183,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingVertical: 8,
-    paddingHorizontal: 15,
+    paddingHorizontal: 8,
     backgroundColor: '#3a3a3a',
     borderRadius: 5,
     marginBottom: 5,
@@ -241,87 +205,23 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#3894d1ff',
   },
-  stats: {
-    fontSize: 12,
-    color: '#bbb',
-    width: 100,
-    textAlign: 'right',
-  },
   noResults: {
     textAlign: 'center',
     color: '#bbb',
     fontStyle: 'italic',
   },
-  totals: {
-    alignItems: 'center',
-    marginVertical: 15,
-  },
-  totalStats: {
-    fontSize: 16,
-    color: '#eee',
-    fontWeight: 'bold',
-  },
-    currentModeContainer: {
+  currentModeContainer: {
     borderWidth: 2,
     borderColor: '#45da9cff',
   },
   currentModeTitle: {
     color: '#45da9cff',
   },
-  statsTable: {
-  borderRadius: 8,
-  margin: 15,
-  padding: 10,
-  width: '87%',
-  alignSelf: 'center',
-  },
-  statsHeader: {
-    flexDirection: 'row',
-    borderBottomWidth: 1,
-    borderBottomColor: '#45da9cff',
-    paddingBottom: 8,
-    marginBottom: 8,
-  },
-  statsHeaderText: {
-    flex: 1,
-    fontSize: 14,
+  extraLives: {
+    fontSize: 12,
+    color: '#ff6b6b',
     fontWeight: 'bold',
-    color: '#45da9cff',
-    textAlign: 'center',
-  },
-    statsGyroHeaderText: {
-    flex: 1,
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#45da9cff',
-    textAlign: 'left',
-  },
-  statsRow: {
-    flexDirection: 'row',
-    paddingVertical: 6,
-  },
-  statsEmojiText: {
-    width: 30,
-    fontSize: 16,
-    textAlign: 'center',
-  },
-  statsModeText: {
-    flex: 1,
-    fontSize: 16,
-    color: '#eee',
-    textAlign: 'left',
-    paddingLeft: 10,
-  },
-  statsValueText: {
-    flex: 1,
-    fontSize: 16,
-    color: '#eee',
-    textAlign: 'center',
-    fontWeight: 'bold',
-  },
-  statsEmojiHeader: {
-    width: 30,
-    fontSize: 14,
+    width: 40,
     textAlign: 'center',
   },
 });
