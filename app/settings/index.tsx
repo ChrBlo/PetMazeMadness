@@ -1,67 +1,53 @@
 import { useState } from 'react';
 import { Modal, ScrollView, StyleSheet, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { getDefaultPet, getPetById, PETS } from '../../data/pets';
-
-interface SettingsScreenProps {
-  route: any;
-  navigation: any;
-}
-
-enum GyroMode {
-  NORMAL = 'normal',
-  CHAOS = 'chaos'
-}
+import { getDefaultPet, getPetById, Pet, pets } from '../../data/pets';
+import { GyroMode } from '../../hooks/useGameSensors';
+import { SettingsScreenProps } from '../_layout';
 
 export default function SettingsScreen({ route, navigation }: SettingsScreenProps) {
     
-  const [selectedGyroMode, setSelectedGyroMode] = useState<GyroMode>(
-    route.params?.gyroMode || GyroMode.NORMAL
-  );
-
-  const [weatherCheckEnabled, setWeatherCheckEnabled] = useState(
-    route.params?.weatherCheckEnabled || true
-  );
-  
-  const [selectedPetId, setSelectedPetId] = useState(
-    route.params?.selectedPetId || getDefaultPet().id
-  );
-  
-  const [petName, setPetName] = useState(
-    route.params?.petName || getPetById(route.params?.selectedPetId || getDefaultPet().id).defaultName
-  );
-
+  const [selectedGyroMode, setSelectedGyroMode] = useState<GyroMode>(route.params?.gyroMode || GyroMode.NORMAL);
+  const [weatherCheckEnabled, setWeatherCheckEnabled] = useState(route.params?.weatherCheckEnabled ?? true);
+  const [selectedPet, setSelectedPet] = useState<Pet>(route.params?.selectedPet || getDefaultPet());
   const [showPetSelector, setShowPetSelector] = useState(false);
   const [showNameEditor, setShowNameEditor] = useState(false);
-  const [defaultPetName, setDefaultPetName] = useState(petName);
-
-  const selectedPet = getPetById(selectedPetId);
+  const [customName, setCustomName] = useState(route.params?.selectedPet?.name || getDefaultPet().name);
 
   const handlePetSelection = (petId: string) => {
-    setSelectedPetId(petId);
     const newPet = getPetById(petId);
-
-    if (petName === selectedPet.defaultName) {
-      setPetName(newPet.defaultName);
-    }
-
+    setSelectedPet(newPet);
+    setCustomName(newPet.name);
     setShowPetSelector(false);
   };
 
+  const handleNameEdit = () => {
+    setCustomName(selectedPet.name);
+    setShowNameEditor(true);
+  };
+
   const handleNameSave = () => {
-    setPetName(defaultPetName.trim() || selectedPet.defaultName);
+    const originalPet = getPetById(selectedPet.id);
+    const trimmedName = customName.trim();
+    const finalName = trimmedName || originalPet.name;
+    
+    const updatedPet: Pet = {
+      ...selectedPet,
+      name: finalName
+    };
+    setSelectedPet(updatedPet);
+    setCustomName(finalName);
     setShowNameEditor(false);
   };
 
-  const handleNameCancel = () => {
-    setDefaultPetName(petName);
+  const handleNameEditCancel = () => {
+    setCustomName('');
     setShowNameEditor(false);
   };
     
   const goBack = () => {
     navigation.navigate('Start', {
       weatherCheckEnabled, 
-      selectedPetId,
-      petName,
+      selectedPet,
       gyroMode: selectedGyroMode
     });
   };
@@ -72,6 +58,7 @@ export default function SettingsScreen({ route, navigation }: SettingsScreenProp
       
       <Text style={styles.settingsLabel}>Väder</Text>
       <View style={styles.settingRow}>
+        {/* //TODO Fixa så att denna lagras när man sparat, gått till StartScreen och sen tillbaka hit. */}
         <Text style={styles.settingLabel}>
           Blockera spel vid fint väder
         </Text>
@@ -92,12 +79,9 @@ export default function SettingsScreen({ route, navigation }: SettingsScreenProp
           </View>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.settingRow} onPress={() => {
-          setDefaultPetName(petName);
-          setShowNameEditor(true);
-        }}>
+        <TouchableOpacity style={styles.settingRow} onPress={handleNameEdit}>
           <Text style={styles.settingLabel}>Namn</Text>
-          <Text style={styles.petNameDisplay}>{petName}</Text>
+          <Text style={styles.petNameDisplay}>{selectedPet.name}</Text>
         </TouchableOpacity>
       </View>
 
@@ -136,17 +120,17 @@ export default function SettingsScreen({ route, navigation }: SettingsScreenProp
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Välj ditt husdjur</Text>
             <ScrollView style={styles.petGrid}>
-              {PETS.map((pet) => (
+              {pets.map((pet) => (
                 <TouchableOpacity
                   key={pet.id}
                   style={[
                     styles.petOption,
-                    selectedPetId === pet.id && styles.selectedPetOption
+                    selectedPet.id === pet.id && styles.selectedPetOption
                   ]}
                   onPress={() => handlePetSelection(pet.id)}
                 >
                   <Text style={styles.petOptionEmoji}>{pet.emoji}</Text>
-                  <Text style={styles.petOptionName}>{pet.defaultName}</Text>
+                  <Text style={styles.petOptionName}>{pet.name}</Text>
                 </TouchableOpacity>
               ))}
             </ScrollView>
@@ -165,7 +149,7 @@ export default function SettingsScreen({ route, navigation }: SettingsScreenProp
         animationType="fade"
         transparent={true}
         visible={showNameEditor}
-        onRequestClose={handleNameCancel}
+        onRequestClose={handleNameEditCancel}
       >
         <View style={styles.modalOverlay}>
           <View style={styles.nameModalContent}>
@@ -173,22 +157,22 @@ export default function SettingsScreen({ route, navigation }: SettingsScreenProp
             <Text style={styles.petEmoji}>{selectedPet.emoji}</Text>
             <TextInput
               style={styles.nameInput}
-              value={defaultPetName}
-              onChangeText={setDefaultPetName}
-              placeholder={selectedPet.defaultName}
+              value={customName}
+              onChangeText={setCustomName}
+              placeholder={getPetById(selectedPet.id).name}
               placeholderTextColor="#999"
-              maxLength={15}
+              maxLength={25}
               autoFocus
             />
             <TouchableOpacity 
               style={styles.clearButton}
-              onPress={() => setDefaultPetName('')}
+              onPress={() => {setCustomName('')}}
               activeOpacity={0.7}
             >
               <Text style={styles.clearButtonText}>✕</Text>
             </TouchableOpacity>
             <View style={styles.nameModalButtons}>
-              <TouchableOpacity style={styles.nameButton} onPress={handleNameCancel}>
+              <TouchableOpacity style={styles.nameButton} onPress={handleNameEditCancel}>
                 <Text style={styles.nameButtonText}>Avbryt</Text>
               </TouchableOpacity>
               <TouchableOpacity style={[styles.nameButton, styles.saveButton]} onPress={handleNameSave}>

@@ -1,27 +1,31 @@
-import { Ionicons } from "@expo/vector-icons";
-import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { useFocusEffect } from "@react-navigation/native";
 import { Image } from 'expo-image';
 import { useCallback, useEffect, useState } from "react";
 import { ActivityIndicator, Alert, StatusBar, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { WeatherForecaster } from '../api/weather-forecast';
 import { getDefaultPet } from '../data/pets';
 import { ScoreManager } from "../utils/score-manager";
+import { StartScreenProps } from './_layout';
+import { GyroMode } from '../hooks/useGameSensors';
 
-interface StartScreenProps {
-  route: any;
-}
-
-export default function StartScreen({ route }: StartScreenProps) {
-  
-  const navigation = useNavigation<any>();
+export default function StartScreen({ route, navigation }: StartScreenProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [weatherCheckEnabled, setWeatherCheckEnabled] = useState(true);
   const [currentWeather, setCurrentWeather] = useState<string | null>(null);
-  const selectedPetId = route.params?.selectedPetId || getDefaultPet().id;
-  const petName = route.params?.petName || getDefaultPet().defaultName;
+  const selectedPet = route.params?.selectedPet || getDefaultPet();
+  const petName = selectedPet.name || getDefaultPet().name;
+  const petEmoji = selectedPet.emoji || getDefaultPet().emoji;
   const niceWeather = (currentWeather !== 'rain' && currentWeather !== 'rainshowers_day' && currentWeather !== 'thunderstorm');
   const [currentLevel, setCurrentLevel] = useState(1);
 
+  // TODO TA BORT INNAN INLÄMNING, ENBART FÖR ATT RENSA SIMPLE-STORAGE
+  // useEffect(() => {
+  //   const clearData = async () => {
+  //     await ScoreManager.clearAllData();
+  //   };
+  //   clearData();
+  // }, []);
+  
   useFocusEffect(
     useCallback(() => {
       if (route.params?.weatherCheckEnabled !== undefined) {
@@ -49,25 +53,24 @@ export default function StartScreen({ route }: StartScreenProps) {
       );
       return;
     }
-      setIsLoading(true);
 
-      setTimeout(() => {
-        setIsLoading(false);
-        navigation.navigate('Game', {
-          selectedPetId, 
-          petName,
-          gyroMode: route.params?.gyroMode || 'normal',
-          initialLevel: currentLevel,
-        });
-      }, 800);
+    setIsLoading(true);
+
+    setTimeout(() => {
+      setIsLoading(false);
+      navigation.navigate('Game', {
+        selectedPet,
+        gyroMode: route.params?.gyroMode || GyroMode.NORMAL,
+        initialLevel: currentLevel,
+      });
+    }, 800);
   };
 
   const handleGoToSettings = () => {
-    navigation.navigate('Settings', { 
+    navigation.navigate('Settings', {
       weatherCheckEnabled,
-      selectedPetId,
-      petName,
-      gyroMode: route.params?.gyroMode || 'normal'
+      selectedPet,
+      gyroMode: route.params?.gyroMode || GyroMode.NORMAL
     });
   };
 
@@ -84,7 +87,7 @@ export default function StartScreen({ route }: StartScreenProps) {
       
       <Image style={styles.logo} source={require('../assets/images/gamelogo.png')}/>
       <Text style={styles.description}>
-        Hjälp {petName} ur laburinten!
+        Hjälp {petEmoji} ur labyrinten!
       </Text>
       <Text style={styles.instructions}>
         Luta din telefon i alla riktningar för att guida ditt husdjur mot friheten!
@@ -97,12 +100,12 @@ export default function StartScreen({ route }: StartScreenProps) {
         </View>
       ) : (
         <TouchableOpacity style={styles.startButton} onPress={handleStartGame}>
-          <Text style={styles.startButtonText}>🎮  STARTA  🎮</Text>
+          <Text style={styles.startButtonText}>STARTA</Text>
         </TouchableOpacity>
       )}
 
       <TouchableOpacity style={styles.settingsButton} onPress={handleGoToSettings}>
-        <Text style={styles.settingsButtonText}>🛠️  INSTÄLLNINGAR  🛠️</Text>
+        <Text style={styles.settingsButtonText}>INSTÄLLNINGAR</Text>
       </TouchableOpacity>
       
       <StatusBar barStyle="default"/>

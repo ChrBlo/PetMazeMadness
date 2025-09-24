@@ -25,6 +25,7 @@ export interface CompletionRecord {
   attempts: number;
   deaths: number;
   timestamp: number;
+  gyroMode: string;
 }
 
 export class ScoreManager {
@@ -154,7 +155,8 @@ export class ScoreManager {
     petName: string,
     petEmoji: string,
     attempts: number,
-    deaths: number
+    deaths: number,
+    gyroMode: string
   ): Promise<{ isNewRecord: boolean; stats: LevelStats }> {
   
     const result = await this.recordCompletion(levelId, completionTime);
@@ -167,7 +169,8 @@ export class ScoreManager {
       completionTime,
       attempts,
       deaths,
-      timestamp: Date.now()
+      timestamp: Date.now(),
+      gyroMode
     };
       
     const key = this.getCompletionsKey(levelId);
@@ -176,24 +179,62 @@ export class ScoreManager {
       
     completions.push(completionRecord);
       
-    const sortedCompletions = completions
-      .sort((a, b) => a.completionTime - b.completionTime)
-      .slice(0, 10); // Store max 10
+    const sortedCompletions = completions.sort((a, b) => a.completionTime - b.completionTime);
       
     await store.save(key, sortedCompletions);
       
     return result;
   }
 
-  static async getTopCompletions(levelId: number, limit: number = 10): Promise<CompletionRecord[]> {
+  static async getTopCompletions(levelId: number, limit: number = 10, gyroMode?: string): Promise<CompletionRecord[]> {
   
     const key = this.getCompletionsKey(levelId);
     const completions = await store.get(key);
       
     if (!completions) return [];
-      
-    return completions
+
+    let filteredCompletions = completions;
+    if (gyroMode)
+    {
+      filteredCompletions = completions.filter((completion: CompletionRecord) => completion.gyroMode === gyroMode);
+    }
+    return filteredCompletions
       .sort((a: CompletionRecord, b: CompletionRecord) => a.completionTime - b.completionTime)
       .slice(0, limit);
   }
+  
+  static async getPetCompletions(levelId: number, petId: string, gyroMode?: string): Promise<CompletionRecord[]> {
+  const key = this.getCompletionsKey(levelId);
+  const completions = await store.get(key);
+  
+  if (!completions) return [];
+  
+  let filteredCompletions = completions.filter(
+    (completion: CompletionRecord) => completion.petId === petId
+  );
+  
+  if (gyroMode)
+  {
+    filteredCompletions = filteredCompletions.filter((completion: CompletionRecord) => completion.gyroMode === gyroMode);
+  }
+  return completions.filter((completion: CompletionRecord) => completion.petId === petId);
+}
+
+static async clearAllData(): Promise<void> {
+  try {
+    // Get all keys first
+    const keys = await store.keys();
+    console.log('Found keys:', keys);
+    
+    // Delete each key individually
+    for (const key of keys) {
+      await store.delete(key);
+      console.log('Deleted key:', key);
+    }
+    
+    console.log('All game data cleared successfully');
+  } catch (error) {
+    console.error('Error clearing game data:', error);
+  }
+}
 }

@@ -1,13 +1,42 @@
 import { NavigationContainer } from "@react-navigation/native";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { createNativeStackNavigator, NativeStackScreenProps } from "@react-navigation/native-stack";
+import { GyroMode } from "../hooks/useGameSensors";
+import { Pet } from "../data/pets";
 import React from "react";
 import MazeStatisticsScreen from "./game-stats/[id]";
 import GameScreen from "./game/index";
 import StartScreen from "./index";
 import SettingsScreen from "./settings/index";
 
+type RootStackParamList = {
+  Start: {
+    weatherCheckEnabled?: boolean;
+    selectedPet?: Pet;
+    gyroMode?: GyroMode;
+  };
+  Game: {
+    gyroMode?: GyroMode;
+    selectedPet?: Pet;
+    initialLevel?: number;
+  };
+  Settings: {
+    weatherCheckEnabled?: boolean;
+    selectedPet?: Pet;
+    gyroMode?: GyroMode;
+  };
+  GameStats: { 
+    levelId: number;
+    currentPet: Pet;
+    gyroMode: GyroMode;
+  };
+}
 
-const Stack = createNativeStackNavigator();
+export type StartScreenProps = NativeStackScreenProps<RootStackParamList, "Start">;
+export type GameScreenProps = NativeStackScreenProps<RootStackParamList, "Game">;
+export type SettingsScreenProps = NativeStackScreenProps<RootStackParamList, "Settings">;
+export type GameStatsScreenProps = NativeStackScreenProps<RootStackParamList, "GameStats">;
+
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function RootLayout() {
   return (

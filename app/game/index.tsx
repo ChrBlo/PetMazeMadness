@@ -1,17 +1,17 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
 import { useAudioPlayer } from 'expo-audio';
 import * as Haptics from 'expo-haptics';
 import { useEffect, useState } from "react";
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { MazeRenderer } from "../../components/maze-renderer";
 import { MAZE_LEVELS, MazeLevel, getCurrentLevel } from '../../data/maze-layouts';
-import { DEATH_EMOJI, getDefaultPet, getPetById } from '../../data/pets';
+import { DEATH_EMOJI, getDefaultPet } from '../../data/pets';
 import { useGamePhysics } from '../../hooks/useGamePhysics';
 import { GyroMode, useGameSensors } from '../../hooks/useGameSensors';
 import { useGameTimer } from '../../hooks/useGameTimer';
 import { findNearestSafeCell, getMazeCell, getPosition } from "../../utils/game-helpers";
 import { LevelStats, ScoreManager } from '../../utils/score-manager';
+import { GameScreenProps } from "../_layout";
 
 const MAZE_SIZE = 300;
 const BALL_SIZE = 20;
@@ -25,9 +25,7 @@ const victorySound = require('../../assets/sounds/whopee.mp3');
 const snackSound = require('../../assets/sounds/snackSound1.mp3');
 const spawnSound = require('../../assets/sounds/plop.mp3');
 
-export default function GameScreen({ route }: { route: any }) {
-  //SCREEN NAV
-  const navigation = useNavigation<any>();
+export default function GameScreen({ route, navigation }: GameScreenProps) {
   // GYRO
   const [gyroMode] = useState<GyroMode>(route.params?.gyroMode || GyroMode.NORMAL);
   //GAME FEATURES
@@ -46,9 +44,8 @@ export default function GameScreen({ route }: { route: any }) {
   const [currentLevel, setCurrentLevel] = useState<MazeLevel>(getCurrentLevel(route.params?.initialLevel || 1));
   const [completedLevels, setCompletedLevels] = useState<Set<number>>(new Set());
   // PET
-  const selectedPetId = route.params?.selectedPetId || getDefaultPet().id;
-  const petName = route.params?.petName || getDefaultPet().defaultName;
-  const selectedPet = getPetById(selectedPetId);
+  const selectedPet = route.params?.selectedPet || getDefaultPet();
+  const petName = selectedPet.name;
   // MAZE AND POSITIONING
   const MAZE_LAYOUT = currentLevel.layout;
   const CELL_SIZE = MAZE_SIZE / MAZE_LAYOUT.length;
@@ -77,8 +74,13 @@ export default function GameScreen({ route }: { route: any }) {
     loadStats();
   }, [currentLevelId]);
 
+  //TODO fixa bugg här, timer behöver stoppas när man går till STATS, MEN sen också starta igen när man går tillbaka (useFocusEffect?)
   const handleGoToMazeStats = () => {
-    navigation.navigate('GameStats', {levelId: currentLevelId});
+    navigation.navigate('GameStats', {
+      levelId: currentLevelId,
+      currentPet: selectedPet,
+      gyroMode: gyroMode
+    });
   };
   
   // CHECK WALL COLLISION
@@ -153,11 +155,12 @@ export default function GameScreen({ route }: { route: any }) {
       ScoreManager.recordCompletionWithDetails(
         currentLevelId,
         completionTime,
-        selectedPetId,
-        petName,
+        selectedPet.id,
+        selectedPet.name,
         selectedPet.emoji,
         currentAttempt,
-        levelStats?.totalDeaths || 0
+        levelStats?.totalDeaths || 0,
+        gyroMode.toString()
       ).then(({ isNewRecord }) => {
         const message = isNewRecord
           ? `${petName} flydde! 🌈⭐\nNYTT REKORD: ${formatTime(completionTime)}!`

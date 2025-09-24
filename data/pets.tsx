@@ -1,57 +1,56 @@
-// src/data/pets.ts
 export interface Pet {
   id: string;
   emoji: string;
-  defaultName: string;
+  name: string;
 }
 
 export const DEATH_EMOJI = '💀';
 
-export const PETS: Pet[] = [
+export const pets: Pet[] = [
   {
     id: 'hamster',
     emoji: '🐹',
-    defaultName: 'Fjutten'
+    name: 'Fjutten'
   },
   {
     id: 'mouse',
     emoji: '🐭',
-    defaultName: 'Bengt'
+    name: 'Bengt'
   },
   {
     id: 'rabbit',
     emoji: '🐰',
-    defaultName: 'Hopplös'
+    name: 'Hopplös'
   },
   {
     id: 'cat',
     emoji: '🐱',
-    defaultName: 'Världserövraren Smulan'
+    name: 'Världserövraren Smulan'
   },
   {
     id: 'dog',
     emoji: '🐶',
-    defaultName: 'Get'
+    name: 'Get'
   },
   {
     id: 'frog',
     emoji: '🐸',
-    defaultName: 'Boll'
+    name: 'Boll'
   },
   {
     id: 'pig',
     emoji: '🐷',
-    defaultName: 'Fläsk'
+    name: 'Fläsk'
   },
   {
     id: 'chick',
     emoji: '🐥',
-    defaultName: 'Nugget'
+    name: 'Nugget'
   }
 ];
 
-export const getDefaultPet = (): Pet => PETS[0];
+export const getDefaultPet = (): Pet => pets[0];
 
 export const getPetById = (id: string): Pet => {
-  return PETS.find(pet => pet.id === id) || getDefaultPet();
+  return pets.find(pet => pet.id === id) || getDefaultPet();
 };

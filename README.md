@@ -27,6 +27,7 @@ Used React Native Core Components:
 - [X] TextInput: User input (pet name)
 - [X] Modal: Pet selection and pet name edit
 - [X] ScrollView: used inside modal for pet selection & maze[id] statistics screen
+- [X] FlatList: used to list top 10 records in maze statistics
 
 Used Expo SDK 54 Components:
 - [X] Gyroscope (expo-sensors): Game controls - CHAOS mode
