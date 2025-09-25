@@ -1,8 +1,9 @@
 import { Ionicons } from "@expo/vector-icons";
+import { useFocusEffect } from '@react-navigation/native';
 import { useAudioPlayer } from 'expo-audio';
 import * as Haptics from 'expo-haptics';
 import { useAtom, useSetAtom } from 'jotai';
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { isDeadAtom, isGameWonAtom, recordDeathAtom, recordWinAtom, resetGameStateAtom } from '../../atoms/gameAtoms';
 import { MazeRenderer } from "../../components/maze-renderer";
@@ -11,7 +12,7 @@ import { DEATH_EMOJI, getDefaultPet } from '../../data/pets';
 import { useGamePhysics } from '../../hooks/useGamePhysics';
 import { GyroMode, useGameSensors } from '../../hooks/useGameSensors';
 import { useGameTimer } from '../../hooks/useGameTimer';
-import { findNearestSafeCell, formatTime, getMazeCell, getPosition } from "../../utils/game-helpers";
+import { findNearestSafeCell, getMazeCell, getPosition } from "../../utils/game-helpers";
 import { LevelStats, ScoreManager } from '../../utils/score-manager';
 import { GameScreenProps } from "../_layout";
 
@@ -45,7 +46,8 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
   const [levelStats, setLevelStats] = useState<LevelStats | null>(null);
   const [currentAttempt, setCurrentAttempt] = useState(1);
   const [extraLivesUsed, setExtraLivesUsed] = useState(0);
-  const {gameTime, startTimer, stopTimer, resetTimer} = useGameTimer(!isGameWon && !isDead);
+  const [isGamePaused, setIsGamePaused] = useState(false);
+
   //GAME LEVELS
   const [currentLevelId, setCurrentLevelId] = useState(route.params?.initialLevel || 1);
   const [currentLevel, setCurrentLevel] = useState<MazeLevel>(getCurrentLevel(route.params?.initialLevel || 1));
@@ -80,6 +82,15 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
     };
     loadStats();
   }, [currentLevelId]);
+
+  useFocusEffect(
+    useCallback(() => {
+      setIsGamePaused(false);
+      return () => {
+        setIsGamePaused(true);
+      };
+    }, [])
+);
 
   //TODO fixa bugg här, timer behöver stoppas när man går till STATS, MEN sen också starta igen när man går tillbaka (useFocusEffect?)
   const handleGoToMazeStats = () => {
@@ -286,19 +297,15 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
   // CUSTOM HOOKS ----------------
   const { accelData, gyroData } = useGameSensors(gyroMode);
   
-  const { 
-    ballPosition, 
-    setBallPosition, 
-    velocity, 
-    setVelocity, 
-    resetPosition 
-  } = useGamePhysics({
+  const { gameTime, startTimer, stopTimer, resetTimer } = useGameTimer(!isGameWon && !isDead && !isGamePaused);
+
+  const { ballPosition,  setBallPosition, velocity, setVelocity, resetPosition } = useGamePhysics({
     gyroMode,
     accelData,
     gyroData,
     checkCollision,
     isGameWon,
-    isDead,
+    isDead: isDead || isGamePaused, // Paused game treates as death in gamePhysics
     initialPosition: getStartPosition()
   });
 
