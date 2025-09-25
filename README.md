@@ -1,5 +1,5 @@
 ## PET MAZE MADNESS
-A thrilling gyroscope-controlled maze game built with React Native and Expo. 
+A thrilling maze game built with React Native and Expo. 
 This project was created as a school assigment designed to encourage us students to explore React Native core components and Expo SDK components, and will not be developed any further.
 
 ## How to Play 🎮
@@ -8,12 +8,15 @@ Start the game by pressing "STARTA" on the main menu.
 Tilt your device in ALL different directions guide the pet through the maze to the house.
 Avoid red walls - they explode and your pet will die a horrible death! 💀
 
-# Tech Stack 🛠 
+## Repository
+This project can be found here: https://github.com/ChrBlo/PetMazeMadness
+
+## Tech Stack 🛠 
 Framework: React Native + Expo
 Language: TypeScript
 Build Tool: Expo CLI
 Styling: Using StyleSheet
-Icons: https://icons.expo.fyi/Index
+Icons: https://icons.expo.fyi/Index (Ionicons)
 Dev Testing App: Expo Go
 Emulator: Android Studio
 
@@ -37,9 +40,10 @@ Used Expo SDK 54 Components:
 - [X] Image: For game logotype on startScreen
 - [X] Ionicons: used in gameScreen on button navigation user to maze stats
 
-Other External modules/APIs used: //TODO
+Other External modules/APIs used:
 - [X] yr.no weather forecast open API (https://developer.yr.no/doc) - Used in a game settings that blocks game if nice weather
 - [X] added react-native-simple-store for storing score data
+- [X] added jotai for simpler state handling (fixed bug with walls beeing hit several times)
 
 ## Installation 🚀 //TODO
 1. Clone repository:
@@ -56,11 +60,11 @@ npm start
 För att bli godkänd på den här uppgiften MÅSTE du använda GIT och GitHub.
 Inlämningen sker som vanligt via läroplattformen. I din projektmapp ska det finnas
 (utöver all kod) en README.md fil. Den ska innehålla:
-   - [ ] titel
-   - [ ] beskrivning av projektet
+   - [X] titel
+   - [X] beskrivning av projektet
    - [ ] info om hur projektet byggs och körs 
-   - [ ] samt vilka uppgiftskrav som är uppfyllda. 
-- [ ] Kom ihåg att .git mappen måste finnas så jag kan hitta till ditt publika repo.
+   - [X] samt vilka uppgiftskrav som är uppfyllda. 
+- [X] Kom ihåg att .git mappen måste finnas så jag kan hitta till ditt publika repo.
 
 Presentation
 Du ska i samband med inlämning hålla i en presentation där du för klassen presenterar:
@@ -84,7 +88,7 @@ Krav för godkänt:
 
 Krav för väl godkänt:
 - [X] Alla punkter för godkänt är uppfyllda
-- [ ] Ytterligare en valfri extern modul används i projektet (ex. react-hook-form).
+- [X] Ytterligare en valfri extern modul används i projektet (ex. react-hook-form).
 - [X] Appen ska prata med ett Web-API för att hämta data.
 - [ ] Appen ska förberedas för lansering till en Appstore (Deadline samma dag som kursen slutar)
 
@@ -93,13 +97,14 @@ Krav för väl godkänt:
 https://reactnative.dev/docs/components-and-apis#basic-components
 https://docs.expo.dev/versions/latest/
 https://icons.expo.fyi/Index
+https://jotai.org/docs
 Sound effects from https://pixabay.com
 - https://pixabay.com/sound-effects/search/fart/ - used sound file called: "fart"
 - https://pixabay.com/sound-effects/search/woopee/ - used sound file called: "woopee.."
+- https://pixabay.com/sound-effects/search/plop/ - used sound file called: "plopp"
+- https://pixabay.com/sound-effects/search/woopee/ - used sound file called: "woopee.."
 
-## Device Requirements📱 //TODO
+## Device Requirements📱 
 Physical device required - Gyroscope sensors don't work in simulators
-iOS or Android with gyroscope support
+iOS or Android with gyroscope/accelerometer-support
 Expo Go app for dev testing
-
-## Customization 🔧 //TODO
