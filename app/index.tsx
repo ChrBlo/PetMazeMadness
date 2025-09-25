@@ -1,12 +1,13 @@
 import { useFocusEffect } from "@react-navigation/native";
 import { Image } from 'expo-image';
-import { useCallback, useEffect, useState } from "react";
-import { ActivityIndicator, Alert, StatusBar, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import React, { useCallback, useEffect, useState } from "react";
+import { ActivityIndicator, Alert, StatusBar, StyleSheet, Text, View } from "react-native";
 import { WeatherForecaster } from '../api/weather-forecast';
+import { GradientButton } from "../components/gradient-button";
 import { getDefaultPet } from '../data/pets';
-import { ScoreManager } from "../utils/score-manager";
-import { StartScreenProps } from './_layout';
 import { GyroMode } from '../hooks/useGameSensors';
+import { ScoreManager } from "../utils/score-manager";
+import { StartScreenProps } from './vad-som-helst';
 
 export default function StartScreen({ route, navigation }: StartScreenProps) {
   const [isLoading, setIsLoading] = useState(false);
@@ -99,14 +100,22 @@ export default function StartScreen({ route, navigation }: StartScreenProps) {
           <Text style={styles.loadingText}>Laddar spel...</Text>
         </View>
       ) : (
-        <TouchableOpacity style={styles.startButton} onPress={handleStartGame}>
-          <Text style={styles.startButtonText}>STARTA</Text>
-        </TouchableOpacity>
+        <GradientButton 
+          title="STARTA" 
+          onPress={handleStartGame} 
+          theme="green" 
+          style={styles.startButton}
+          textStyle={styles.startButtonText}
+        />
       )}
 
-      <TouchableOpacity style={styles.settingsButton} onPress={handleGoToSettings}>
-        <Text style={styles.settingsButtonText}>INSTÄLLNINGAR</Text>
-      </TouchableOpacity>
+      <GradientButton 
+        title="INSTÄLLNINGAR" 
+        onPress={handleGoToSettings} 
+        theme="blue" 
+        style={styles.settingsButton}
+        textStyle={styles.settingsButtonText}
+      />
       
       <StatusBar barStyle="default"/>
     </View>
@@ -148,12 +157,10 @@ const styles = StyleSheet.create({
     width: '90%',
   },
   startButton: {
-    backgroundColor: '#45da9cff',
-    paddingHorizontal: 20,
     paddingVertical: 20,
     borderRadius: 12,
-    marginBottom: 8,
-    marginTop: 8,
+    marginBottom: 2,
+    marginTop: 2,
     width: '80%',
   },
   startButtonText: {
@@ -163,12 +170,9 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   settingsButton: {
-    backgroundColor: '#3894d1ff',
-    paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 12,
     marginBottom: 12,
-    marginTop: 22,
     width: '80%',
   },
   settingsButtonText: {
@@ -180,12 +184,12 @@ const styles = StyleSheet.create({
   loadingContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 0,
+    paddingVertical: 5,
   },
   loadingText: {
     color: '#fcfcfc',
     fontSize: 16,
-    marginTop: 32,
+    marginTop: 10,
   },
   logo: {
     marginTop: -50,
