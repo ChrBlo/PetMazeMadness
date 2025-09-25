@@ -25,12 +25,12 @@ export const pets: Pet[] = [
   {
     id: 'cat',
     emoji: '🐱',
-    name: 'Världserövraren Smulan'
+    name: 'Mördarkatten'
   },
   {
     id: 'dog',
     emoji: '🐶',
-    name: 'Get'
+    name: 'Fluff'
   },
   {
     id: 'frog',

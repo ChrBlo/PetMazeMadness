@@ -6,6 +6,7 @@ import { useAtom, useSetAtom } from 'jotai';
 import { useCallback, useEffect, useState } from "react";
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { isDeadAtom, isGameWonAtom, recordDeathAtom, recordWinAtom, resetGameStateAtom } from '../../atoms/gameAtoms';
+import { CountdownAnimation } from '../../components/countdown-animation';
 import { GradientButton } from "../../components/gradient-button";
 import { MazeRenderer } from "../../components/maze-renderer";
 import { MAZE_LEVELS, MazeLevel, getCurrentLevel } from '../../data/maze-layouts';
@@ -38,17 +39,19 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
   const resetGameState = useSetAtom(resetGameStateAtom);
   // GYRO
   const [gyroMode] = useState<GyroMode>(route.params?.gyroMode || GyroMode.NORMAL);
-  //GAME FEATURES
+  //GAME FEATURES & EFFECTS
   const [showExplosion, setShowExplosion] = useState(false);
   const [explosionPosition, setExplosionPosition] = useState({ x: 0, y: 0 });
   const [extraLives, setExtraLives] = useState(0);
   const [eatenSnacks, setEatenSnacks] = useState<Set<string>>(new Set());
+  const [showCountdown, setShowCountdown] = useState(false);
+  const [isCountdownComplete, setIsCountdownComplete] = useState(false);
+  const [isReady, setIsReady] = useState(false);
   // SCORE AND ATTEMPTS
   const [levelStats, setLevelStats] = useState<LevelStats | null>(null);
   const [currentAttempt, setCurrentAttempt] = useState(1);
   const [extraLivesUsed, setExtraLivesUsed] = useState(0);
   const [isGamePaused, setIsGamePaused] = useState(false);
-
   //GAME LEVELS
   const [currentLevelId, setCurrentLevelId] = useState(route.params?.initialLevel || 1);
   const [currentLevel, setCurrentLevel] = useState<MazeLevel>(getCurrentLevel(route.params?.initialLevel || 1));
@@ -68,10 +71,11 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
 
   useEffect(() => {
     const loadInitialData = async () => {
+      resetGameState();
+
       const progress = await ScoreManager.getGameProgress();
       setCompletedLevels(new Set(progress.completedLevels));
     };
-    startTimer();
     loadInitialData();
   }, []);
 
@@ -84,6 +88,18 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
     loadStats();
   }, [currentLevelId]);
 
+  useEffect(() => {
+    if (isReady) {
+      setShowCountdown(true);
+    }
+  }, [isReady]);
+
+  useEffect(() => {
+    if (isCountdownComplete) {
+      startTimer();
+    }
+  }, [isCountdownComplete]);
+
   useFocusEffect(
     useCallback(() => {
       setIsGamePaused(false);
@@ -93,7 +109,12 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
     }, [])
 );
 
-  //TODO fixa bugg här, timer behöver stoppas när man går till STATS, MEN sen också starta igen när man går tillbaka (useFocusEffect?)
+  const handleCountdownComplete = () => {
+    setShowCountdown(false);
+    setIsCountdownComplete(true);
+    setIsReady(false);
+  };
+  
   const handleGoToMazeStats = () => {
     navigation.navigate('GameStats', {
       levelId: currentLevelId,
@@ -248,7 +269,10 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
     setLevelStats(updatedStats);
     setCurrentAttempt(updatedStats.totalAttempts);
 
-    startTimer();
+    setIsCountdownComplete(false);
+    setIsReady(true);
+
+    // startTimer();
     
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
   };
@@ -270,7 +294,9 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
       setVelocity({ x: 0, y: 0 });
 
       ScoreManager.recordAttempt(nextId);
-      startTimer();
+
+      setIsReady(false);
+      setIsCountdownComplete(false);
     }
   };
 
@@ -291,14 +317,16 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
       setVelocity({ x: 0, y: 0 });
 
       ScoreManager.recordAttempt(prevId);
-      startTimer();
+
+      setIsReady(false);
+      setIsCountdownComplete(false);
     }
   };
 
   // CUSTOM HOOKS ----------------
   const { accelData, gyroData } = useGameSensors(gyroMode);
   
-  const { gameTime, startTimer, stopTimer, resetTimer } = useGameTimer(!isGameWon && !isDead && !isGamePaused);
+  const { gameTime, startTimer, stopTimer, resetTimer } = useGameTimer(!isGameWon && !isDead && !isGamePaused && isCountdownComplete);
 
   const { ballPosition,  setBallPosition, velocity, setVelocity, resetPosition } = useGamePhysics({
     gyroMode,
@@ -306,7 +334,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
     gyroData,
     checkCollision,
     isGameWon,
-    isDead: isDead || isGamePaused, // Paused game treates as death in gamePhysics
+    isDead: isDead || isGamePaused || !isCountdownComplete, // Pause & countdown treates as death in gamePhysics
     initialPosition: getStartPosition()
   });
 
@@ -398,7 +426,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
       <View style={styles.controls}>
 
         <GradientButton 
-          title="Starta om" 
+          title={isCountdownComplete ? "Starta om" : "REDO!"} 
           onPress={resetGame} 
           theme="green" 
           style={styles.controlButton}
@@ -441,6 +469,11 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
         </TouchableOpacity>
       </View>
 
+      <CountdownAnimation 
+        isVisible={showCountdown} 
+        onComplete={handleCountdownComplete}
+        volume={0.1}
+      />
     </View>
   );
 }
