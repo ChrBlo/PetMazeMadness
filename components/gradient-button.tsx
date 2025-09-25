@@ -3,8 +3,8 @@ import React from 'react';
 import { StyleSheet, Text, TextStyle, TouchableOpacity, ViewStyle } from 'react-native';
 
 const GradientThemes = {
-  green: ['#45da9cff', '#45da9cff'],
-  blue: ['#3894d1ff', '#3894d1ff'],
+  green: ['#45da9cff', '#31996eff'],
+  blue: ['#3894d1ff', '#296b97ff'],
 } as const;
 
 type GradientTheme = keyof typeof GradientThemes;

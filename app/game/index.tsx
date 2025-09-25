@@ -424,25 +424,21 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
       
       {/* BUTTONS */}
       <View style={styles.controls}>
-
-        <GradientButton 
-          title={isCountdownComplete ? "Starta om" : "REDO!"} 
-          onPress={resetGame} 
-          theme="green" 
-          style={styles.controlButton}
-          textStyle={styles.controlButtonText}
-        />
-        <Text style={styles.separator}></Text>
         <GradientButton 
           title="Till menyn" 
           onPress={() => navigation.goBack()} 
           theme="blue" 
-          style={styles.controlButton}
-          textStyle={styles.controlButtonText}
+          style={styles.goBackButton}
+          textStyle={styles.goBackButtonText}
         />
-
+        <GradientButton 
+          title={isCountdownComplete ? "Starta om" : "REDO!"} 
+          onPress={resetGame} 
+          theme="green" 
+          style={styles.playButton}
+          textStyle={styles.playButtonText}
+        />
       </View>
-
       <View style={styles.controls}>
         <TouchableOpacity 
           style={[styles.levelButton, currentLevelId <= 1 && styles.disabledButton]} 
@@ -451,15 +447,11 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
         >
           <Text style={styles.levelButtonText}>← Förra</Text>
         </TouchableOpacity>
-
         <Text style={styles.separator}></Text>
-
         <TouchableOpacity style={styles.statsButton} onPress={handleGoToMazeStats}>
           <Ionicons name="stats-chart-outline" size={24} color="white" />
         </TouchableOpacity>
-
         <Text style={styles.separator}></Text>
-
         <TouchableOpacity
           style={[styles.levelButton, !completedLevels.has(currentLevelId) && styles.disabledButton]}
           onPress={nextLevel}
@@ -544,22 +536,35 @@ const styles = StyleSheet.create({
     fontSize: 28,
   },
   controls: {
-    marginTop: 15,
-    alignItems: 'center',
+    marginTop: 5,
     justifyContent: 'center',
     flexDirection: 'row',
-    gap: 15,
-    width: '76%',
+    width: '77%',
   },
-  controlButton: {
-    marginTop: 10,
+  playButton: {
+    marginTop: 5,
     paddingHorizontal: 20,
-    paddingVertical: 10,
+    paddingVertical: 15,
     borderRadius: 12,
+    width: 170,
+    alignItems: 'center',
   },
-  controlButtonText: {
+  playButtonText: {
     color: 'white',
-    fontSize: 16,
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  goBackButton: {
+    marginTop: 5,
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    borderRadius: 12,
+    alignItems: 'center',
+    width: 170,
+  },
+  goBackButtonText: {
+    color: 'white',
+    fontSize: 18,
     fontWeight: 'bold',
   },
   stats: {
@@ -588,14 +593,14 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   separator: {
-    flex: 1,
+    flex:1,
   },
   levelButton: {
     backgroundColor: '#3d3d3dff',
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 12,
-    marginTop: 10,
+    marginTop: 5,
   },
   levelButtonText: {
     color: 'white',
