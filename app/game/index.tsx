@@ -6,6 +6,7 @@ import { useAtom, useSetAtom } from 'jotai';
 import { useCallback, useEffect, useState } from "react";
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { isDeadAtom, isGameWonAtom, recordDeathAtom, recordWinAtom, resetGameStateAtom } from '../../atoms/gameAtoms';
+import { GradientButton } from "../../components/gradient-button";
 import { MazeRenderer } from "../../components/maze-renderer";
 import { MAZE_LEVELS, MazeLevel, getCurrentLevel } from '../../data/maze-layouts';
 import { DEATH_EMOJI, getDefaultPet } from '../../data/pets';
@@ -14,7 +15,7 @@ import { GyroMode, useGameSensors } from '../../hooks/useGameSensors';
 import { useGameTimer } from '../../hooks/useGameTimer';
 import { findNearestSafeCell, getMazeCell, getPosition } from "../../utils/game-helpers";
 import { LevelStats, ScoreManager } from '../../utils/score-manager';
-import { GameScreenProps } from "../_layout";
+import { GameScreenProps } from "../vad-som-helst";
 
 const MAZE_SIZE = 300;
 const BALL_SIZE = 20;
@@ -395,15 +396,23 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
       
       {/* BUTTONS */}
       <View style={styles.controls}>
-        <TouchableOpacity style={styles.resetButton} onPress={resetGame}>
-          <Text style={styles.resetButtonText}>Starta om</Text>
-        </TouchableOpacity>
 
+        <GradientButton 
+          title="Starta om" 
+          onPress={resetGame} 
+          theme="green" 
+          style={styles.controlButton}
+          textStyle={styles.controlButtonText}
+        />
         <Text style={styles.separator}></Text>
+        <GradientButton 
+          title="Till menyn" 
+          onPress={() => navigation.goBack()} 
+          theme="blue" 
+          style={styles.controlButton}
+          textStyle={styles.controlButtonText}
+        />
 
-        <TouchableOpacity style={styles.goToStartMenuButton} onPress={() => navigation.goBack()}>
-          <Text style={styles.goToStartMenuText}>Till menyn</Text>
-        </TouchableOpacity>
       </View>
 
       <View style={styles.controls}>
@@ -420,7 +429,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
         <TouchableOpacity style={styles.statsButton} onPress={handleGoToMazeStats}>
           <Ionicons name="stats-chart-outline" size={24} color="white" />
         </TouchableOpacity>
-        
+
         <Text style={styles.separator}></Text>
 
         <TouchableOpacity
@@ -458,18 +467,6 @@ const styles = StyleSheet.create({
     color: '#bbb',
     textAlign: 'center',
     marginBottom: 20,
-  },
-  goToStartMenuButton: {
-    marginTop: 10,
-    backgroundColor: '#3d3d3dff',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 12,
-  },
-  goToStartMenuText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: 'bold',
   },
   gameContainer: {
     alignItems: 'center',
@@ -516,18 +513,18 @@ const styles = StyleSheet.create({
   controls: {
     marginTop: 15,
     alignItems: 'center',
+    justifyContent: 'center',
     flexDirection: 'row',
     gap: 15,
     width: '76%',
   },
-  resetButton: {
+  controlButton: {
     marginTop: 10,
-    backgroundColor: '#45da9cff',
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 12,
   },
-  resetButtonText: {
+  controlButtonText: {
     color: 'white',
     fontSize: 16,
     fontWeight: 'bold',

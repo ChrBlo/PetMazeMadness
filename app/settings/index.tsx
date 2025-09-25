@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Modal, ScrollView, StyleSheet, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { GradientButton } from '../../components/gradient-button';
 import { getDefaultPet, getPetById, Pet, pets } from '../../data/pets';
 import { GyroMode } from '../../hooks/useGameSensors';
-import { SettingsScreenProps } from '../_layout';
+import { SettingsScreenProps } from '../vad-som-helst';
 
 export default function SettingsScreen({ route, navigation }: SettingsScreenProps) {
     
@@ -104,10 +105,14 @@ export default function SettingsScreen({ route, navigation }: SettingsScreenProp
           </TouchableOpacity>
         </View>
       </View>
-      
-      <TouchableOpacity style={styles.backButton} onPress={goBack}>
-        <Text style={styles.backButtonText}>SPARA INSTÄLLNINGAR</Text>
-      </TouchableOpacity>
+
+      <GradientButton 
+        title="SPARA INSTÄLLNINGAR" 
+        onPress={goBack} 
+        theme="blue" 
+        style={styles.backButton}
+        textStyle={styles.backButtonText}
+      />
 
       {/* Pet Selector Modal */}
       <Modal
@@ -238,10 +243,10 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   backButton: {
-    backgroundColor: '#3894d1ff',
     padding: 10,
     borderRadius: 12,
     marginTop: 20,
+    width: '100%',
   },
   backButtonText: {
     textAlign: 'center',

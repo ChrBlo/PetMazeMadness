@@ -4,9 +4,9 @@ import { MazeRenderer } from "../../components/maze-renderer";
 import { getCurrentLevel } from "../../data/maze-layouts";
 import { getDefaultPet } from '../../data/pets';
 import { GyroMode } from "../../hooks/useGameSensors";
-import { CompletionRecord, ScoreManager } from "../../utils/score-manager";
 import { formatTime } from "../../utils/game-helpers";
-import { GameStatsScreenProps } from "../_layout";
+import { CompletionRecord, ScoreManager } from "../../utils/score-manager";
+import { GameStatsScreenProps } from "../vad-som-helst";
 
 const MAZE_SIZE = 300;
 const WALL_CELL = 1;
