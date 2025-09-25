@@ -1,4 +1,4 @@
-## PET MAZE MADNESS
+## PET MAZE MADNESS 🐹
 A thrilling maze game built with React Native and Expo. 
 This project was created as a school assigment designed to encourage us students to explore React Native core components and Expo SDK components, and will not be developed any further.
 
@@ -20,6 +20,7 @@ Icons: https://icons.expo.fyi/Index (Ionicons)
 Dev Testing App: Expo Go
 Emulator: Android Studio
 
+## Used Components ⚙️
 Used React Native Core Components:
 - [X] StatusBar: Used on startScreen to show battery status
 - [X] TouchableOpacity: Custom styled buttons and interactive elements
@@ -39,11 +40,13 @@ Used Expo SDK 54 Components:
 - [X] Audio (expo-audio): Sound effects management
 - [X] Image: For game logotype on startScreen
 - [X] Ionicons: used in gameScreen on button navigation user to maze stats
+- [X] LinearGradient (expo-linear-gradient) for button style
 
 Other External modules/APIs used:
 - [X] yr.no weather forecast open API (https://developer.yr.no/doc) - Used in a game settings that blocks game if nice weather
 - [X] added react-native-simple-store for storing score data
 - [X] added jotai for simpler state handling (fixed bug with walls beeing hit several times)
+
 
 ## Installation 🚀 //TODO
 1. Clone repository:
@@ -56,7 +59,7 @@ npm install expo-sensors expo-haptics expo-audio expo-status-bar
 npm start
 
 
-## ASSIGNMENT (from teacher)
+## ASSIGNMENT (from teacher) 🖋️
 För att bli godkänd på den här uppgiften MÅSTE du använda GIT och GitHub.
 Inlämningen sker som vanligt via läroplattformen. I din projektmapp ska det finnas
 (utöver all kod) en README.md fil. Den ska innehålla:
