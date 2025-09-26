@@ -46,6 +46,11 @@ export const pets: Pet[] = [
     id: 'chick',
     emoji: '🐥',
     name: 'Nugget'
+  },
+  {
+    id: 'crocodile',
+    emoji: '🐊',
+    name: 'Schnappi'
   }
 ];
 

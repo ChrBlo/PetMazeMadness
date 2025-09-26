@@ -16,7 +16,7 @@ import { GyroMode, useGameSensors } from '../../hooks/useGameSensors';
 import { useGameTimer } from '../../hooks/useGameTimer';
 import { findNearestSafeCell, getMazeCell, getPosition } from "../../utils/game-helpers";
 import { LevelStats, ScoreManager } from '../../utils/score-manager';
-import { GameScreenProps } from "../vad-som-helst";
+import { GameScreenProps } from "../root-layout";
 
 const MAZE_SIZE = 300;
 const BALL_SIZE = 20;

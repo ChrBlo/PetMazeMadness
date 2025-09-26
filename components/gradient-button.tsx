@@ -1,6 +1,6 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
-import { StyleSheet, Text, TextStyle, TouchableOpacity, ViewStyle } from 'react-native';
+import { Text, TextStyle, TouchableOpacity, ViewStyle } from 'react-native';
 
 const GradientThemes = {
   green: ['#45da9cff', '#31996eff'],

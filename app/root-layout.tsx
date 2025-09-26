@@ -13,6 +13,7 @@ type RootStackParamList = {
     weatherCheckEnabled?: boolean;
     selectedPet?: Pet;
     gyroMode?: GyroMode;
+    invertedGameControls?: boolean;
   };
   Game: {
     gyroMode?: GyroMode;

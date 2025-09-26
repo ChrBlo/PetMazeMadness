@@ -6,7 +6,7 @@ import { getDefaultPet } from '../../data/pets';
 import { GyroMode } from "../../hooks/useGameSensors";
 import { formatTime } from "../../utils/game-helpers";
 import { CompletionRecord, ScoreManager } from "../../utils/score-manager";
-import { GameStatsScreenProps } from "../vad-som-helst";
+import { GameStatsScreenProps } from "../root-layout";
 
 const MAZE_SIZE = 300;
 const WALL_CELL = 1;

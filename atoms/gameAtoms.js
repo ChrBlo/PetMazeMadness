@@ -14,7 +14,6 @@ export const recordWinAtom = atom(null, async (get, set, winData) => {
     return null;
   }
 
-  console.log("Recording win...", winData);
   set(isGameWonAtom, true);
 
   const result = await ScoreManager.recordCompletionWithDetails(
