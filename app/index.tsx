@@ -96,7 +96,7 @@ export default function StartScreen({ route, navigation }: StartScreenProps) {
 
       {isLoading ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#45da9cff" />
+          <ActivityIndicator size="large" color="#45da9cff" style={styles.loadingIndicator} />
           <Text style={styles.loadingText}>Laddar spel...</Text>
         </View>
       ) : (
@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#919191ff',
     textAlign: 'center',
-    marginBottom: 30,
+    marginBottom: 5,
     paddingHorizontal: 20,
     width: '90%',
   },
@@ -186,10 +186,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: 5,
   },
+  loadingIndicator: {
+    marginTop: 22,
+  },
   loadingText: {
     color: '#fcfcfc',
     fontSize: 16,
     marginTop: 10,
+    marginBottom: 22,
   },
   logo: {
     marginTop: -50,
