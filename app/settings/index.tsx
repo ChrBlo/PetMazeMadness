@@ -13,6 +13,8 @@ export default function SettingsScreen({ route, navigation }: SettingsScreenProp
   const [showPetSelector, setShowPetSelector] = useState(false);
   const [showNameEditor, setShowNameEditor] = useState(false);
   const [customName, setCustomName] = useState(route.params?.selectedPet?.name || getDefaultPet().name);
+  const [invertedGameControls, setInvertedGameControls] = useState(route.params?.invertedGameControls ?? false);
+
 
   const handlePetSelection = (petId: string) => {
     const newPet = getPetById(petId);
@@ -59,8 +61,7 @@ export default function SettingsScreen({ route, navigation }: SettingsScreenProp
       
       <Text style={styles.settingsLabel}>Väder</Text>
       <View style={styles.settingRow}>
-        {/* //TODO Fixa så att denna lagras när man sparat, gått till StartScreen och sen tillbaka hit. */}
-        <Text style={styles.settingLabel}>
+        <Text style={styles.settingRow}>
           Blockera spel vid fint väder
         </Text>
         <Switch
@@ -70,18 +71,18 @@ export default function SettingsScreen({ route, navigation }: SettingsScreenProp
         />
       </View>
 
-      <View style={styles.petSelection}>
+      <View>
         <Text style={styles.settingsLabel}>Husdjur</Text>
         
         <TouchableOpacity style={styles.settingRow} onPress={() => setShowPetSelector(true)}>
-          <Text style={styles.settingLabel}>Välj husdjur</Text>
+          <Text style={styles.settingRow}>Välj husdjur</Text>
           <View style={styles.petPreview}>
             <Text style={styles.petEmoji}>{selectedPet.emoji}</Text>
           </View>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.settingRow} onPress={handleNameEdit}>
-          <Text style={styles.settingLabel}>Namn</Text>
+          <Text style={styles.settingRow}>Namn</Text>
           <Text style={styles.petNameDisplay}>{selectedPet.name}</Text>
         </TouchableOpacity>
       </View>
@@ -89,7 +90,7 @@ export default function SettingsScreen({ route, navigation }: SettingsScreenProp
       <Text style={styles.settingsLabel}>Spelstyrning</Text>
       <View style={styles.settingRow}>
 
-        <Text style={styles.settingLabel}>Gyro-läge</Text>
+        <Text style={styles.settingRow}>Gyro-läge</Text>
         <View style={styles.segmentedControl}>
           <TouchableOpacity 
             style={[styles.segment, selectedGyroMode === GyroMode.NORMAL && styles.activeSegment]}
@@ -104,6 +105,18 @@ export default function SettingsScreen({ route, navigation }: SettingsScreenProp
             <Text style={styles.segmentText}>Kaos</Text>
           </TouchableOpacity>
         </View>
+      </View>
+
+      <Text style={styles.settingsLabel}>Invertera spelstyrning</Text>
+      <View style={styles.settingRow}>
+        <Text style={styles.settingRow}>
+          Invertera
+        </Text>
+        <Switch
+          value={weatherCheckEnabled}
+          onValueChange={setInvertedGameControls}
+          trackColor={{ false: '#767577', true: '#45da9cff' }}
+        />
       </View>
 
       <GradientButton 
@@ -204,31 +217,25 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#eee',
     marginTop: 40,
-    marginBottom: 40,
+    marginBottom: 20,
     textAlign: 'center',
-  },
-  petSelection: {
-    marginTop: 30,
-    marginBottom: 30,
   },
   settingsLabel: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#45da9cff',
-    marginBottom: 15,
+    marginTop: 35,
   },
   settingRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 20,
-    paddingVertical: 5,
-  },
-  settingLabel: {
     fontSize: 16,
     color: '#eee',
-    flex: 1,
+    marginTop: 5,
+    marginBottom: 10,
   },
+
   petPreview: {
     backgroundColor: '#3d3d3d',
     padding: 8,
@@ -245,7 +252,7 @@ const styles = StyleSheet.create({
   backButton: {
     padding: 10,
     borderRadius: 12,
-    marginTop: 20,
+    marginTop: 15,
     width: '100%',
   },
   backButtonText: {

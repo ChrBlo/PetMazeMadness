@@ -23,6 +23,7 @@ type RootStackParamList = {
     weatherCheckEnabled?: boolean;
     selectedPet?: Pet;
     gyroMode?: GyroMode;
+    invertedGameControls?: boolean;
   };
   GameStats: { 
     levelId: number;
@@ -43,7 +44,7 @@ export default function RootLayout() {
     <>
       <NavigationContainer>
         <Stack.Navigator>
-          <Stack.Screen name="Start" component={StartScreen} options={{ title: "Start", headerShown: false }} />
+          <Stack.Screen name="Start" component={StartScreen} options={{ title: "Start", headerShown: false, animation:'slide_from_left'}} />
           <Stack.Screen name="Game" component={GameScreen} options={{ title: "Game", headerShown: false }} />
           <Stack.Screen name="Settings" component={SettingsScreen} options={{ title: "Game settings", headerShown: false }} />
           <Stack.Screen name="GameStats" component={MazeStatisticsScreen} options={{ title: "Maze statistics", headerShown: false }} />
