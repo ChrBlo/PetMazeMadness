@@ -48,7 +48,6 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
   const [showCountdown, setShowCountdown] = useState(false);
   const [isCountdownComplete, setIsCountdownComplete] = useState(false);
   const [isReady, setIsReady] = useState(false);
-  const eatenSnacksRef = useRef<Set<string>>(new Set());
   // SCORE AND ATTEMPTS
   const [levelStats, setLevelStats] = useState<LevelStats | null>(null);
   const [currentAttempt, setCurrentAttempt] = useState(1);
@@ -91,20 +90,18 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
   }, [currentLevelId]);
 
   useEffect(() => {
-    if (isReady) {
+    if (isReady)
+    {
       setShowCountdown(true);
     }
   }, [isReady]);
   
   useEffect(() => {
-    if (isCountdownComplete) {
+    if (isCountdownComplete)
+    {
       startTimer();
     }
   }, [isCountdownComplete]);
-  
-  useEffect(() => {
-    eatenSnacksRef.current = eatenSnacks;
-  }, [eatenSnacks]);
 
   useFocusEffect(
     useCallback(() => {
@@ -134,7 +131,8 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
     const ballRadius = BALL_SIZE / 2;
     
     if (newX - ballRadius < 0 || newX + ballRadius > MAZE_SIZE ||
-      newY - ballRadius < 0 || newY + ballRadius > MAZE_SIZE) {
+      newY - ballRadius < 0 || newY + ballRadius > MAZE_SIZE)
+    {
       return true;
     }
 
@@ -156,7 +154,13 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
       const pCellX = Math.floor(point.x / CELL_SIZE);
       const pCellY = Math.floor(point.y / CELL_SIZE);
       
-      // check if DANGER_CELL first
+      // check if WALL_CELL
+      if (getMazeCell(pCellX, pCellY, MAZE_LAYOUT) === WALL_CELL)
+      {
+        return true;
+      }
+
+      // check if DANGER_CELL
       if (getMazeCell(pCellX, pCellY, MAZE_LAYOUT) === DANGER_CELL)
       {
         if (extraLives > 0)
@@ -184,20 +188,22 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
           return true;
         }
       }
-
-      // check if WALL_CELL
-      if (getMazeCell(pCellX, pCellY, MAZE_LAYOUT) === WALL_CELL) {
-        return true;
-      }
     }
 
     // check if SNACK_CELL
-    if (getMazeCell(cellX, cellY, MAZE_LAYOUT) === SNACK_CELL) {
+    if (getMazeCell(cellX, cellY, MAZE_LAYOUT) === SNACK_CELL)
+    {
       const snackKey = `${cellY}-${cellX}`;
+      const currentEatenSnacks = eatenSnacks;
 
-      if (!eatenSnacksRef.current.has(snackKey)) {
-        eatenSnacksRef.current.add(snackKey);
-        setEatenSnacks(new Set(eatenSnacksRef.current));
+      if (!currentEatenSnacks.has(snackKey))
+      {
+        setEatenSnacks(prevEatenSnacks => {
+          const newSet = new Set(prevEatenSnacks);
+          newSet.add(snackKey);
+          return newSet;
+        });
+  
         setExtraLives(lives => lives + 1);
 
         snack.seekTo(0);
@@ -206,7 +212,8 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
     }
     
     // Check if GOAL_CELL
-    if (getMazeCell(cellX, cellY, MAZE_LAYOUT) === GOAL_CELL) {
+    if (getMazeCell(cellX, cellY, MAZE_LAYOUT) === GOAL_CELL)
+    {
       const completionTime = stopTimer();
       setCompletedLevels(prev => new Set([...prev, currentLevelId]));
       

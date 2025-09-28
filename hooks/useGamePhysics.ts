@@ -44,21 +44,10 @@ export const useGamePhysics = ({gyroMode, accelData, gyroData, checkCollision, i
   
   // Use refs to access latest values without triggering re-renders
   const velocityRef = useRef<Velocity>(velocity);
-  const isActiveRef = useRef<boolean>(!isGameWon && !isDead);
   const invertedRef = useRef<boolean>(inverted);
 
-  // Keep refs in sync
-  useEffect(() => {
-    velocityRef.current = velocity;
-  }, [velocity]);
-
-  useEffect(() => {
-    isActiveRef.current = !isGameWon && !isDead;
-  }, [isGameWon, isDead]);
-
-  useEffect(() => {
-    invertedRef.current = inverted;
-  }, [inverted]);
+  useEffect(() => { velocityRef.current = velocity; }, [velocity]);
+  useEffect(() => { invertedRef.current = inverted; }, [inverted]);
 
   const resetPosition = () => {
     setBallPosition(initialPosition);
@@ -66,7 +55,8 @@ export const useGamePhysics = ({gyroMode, accelData, gyroData, checkCollision, i
   };
 
   const updateBallPosition = () => {
-    if (!isActiveRef.current) return;
+
+    if (isGameWon || isDead) return;
 
     setBallPosition(prevPosition => {
       let newVelX = velocityRef.current.x;
@@ -77,7 +67,7 @@ export const useGamePhysics = ({gyroMode, accelData, gyroData, checkCollision, i
         const friction = 0.9;
         const maxSpeed = 20;
 
-        // Apply inversion inline using the ref
+        // Apply inversion using ref
         const accelX = invertedRef.current ? -accelData.x : accelData.x;
         const accelY = invertedRef.current ? -accelData.y : accelData.y;
 
@@ -96,22 +86,27 @@ export const useGamePhysics = ({gyroMode, accelData, gyroData, checkCollision, i
         let finalX = newX;
         let finalY = newY;
 
-        if (checkCollision(newX, prevPosition.y)) {
+        if (checkCollision(newX, prevPosition.y))
+        {
           finalX = prevPosition.x;
           newVelX = 0;
         }
-        if (checkCollision(prevPosition.x, newY)) {
+
+        if (checkCollision(prevPosition.x, newY))
+        {
           finalY = prevPosition.y;
           newVelY = 0;
         }
 
         setVelocity({ x: newVelX, y: newVelY });
         return { x: finalX, y: finalY };
-      } else {
+      }
+      else
+      {
         const gravity = 0.6;
         const friction = 0.80;
 
-        // Apply inversion inline using the ref
+        // Apply inversion using  ref
         const gyroX = invertedRef.current ? -gyroData.x : gyroData.x;
         const gyroY = invertedRef.current ? -gyroData.y : gyroData.y;
 
@@ -136,7 +131,8 @@ export const useGamePhysics = ({gyroMode, accelData, gyroData, checkCollision, i
   };
 
   useEffect(() => {
-    if (!isGameWon && !isDead) {
+    if (!isGameWon && !isDead)
+    {
       animationRef.current = requestAnimationFrame(updateBallPosition);
     }
 
