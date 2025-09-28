@@ -108,40 +108,35 @@ const previousLevel = () => {
       </View>
             
       <View style={styles.gameContainer}>
-        <View style={styles.maze}>
-          <View style={styles.mazeContainer}>
-            <MazeRenderer
-              mazeLayout={MAZE_LAYOUT}
-              cellSize={CELL_SIZE}
-              wallCell={WALL_CELL}
-              goalCell={GOAL_CELL}
-              dangerCell={DANGER_CELL}
-              snackCell={SNACK_CELL}
-              eatenSnacks={eatenSnacks}
-            />
+        <View style={styles.mazeContainer}>
+          <MazeRenderer
+            mazeLayout={MAZE_LAYOUT}
+            cellSize={CELL_SIZE}
+            wallCell={WALL_CELL}
+            goalCell={GOAL_CELL}
+            dangerCell={DANGER_CELL}
+            snackCell={SNACK_CELL}
+            eatenSnacks={eatenSnacks}
+          />
 
-            {!completedLevels.has(currentLevelId) && (
-              <BlurView intensity={0} tint="dark" style={StyleSheet.absoluteFill}>
-                <View style={styles.lockedOverlay}>
-                  <Text style={styles.lockedText}>
-                    You have not yet cleared this maze, no peeking!
-                  </Text>
-                </View>
-              </BlurView>
-            )}
-          </View>
+          {!completedLevels.has(currentLevelId) && currentLevelId > 1 && (
+            <BlurView intensity={85} tint="dark" style={StyleSheet.absoluteFill}>
+              <View style={styles.lockedOverlay}>
+                <Text style={styles.lockedText}>
+                  Du har inte klarat denna labyrint ännu!
+                </Text>
+              </View>
+            </BlurView>
+          )}
         </View>
       </View>
-      
-      {renderLeaderboard(normalResults, "Topp 10 - Normal", currentGyroMode === GyroMode.NORMAL)}
-      {renderLeaderboard(chaosResults, "Topp 10 - Kaos", currentGyroMode === GyroMode.CHAOS)}
 
       <View style={styles.controls}>
         <TouchableOpacity 
           style={[styles.levelButton, currentLevelId <= 1 && styles.disabledButton]} 
           onPress={previousLevel}
           disabled={currentLevelId <= 1}
-        >
+          >
           <Text style={styles.levelButtonText}>
             <Ionicons name="arrow-back" size={18} color="white" />  Förra
           </Text>
@@ -153,7 +148,7 @@ const previousLevel = () => {
           style={[styles.levelButton, currentLevelId >= maxLevel && styles.disabledButton]}
           onPress={nextLevel}
           disabled={currentLevelId >= maxLevel}
-        >
+          >
           <Text style={styles.levelButtonText}>
             Nästa  <Ionicons name="arrow-forward" size={18} color="white"/>
           </Text>
@@ -167,8 +162,12 @@ const previousLevel = () => {
           theme="green"
           style={styles.goToGameButton}
           textStyle={styles.goToStartMenuText}
-        />
+          />
       </View>
+          
+      {renderLeaderboard(normalResults, "Topp 10 - Normal", currentGyroMode === GyroMode.NORMAL)}
+      {renderLeaderboard(chaosResults, "Topp 10 - Kaos", currentGyroMode === GyroMode.CHAOS)}
+      
     </ScrollView>
   );
 }
@@ -195,13 +194,6 @@ const styles = StyleSheet.create({
   gameContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  maze: {
-    width: MAZE_SIZE,
-    height: MAZE_SIZE,
-    backgroundColor: '#f0f0f0',
-    position: 'relative',
-    borderRadius: 5,
   },
   goToGameButton: {
     marginTop: 10,
@@ -307,6 +299,7 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   mazeContainer: {
+    backgroundColor: '#f0f0f0',
     width: MAZE_SIZE,
     height: MAZE_SIZE,
     position: 'relative',
@@ -320,7 +313,7 @@ const styles = StyleSheet.create({
   },
   lockedText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 20,
     fontWeight: 'bold',
     textAlign: 'center',
   },

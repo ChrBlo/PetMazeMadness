@@ -110,7 +110,14 @@ export const MazeRenderer: React.FC<MazeRendererProps> = ({
       }
     }
   }
-  return [...walls, ...goals, ...explosiveWalls, ...healthSnacks];
+  return (
+    <View style={{ width: mazeLayout[0].length * cellSize, height: mazeLayout.length * cellSize, position: 'relative' }}>
+      {walls}
+      {goals}
+      {explosiveWalls}
+      {healthSnacks}
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({

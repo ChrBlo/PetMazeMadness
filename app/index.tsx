@@ -82,7 +82,7 @@ useFocusEffect(
 
   const handleGoToMazeStats = () => {
     navigation.navigate('GameStats', {
-      levelId: currentLevel || 0,
+      levelId: currentLevel || 1,
       currentPet: selectedPet,
       gyroMode: route.params?.gyroMode || GyroMode.NORMAL,
     });
