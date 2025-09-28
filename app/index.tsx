@@ -80,6 +80,14 @@ useFocusEffect(
     });
   };
 
+  const handleGoToMazeStats = () => {
+    navigation.navigate('GameStats', {
+      levelId: currentLevel || 0,
+      currentPet: selectedPet,
+      gyroMode: route.params?.gyroMode || GyroMode.NORMAL,
+    });
+  };
+  
   const handleWeatherUpdate = (symbolCode: string | null) => {
     setCurrentWeather(symbolCode);
   };
@@ -98,6 +106,14 @@ useFocusEffect(
       <Text style={styles.instructions}>
         Luta din telefon i alla riktningar för att guida ditt husdjur mot friheten!
       </Text>
+
+      <GradientButton 
+        title="STATISTIK" 
+        onPress={handleGoToMazeStats} 
+        theme="beige" 
+        style={styles.settingsButton}
+        textStyle={styles.settingsButtonText}
+      />
 
       {isLoading ? (
         <View style={styles.loadingContainer}>
@@ -121,7 +137,7 @@ useFocusEffect(
         style={styles.settingsButton}
         textStyle={styles.settingsButtonText}
       />
-      
+
       <StatusBar barStyle="default"/>
     </View>
   );
@@ -150,22 +166,22 @@ const styles = StyleSheet.create({
   description: {
     color: '#fcfcfc',
     fontSize: 22,
-    marginBottom: 35,
+    marginBottom: 20,
     textAlign: 'center',
   },
   instructions: {
     fontSize: 18,
     color: '#919191ff',
     textAlign: 'center',
-    marginBottom: 5,
+    marginBottom: 30,
     paddingHorizontal: 20,
     width: '90%',
   },
   startButton: {
-    paddingVertical: 20,
+    paddingVertical: 15,
     borderRadius: 12,
-    marginBottom: 2,
-    marginTop: 2,
+    // marginBottom: 2,
+    // marginTop: 2,
     width: '80%',
   },
   startButtonText: {
@@ -175,9 +191,10 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   settingsButton: {
-    paddingVertical: 10,
+    paddingVertical: 6,
     borderRadius: 12,
-    marginBottom: 12,
+    // marginBottom: 0,
+    // marginTop: 0,
     width: '80%',
   },
   settingsButtonText: {
@@ -189,7 +206,7 @@ const styles = StyleSheet.create({
   loadingContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 5,
+    // paddingVertical: 2,
   },
   loadingIndicator: {
     marginTop: 22,
@@ -204,7 +221,6 @@ const styles = StyleSheet.create({
     marginTop: -50,
     height: 320,
     resizeMode: 'contain',
-    marginBottom: 20,
     width: '80%',
   },
 });

@@ -1,8 +1,10 @@
+import { Ionicons } from "@expo/vector-icons";
+import { BlurView } from 'expo-blur';
 import { useEffect, useState } from "react";
 import { FlatList, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { GradientButton } from "../../components/gradient-button";
 import { MazeRenderer } from "../../components/maze-renderer";
-import { getCurrentLevel } from "../../data/maze-layouts";
+import { getCurrentLevel, MAZE_LEVELS } from "../../data/maze-layouts";
 import { getDefaultPet } from '../../data/pets';
 import { GyroMode } from "../../hooks/useGameSensors";
 import { formatTime } from "../../utils/game-helpers";
@@ -19,32 +21,44 @@ export default function MazeStatisticsScreen({ route, navigation }: GameStatsScr
   const eatenSnacks = new Set<string>();
   const currentPet = route.params?.currentPet || getDefaultPet();
   const levelId = route.params?.levelId || 1;
-  const currentLevel = getCurrentLevel(levelId);
   const currentGyroMode = route.params?.gyroMode || GyroMode.NORMAL;
-  const MAZE_LAYOUT = currentLevel.layout;
-  const CELL_SIZE = MAZE_SIZE / MAZE_LAYOUT.length;
   
   const [normalResults, setNormalResults] = useState<CompletionRecord[]>([]);
   const [chaosResults, setChaosResults] = useState<CompletionRecord[]>([]);
   const [currentPetNormalResults, setCurrentPetNormalResults] = useState<CompletionRecord[]>([]);
   const [currentPetChaosResults, setCurrentPetChaosResults] = useState<CompletionRecord[]>([]);
+  const [currentLevelId, setCurrentLevelId] = useState(levelId);
+  const maxLevel = MAZE_LEVELS.length;
+
+  const currentLevel = getCurrentLevel(currentLevelId);
+  const MAZE_LAYOUT = currentLevel.layout;
+  const CELL_SIZE = MAZE_SIZE / MAZE_LAYOUT.length;
+  const [completedLevels, setCompletedLevels] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     const loadData = async () => {
-      const normalTop = await ScoreManager.getTopCompletions(levelId, 10, 'normal');
-      const chaosTop = await ScoreManager.getTopCompletions(levelId, 10, 'chaos');
-      const petNormal = await ScoreManager.getPetCompletions(levelId, currentPet.id, 'normal');
-      const petChaos = await ScoreManager.getPetCompletions(levelId, currentPet.id, 'chaos');
-      
+      const normalTop = await ScoreManager.getTopCompletions(currentLevelId, 10, 'normal');
+      const chaosTop = await ScoreManager.getTopCompletions(currentLevelId, 10, 'chaos');
+      const petNormal = await ScoreManager.getPetCompletions(currentLevelId, currentPet.id, 'normal');
+      const petChaos = await ScoreManager.getPetCompletions(currentLevelId, currentPet.id, 'chaos');
+
       setNormalResults(normalTop);
       setChaosResults(chaosTop);
       setCurrentPetNormalResults(petNormal);
       setCurrentPetChaosResults(petChaos);
     };
     loadData();
-  }, [levelId, currentPet.id]);
+  }, [currentLevelId, currentPet.id]);
+
+  useEffect(() => {
+    const loadCompletedLevels = async () => {
+      const gamProgress = await ScoreManager.getGameProgress();
+      setCompletedLevels(new Set(gamProgress.completedLevels));
+    };
+    loadCompletedLevels();
+  }, []);
   
-    const renderLeaderboard = (results: CompletionRecord[], title: string, isCurrentMode: boolean) => (
+  const renderLeaderboard = (results: CompletionRecord[], title: string, isCurrentMode: boolean) => (
     <View style={[styles.leaderboardContainer, isCurrentMode && styles.currentModeContainer]}>
       <Text style={[styles.leaderboardTitle, isCurrentMode && styles.currentModeTitle]}>
         {title}
@@ -61,6 +75,16 @@ export default function MazeStatisticsScreen({ route, navigation }: GameStatsScr
       )}
     </View>
   );
+
+const nextLevel = () => {
+  if (currentLevelId < maxLevel) {
+    setCurrentLevelId(currentLevelId + 1);
+  }
+};
+
+const previousLevel = () => {
+  setCurrentLevelId(currentLevelId - 1);
+};
   
   const renderLeaderboardItem = ({ item, index }: { item: CompletionRecord, index: number }) => (
     <View style={styles.leaderboardItem}>
@@ -85,24 +109,60 @@ export default function MazeStatisticsScreen({ route, navigation }: GameStatsScr
             
       <View style={styles.gameContainer}>
         <View style={styles.maze}>
-          <MazeRenderer
-            mazeLayout={MAZE_LAYOUT}
-            cellSize={CELL_SIZE}
-            wallCell={WALL_CELL}
-            goalCell={GOAL_CELL}
-            dangerCell={DANGER_CELL}
-            snackCell={SNACK_CELL}
-            eatenSnacks={eatenSnacks}
-          />
+          <View style={styles.mazeContainer}>
+            <MazeRenderer
+              mazeLayout={MAZE_LAYOUT}
+              cellSize={CELL_SIZE}
+              wallCell={WALL_CELL}
+              goalCell={GOAL_CELL}
+              dangerCell={DANGER_CELL}
+              snackCell={SNACK_CELL}
+              eatenSnacks={eatenSnacks}
+            />
+
+            {!completedLevels.has(currentLevelId) && (
+              <BlurView intensity={0} tint="dark" style={StyleSheet.absoluteFill}>
+                <View style={styles.lockedOverlay}>
+                  <Text style={styles.lockedText}>
+                    You have not yet cleared this maze, no peeking!
+                  </Text>
+                </View>
+              </BlurView>
+            )}
+          </View>
         </View>
       </View>
       
       {renderLeaderboard(normalResults, "Topp 10 - Normal", currentGyroMode === GyroMode.NORMAL)}
       {renderLeaderboard(chaosResults, "Topp 10 - Kaos", currentGyroMode === GyroMode.CHAOS)}
 
+      <View style={styles.controls}>
+        <TouchableOpacity 
+          style={[styles.levelButton, currentLevelId <= 1 && styles.disabledButton]} 
+          onPress={previousLevel}
+          disabled={currentLevelId <= 1}
+        >
+          <Text style={styles.levelButtonText}>
+            <Ionicons name="arrow-back" size={18} color="white" />  Förra
+          </Text>
+        </TouchableOpacity>
+
+        <View style={styles.separator} />
+
+        <TouchableOpacity
+          style={[styles.levelButton, currentLevelId >= maxLevel && styles.disabledButton]}
+          onPress={nextLevel}
+          disabled={currentLevelId >= maxLevel}
+        >
+          <Text style={styles.levelButtonText}>
+            Nästa  <Ionicons name="arrow-forward" size={18} color="white"/>
+          </Text>
+        </TouchableOpacity>
+      </View>
+      
       <View style={styles.buttonContainer}>
         <GradientButton
-          title="Tillbaka till spelet"
+          title="TILLBAKA"
           onPress={() => navigation.goBack()}
           theme="green"
           style={styles.goToGameButton}
@@ -144,11 +204,11 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   goToGameButton: {
-    marginTop: 20,
+    marginTop: 10,
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 12,
-    width: '90%',
+    width: '100%',
   },
   buttonContainer: {
     width: '100%',
@@ -219,6 +279,49 @@ const styles = StyleSheet.create({
     color: '#ff6b6b',
     fontWeight: 'bold',
     width: 40,
+    textAlign: 'center',
+  },
+  controls: {
+    marginTop: 5,
+    justifyContent: 'center',
+    flexDirection: 'row',
+    width: '80%',
+  },
+  separator: {
+    flex:1,
+  },
+  levelButton: {
+    backgroundColor: '#3d3d3dff',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 12,
+    marginTop: 10,
+  },
+  levelButtonText: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  disabledButton: {
+    backgroundColor: '#666',
+    opacity: 0.5,
+  },
+  mazeContainer: {
+    width: MAZE_SIZE,
+    height: MAZE_SIZE,
+    position: 'relative',
+    marginVertical: 20,
+  },
+  lockedOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+  },
+  lockedText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
     textAlign: 'center',
   },
 });

@@ -71,7 +71,6 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
   const snack = useAudioPlayer(snackSound);
   const plop = useAudioPlayer(spawnSound);
   
-  
   useEffect(() => {
     const loadInitialData = async () => {
       resetGameState();
@@ -91,7 +90,6 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
     loadStats();
   }, [currentLevelId]);
 
-  
   useEffect(() => {
     if (isReady) {
       setShowCountdown(true);
