@@ -3,7 +3,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useAudioPlayer } from 'expo-audio';
 import * as Haptics from 'expo-haptics';
 import { useAtom, useSetAtom } from 'jotai';
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { isDeadAtom, isGameWonAtom, recordDeathAtom, recordWinAtom, resetGameStateAtom } from '../../atoms/gameAtoms';
 import { CountdownAnimation } from '../../components/countdown-animation';
@@ -48,6 +48,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
   const [showCountdown, setShowCountdown] = useState(false);
   const [isCountdownComplete, setIsCountdownComplete] = useState(false);
   const [isReady, setIsReady] = useState(false);
+  const eatenSnacksRef = useRef<Set<string>>(new Set());
   // SCORE AND ATTEMPTS
   const [levelStats, setLevelStats] = useState<LevelStats | null>(null);
   const [currentAttempt, setCurrentAttempt] = useState(1);
@@ -69,17 +70,18 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
   const explosion = useAudioPlayer(explodingWallSound);
   const snack = useAudioPlayer(snackSound);
   const plop = useAudioPlayer(spawnSound);
-
+  
+  
   useEffect(() => {
     const loadInitialData = async () => {
       resetGameState();
-
+      
       const progress = await ScoreManager.getGameProgress();
       setCompletedLevels(new Set(progress.completedLevels));
     };
     loadInitialData();
   }, []);
-
+  
   useEffect(() => {
     const loadStats = async () => {
       const stats = await ScoreManager.getLevelStats(currentLevelId);
@@ -89,17 +91,22 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
     loadStats();
   }, [currentLevelId]);
 
+  
   useEffect(() => {
     if (isReady) {
       setShowCountdown(true);
     }
   }, [isReady]);
-
+  
   useEffect(() => {
     if (isCountdownComplete) {
       startTimer();
     }
   }, [isCountdownComplete]);
+  
+  useEffect(() => {
+    eatenSnacksRef.current = eatenSnacks;
+  }, [eatenSnacks]);
 
   useFocusEffect(
     useCallback(() => {
@@ -189,10 +196,11 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
     if (getMazeCell(cellX, cellY, MAZE_LAYOUT) === SNACK_CELL) {
       const snackKey = `${cellY}-${cellX}`;
 
-      if (!eatenSnacks.has(snackKey)) {
-        setExtraLives(extraLives => extraLives + 1);
-        setEatenSnacks(prev => new Set([...prev, snackKey]));
-      
+      if (!eatenSnacksRef.current.has(snackKey)) {
+        eatenSnacksRef.current.add(snackKey); // block further pickups instantly
+        setEatenSnacks(new Set(eatenSnacksRef.current));
+        setExtraLives(lives => lives + 1);
+
         snack.seekTo(0);
         snack.play();
       }

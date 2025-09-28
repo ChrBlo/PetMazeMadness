@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { FlatList, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { GradientButton } from "../../components/gradient-button";
 import { MazeRenderer } from "../../components/maze-renderer";
 import { getCurrentLevel } from "../../data/maze-layouts";
 import { getDefaultPet } from '../../data/pets';
@@ -100,9 +101,13 @@ export default function MazeStatisticsScreen({ route, navigation }: GameStatsScr
       {renderLeaderboard(chaosResults, "Topp 10 - Kaos", currentGyroMode === GyroMode.CHAOS)}
 
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.goToGameButton} onPress={() => navigation.goBack()}>
-          <Text style={styles.goToStartMenuText}>Tillbaka till spelet</Text>
-        </TouchableOpacity>
+        <GradientButton
+          title="Tillbaka till spelet"
+          onPress={() => navigation.goBack()}
+          theme="green"
+          style={styles.goToGameButton}
+          textStyle={styles.goToStartMenuText}
+        />
       </View>
     </ScrollView>
   );
@@ -140,7 +145,6 @@ const styles = StyleSheet.create({
   },
   goToGameButton: {
     marginTop: 20,
-    backgroundColor: '#45da9cff',
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 12,
