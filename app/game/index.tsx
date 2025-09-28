@@ -139,17 +139,24 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
       return true;
     }
 
-    // Check maze walls
     const cellX = Math.floor(newX / CELL_SIZE);
     const cellY = Math.floor(newY / CELL_SIZE);
     
-    // Check multiple points around the ball
     const checkPoints = [
       { x: newX - ballRadius, y: newY - ballRadius },
       { x: newX + ballRadius, y: newY - ballRadius },
       { x: newX - ballRadius, y: newY + ballRadius },
       { x: newX + ballRadius, y: newY + ballRadius },
     ];
+    
+    // const checkPoints = [];
+    // for (let i = 0; i < 8; i++) {
+    //   const angle = (i * Math.PI * 2) / 8;
+    //   checkPoints.push({
+    //     x: newX + Math.cos(angle) * ballRadius,
+    //     y: newY + Math.sin(angle) * ballRadius,
+    //   });
+    // }
 
     for (let point of checkPoints) {
       const pCellX = Math.floor(point.x / CELL_SIZE);
