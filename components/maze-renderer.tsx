@@ -1,4 +1,5 @@
 import { StyleSheet, Text, View } from "react-native";
+import { Image } from 'expo-image';
 
 interface MazeRendererProps { 
   mazeLayout: number[][];
@@ -32,18 +33,20 @@ export const MazeRenderer: React.FC<MazeRendererProps> = ({
       if (cell === wallCell)
       {
         walls.push(
-          <View
-            key={key}
-            style={[
-              styles.wall,
-              {
-                left: col * cellSize,
-                top: row * cellSize,
-                width: cellSize + 1,
-                height: cellSize + 1,
-              }
-            ]}
-          />
+        <Image
+          key={key}
+          source={require('../assets/images/pixelsten.png')}
+          style={[
+            styles.wall,
+            {
+              left: col * cellSize,
+              top: row * cellSize,
+              width: cellSize + 1,
+              height: cellSize + 1,
+            }
+          ]}
+          contentFit="cover"
+        />
         );
       }
       else if (cell === goalCell)
@@ -68,17 +71,19 @@ export const MazeRenderer: React.FC<MazeRendererProps> = ({
       else if (cell === dangerCell)
       {
         explosiveWalls.push(
-          <View
+          <Image
             key={key}
+            source={require('../assets/images/eld.png')}
             style={[
-              styles.explosiveWall,
+              styles.wall,
               {
                 left: col * cellSize,
                 top: row * cellSize,
-                width: cellSize + 0.5,
-                height: cellSize + 0.5,
+                width: cellSize + 1,
+                height: cellSize + 1,
               }
             ]}
+            contentFit="cover"
           />
         );
       }
@@ -122,7 +127,7 @@ export const MazeRenderer: React.FC<MazeRendererProps> = ({
 
 const styles = StyleSheet.create({
   wall: {
-    backgroundColor: '#3d3d3dff',
+    // backgroundColor: '#3d3d3dff',
     position: 'absolute',
   },
   goal: {
@@ -134,10 +139,10 @@ const styles = StyleSheet.create({
     fontSize: 22,
   },
   explosiveWall: {
-    backgroundColor: '#ff4639ff',
+    // backgroundColor: '#ff4639ff',
     position: 'absolute',
-    borderWidth: 1,
-    borderColor: '#ff4639ff',
+    // borderWidth: 1,
+    // borderColor: '#ff4639ff',
   },
   healthSnack: {
     position: 'absolute',

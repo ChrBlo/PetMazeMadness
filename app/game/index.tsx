@@ -511,7 +511,7 @@ const styles = StyleSheet.create({
   maze: {
     width: MAZE_SIZE,
     height: MAZE_SIZE,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#f0f0f0ff',
     position: 'relative',
     borderRadius: 5,
   },

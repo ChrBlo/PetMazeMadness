@@ -38,9 +38,10 @@ Used Expo SDK 54 Components:
 - [X] Accelerometer (expo-sensors): Game controls - NORMAL mode
 - [X] Haptics (expo-haptics): Vibration feedback system
 - [X] Audio (expo-audio): Sound effects management
-- [X] Image: For game logotype on startScreen
+- [X] Image: For game logotype on startScreen and rocks/fire in maze
 - [X] Ionicons: used in gameScreen on button navigation user to maze stats
-- [X] LinearGradient (expo-linear-gradient) for button style
+- [X] LinearGradient (expo-linear-gradient): for button style
+- [X] Blur (expo-blur): For not yet cleared maze levels in maze-statistics
 
 Other External modules/APIs used:
 - [X] yr.no weather forecast open API (https://developer.yr.no/doc) - Used in a game settings that blocks game if nice weather

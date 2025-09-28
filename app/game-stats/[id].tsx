@@ -120,7 +120,7 @@ const previousLevel = () => {
           />
 
           {!completedLevels.has(currentLevelId) && currentLevelId > 1 && (
-            <BlurView intensity={85} tint="dark" style={StyleSheet.absoluteFill}>
+            <BlurView intensity={70} tint="dark" style={StyleSheet.absoluteFill}>
               <View style={styles.lockedOverlay}>
                 <Text style={styles.lockedText}>
                   Du har inte klarat denna labyrint ännu!
