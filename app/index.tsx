@@ -7,17 +7,17 @@ import { GradientButton } from "../components/gradient-button";
 import { getDefaultPet } from '../data/pets';
 import { GyroMode } from '../hooks/useGameSensors';
 import { ScoreManager } from "../utils/score-manager";
-import { StartScreenProps } from './vad-som-helst';
+import { StartScreenProps } from './root-layout';
 
 export default function StartScreen({ route, navigation }: StartScreenProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [weatherCheckEnabled, setWeatherCheckEnabled] = useState(true);
   const [currentWeather, setCurrentWeather] = useState<string | null>(null);
   const selectedPet = route.params?.selectedPet || getDefaultPet();
-  const petName = selectedPet.name || getDefaultPet().name;
   const petEmoji = selectedPet.emoji || getDefaultPet().emoji;
   const niceWeather = (currentWeather !== 'rain' && currentWeather !== 'rainshowers_day' && currentWeather !== 'thunderstorm');
   const [currentLevel, setCurrentLevel] = useState(1);
+  const [invertedGameControls, setInvertedGameControls] = useState(false);
 
   // TODO TA BORT INNAN INLÄMNING, ENBART FÖR ATT RENSA SIMPLE-STORAGE
   // useEffect(() => {
@@ -27,13 +27,16 @@ export default function StartScreen({ route, navigation }: StartScreenProps) {
   //   clearData();
   // }, []);
   
-  useFocusEffect(
-    useCallback(() => {
-      if (route.params?.weatherCheckEnabled !== undefined) {
-        setWeatherCheckEnabled(route.params.weatherCheckEnabled);
-      }
-    }, [route.params?.weatherCheckEnabled])
-  );
+useFocusEffect(
+  useCallback(() => {
+    if (route.params?.weatherCheckEnabled !== undefined) {
+      setWeatherCheckEnabled(route.params.weatherCheckEnabled);
+    }
+    if (route.params?.invertedGameControls !== undefined) {
+      setInvertedGameControls(route.params.invertedGameControls);
+    }
+  }, [route.params?.weatherCheckEnabled, route.params?.invertedGameControls])
+);
 
   useEffect(() => {
   const loadStartLevel = async () => {
@@ -63,6 +66,7 @@ export default function StartScreen({ route, navigation }: StartScreenProps) {
         selectedPet,
         gyroMode: route.params?.gyroMode || GyroMode.NORMAL,
         initialLevel: currentLevel,
+        invertedGameControls: invertedGameControls,
       });
     }, 800);
   };
@@ -71,7 +75,8 @@ export default function StartScreen({ route, navigation }: StartScreenProps) {
     navigation.navigate('Settings', {
       weatherCheckEnabled,
       selectedPet,
-      gyroMode: route.params?.gyroMode || GyroMode.NORMAL
+      gyroMode: route.params?.gyroMode || GyroMode.NORMAL,
+      invertedGameControls
     });
   };
 

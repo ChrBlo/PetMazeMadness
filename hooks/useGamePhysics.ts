@@ -25,6 +25,7 @@ interface UseGamePhysicsProps {
   isGameWon: boolean;
   isDead: boolean;
   initialPosition: Position;
+  inverted?: boolean;
 }
 
 interface UseGamePhysicsReturn {
@@ -35,11 +36,29 @@ interface UseGamePhysicsReturn {
   resetPosition: () => void;
 }
 
-export const useGamePhysics = ({gyroMode, accelData, gyroData, checkCollision, isGameWon, isDead, initialPosition}: UseGamePhysicsProps): UseGamePhysicsReturn => {
+export const useGamePhysics = ({gyroMode, accelData, gyroData, checkCollision, isGameWon, isDead, initialPosition, inverted = false}: UseGamePhysicsProps): UseGamePhysicsReturn => {
   
   const [ballPosition, setBallPosition] = useState<Position>(initialPosition);
   const [velocity, setVelocity] = useState<Velocity>({ x: 0, y: 0 });
   const animationRef = useRef<number | null>(null);
+  
+  // Use refs to access latest values without triggering re-renders
+  const velocityRef = useRef<Velocity>(velocity);
+  const isActiveRef = useRef<boolean>(!isGameWon && !isDead);
+  const invertedRef = useRef<boolean>(inverted);
+
+  // Keep refs in sync
+  useEffect(() => {
+    velocityRef.current = velocity;
+  }, [velocity]);
+
+  useEffect(() => {
+    isActiveRef.current = !isGameWon && !isDead;
+  }, [isGameWon, isDead]);
+
+  useEffect(() => {
+    invertedRef.current = inverted;
+  }, [inverted]);
 
   const resetPosition = () => {
     setBallPosition(initialPosition);
@@ -47,18 +66,23 @@ export const useGamePhysics = ({gyroMode, accelData, gyroData, checkCollision, i
   };
 
   const updateBallPosition = () => {
-    setBallPosition(prevPosition => {
-      let newVelX = velocity.x;
-      let newVelY = velocity.y;
+    if (!isActiveRef.current) return;
 
-      if (gyroMode === GyroMode.NORMAL)
-      {
+    setBallPosition(prevPosition => {
+      let newVelX = velocityRef.current.x;
+      let newVelY = velocityRef.current.y;
+
+      if (gyroMode === GyroMode.NORMAL) {
         const gravity = 1.2;
         const friction = 0.9;
         const maxSpeed = 20;
 
-        newVelX += accelData.x * gravity;
-        newVelY += -accelData.y * gravity;
+        // Apply inversion inline using the ref
+        const accelX = invertedRef.current ? -accelData.x : accelData.x;
+        const accelY = invertedRef.current ? -accelData.y : accelData.y;
+
+        newVelX += accelX * gravity;
+        newVelY += -accelY * gravity;
 
         newVelX *= friction;
         newVelY *= friction;
@@ -72,27 +96,27 @@ export const useGamePhysics = ({gyroMode, accelData, gyroData, checkCollision, i
         let finalX = newX;
         let finalY = newY;
 
-        if (checkCollision(newX, prevPosition.y))
-        {
+        if (checkCollision(newX, prevPosition.y)) {
           finalX = prevPosition.x;
           newVelX = 0;
         }
-        if (checkCollision(prevPosition.x, newY))
-        {
+        if (checkCollision(prevPosition.x, newY)) {
           finalY = prevPosition.y;
           newVelY = 0;
         }
 
         setVelocity({ x: newVelX, y: newVelY });
         return { x: finalX, y: finalY };
-      }
-      else
-      {
+      } else {
         const gravity = 0.6;
         const friction = 0.80;
 
-        let velX = gyroData.y * gravity;
-        let velY = gyroData.x * gravity;
+        // Apply inversion inline using the ref
+        const gyroX = invertedRef.current ? -gyroData.x : gyroData.x;
+        const gyroY = invertedRef.current ? -gyroData.y : gyroData.y;
+
+        let velX = gyroY * gravity;
+        let velY = gyroX * gravity;
 
         velX *= friction;
         velY *= friction;
@@ -112,18 +136,16 @@ export const useGamePhysics = ({gyroMode, accelData, gyroData, checkCollision, i
   };
 
   useEffect(() => {
-    if (!isGameWon && !isDead)
-    {
+    if (!isGameWon && !isDead) {
       animationRef.current = requestAnimationFrame(updateBallPosition);
     }
 
     return () => {
-      if (animationRef.current)
-      {
+      if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [gyroMode, accelData, gyroData, ballPosition, isGameWon, isDead, velocity]);
+  }, [gyroMode, accelData, gyroData, isGameWon, isDead]);
 
   return {
     ballPosition,

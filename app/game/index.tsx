@@ -39,6 +39,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
   const resetGameState = useSetAtom(resetGameStateAtom);
   // GYRO
   const [gyroMode] = useState<GyroMode>(route.params?.gyroMode || GyroMode.NORMAL);
+  const invertedGameControls = route.params?.invertedGameControls ?? false;
   //GAME FEATURES & EFFECTS
   const [showExplosion, setShowExplosion] = useState(false);
   const [explosionPosition, setExplosionPosition] = useState({ x: 0, y: 0 });
@@ -58,7 +59,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
   const [completedLevels, setCompletedLevels] = useState<Set<number>>(new Set());
   // PET
   const selectedPet = route.params?.selectedPet || getDefaultPet();
-  const petName = selectedPet.name;
+  const petName = selectedPet?.name || getDefaultPet().name;
   // MAZE AND POSITIONING
   const MAZE_LAYOUT = currentLevel.layout;
   const CELL_SIZE = MAZE_SIZE / MAZE_LAYOUT.length;
@@ -328,19 +329,19 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
   
   const { gameTime, startTimer, stopTimer, resetTimer } = useGameTimer(!isGameWon && !isDead && !isGamePaused && isCountdownComplete);
 
-  const { ballPosition,  setBallPosition, velocity, setVelocity, resetPosition } = useGamePhysics({
+  const { ballPosition, setBallPosition, velocity, setVelocity, resetPosition } = useGamePhysics({
     gyroMode,
     accelData,
     gyroData,
     checkCollision,
     isGameWon,
     isDead: isDead || isGamePaused || !isCountdownComplete, // Pause & countdown treates as death in gamePhysics
-    initialPosition: getStartPosition()
+    initialPosition: getStartPosition(),
+    inverted: invertedGameControls
   });
-
   //-----------------------------
-    const formatTime = (timeMs: number) => `${(timeMs / 1000).toFixed(1)}s`;
 
+  const formatTime = (timeMs: number) => `${(timeMs / 1000).toFixed(1)}s`;
 
   return (
     <View style={styles.container}>
@@ -360,7 +361,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
         <Text style={styles.statsText}>
           Försök: {levelStats?.totalAttempts || 0}
         </Text>
-        <Text style={styles.separator}></Text>
+        <View style={styles.separator} />
         <Text style={styles.statsText}>
           {extraLives > 0 ? `${selectedPet.emoji}: ${extraLives}` : ''}
         </Text>
@@ -414,7 +415,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
         <Text style={styles.gameTimerText}>
           Tid: {`${(gameTime / 1000).toFixed(2)}s`}
         </Text>
-        <Text style={styles.separator}></Text>
+        <View style={styles.separator} />
         {levelStats?.bestTime && (
           <Text style={styles.gameTimerText}>
             Bästa tid: {formatTime(levelStats.bestTime)}
@@ -445,19 +446,23 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
           onPress={previousLevel}
           disabled={currentLevelId <= 1}
         >
-          <Text style={styles.levelButtonText}>← Förra</Text>
+          <Text style={styles.levelButtonText}>
+            <Ionicons name="arrow-back" size={18} color="white" />  Förra
+          </Text>
         </TouchableOpacity>
-        <Text style={styles.separator}></Text>
+        <View style={styles.separator} />
         <TouchableOpacity style={styles.statsButton} onPress={handleGoToMazeStats}>
           <Ionicons name="stats-chart-outline" size={24} color="white" />
         </TouchableOpacity>
-        <Text style={styles.separator}></Text>
+        <View style={styles.separator} />
         <TouchableOpacity
           style={[styles.levelButton, !completedLevels.has(currentLevelId) && styles.disabledButton]}
           onPress={nextLevel}
           disabled={!completedLevels.has(currentLevelId)}
         >
-          <Text style={styles.levelButtonText}>Nästa →</Text>
+          <Text style={styles.levelButtonText}>
+            Nästa  <Ionicons name="arrow-forward" size={18} color="white"/>
+          </Text>
         </TouchableOpacity>
       </View>
 

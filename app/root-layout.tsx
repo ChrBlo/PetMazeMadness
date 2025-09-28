@@ -1,8 +1,8 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator, NativeStackScreenProps } from "@react-navigation/native-stack";
-import { GyroMode } from "../hooks/useGameSensors";
-import { Pet } from "../data/pets";
 import React from "react";
+import { Pet } from "../data/pets";
+import { GyroMode } from "../hooks/useGameSensors";
 import MazeStatisticsScreen from "./game-stats/[id]";
 import GameScreen from "./game/index";
 import StartScreen from "./index";
@@ -19,6 +19,7 @@ type RootStackParamList = {
     gyroMode?: GyroMode;
     selectedPet?: Pet;
     initialLevel?: number;
+    invertedGameControls?: boolean;
   };
   Settings: {
     weatherCheckEnabled?: boolean;

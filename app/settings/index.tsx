@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Modal, ScrollView, StyleSheet, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { GradientButton } from '../../components/gradient-button';
 import { getDefaultPet, getPetById, Pet, pets } from '../../data/pets';
 import { GyroMode } from '../../hooks/useGameSensors';
-import { SettingsScreenProps } from '../vad-som-helst';
+import { SettingsScreenProps } from '../root-layout';
 
 export default function SettingsScreen({ route, navigation }: SettingsScreenProps) {
     
@@ -14,8 +14,7 @@ export default function SettingsScreen({ route, navigation }: SettingsScreenProp
   const [showNameEditor, setShowNameEditor] = useState(false);
   const [customName, setCustomName] = useState(route.params?.selectedPet?.name || getDefaultPet().name);
   const [invertedGameControls, setInvertedGameControls] = useState(route.params?.invertedGameControls ?? false);
-
-
+  
   const handlePetSelection = (petId: string) => {
     const newPet = getPetById(petId);
     setSelectedPet(newPet);
@@ -49,40 +48,47 @@ export default function SettingsScreen({ route, navigation }: SettingsScreenProp
     
   const goBack = () => {
     navigation.navigate('Start', {
-      weatherCheckEnabled, 
+      weatherCheckEnabled,
       selectedPet,
-      gyroMode: selectedGyroMode
+      gyroMode: selectedGyroMode,
+      invertedGameControls
     });
   };
 
   return (
+    <ScrollView
+          style={styles.container}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={true}
+        >
     <View style={styles.container}>
-      <Text style={styles.title}>Inställningar</Text>
       
+      <Text style={styles.title}>Inställningar</Text>
+    
       <Text style={styles.settingsLabel}>Väder</Text>
       <View style={styles.settingRow}>
-        <Text style={styles.settingRow}>
+        <Text style={styles.settingsText}>
           Blockera spel vid fint väder
         </Text>
         <Switch
           value={weatherCheckEnabled}
           onValueChange={setWeatherCheckEnabled}
-          trackColor={{ false: '#767577', true: '#45da9cff' }}
+          trackColor={{ false: '#666', true: '#45da9cff' }}
         />
       </View>
 
       <View>
         <Text style={styles.settingsLabel}>Husdjur</Text>
-        
+      
         <TouchableOpacity style={styles.settingRow} onPress={() => setShowPetSelector(true)}>
-          <Text style={styles.settingRow}>Välj husdjur</Text>
+          <Text style={styles.settingsText}>Välj husdjur</Text>
           <View style={styles.petPreview}>
             <Text style={styles.petEmoji}>{selectedPet.emoji}</Text>
           </View>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.settingRow} onPress={handleNameEdit}>
-          <Text style={styles.settingRow}>Namn</Text>
+          <Text style={styles.settingsText}>Namn</Text>
           <Text style={styles.petNameDisplay}>{selectedPet.name}</Text>
         </TouchableOpacity>
       </View>
@@ -90,15 +96,15 @@ export default function SettingsScreen({ route, navigation }: SettingsScreenProp
       <Text style={styles.settingsLabel}>Spelstyrning</Text>
       <View style={styles.settingRow}>
 
-        <Text style={styles.settingRow}>Gyro-läge</Text>
+        <Text style={styles.settingsText}>Gyro-läge</Text>
         <View style={styles.segmentedControl}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={[styles.segment, selectedGyroMode === GyroMode.NORMAL && styles.activeSegment]}
             onPress={() => setSelectedGyroMode(GyroMode.NORMAL)}
           >
             <Text style={styles.segmentText}>Normal</Text>
           </TouchableOpacity>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={[styles.segment, selectedGyroMode === GyroMode.CHAOS && styles.activeSegment]}
             onPress={() => setSelectedGyroMode(GyroMode.CHAOS)}
           >
@@ -109,20 +115,20 @@ export default function SettingsScreen({ route, navigation }: SettingsScreenProp
 
       <Text style={styles.settingsLabel}>Invertera spelstyrning</Text>
       <View style={styles.settingRow}>
-        <Text style={styles.settingRow}>
+        <Text style={styles.settingsText}>
           Invertera
         </Text>
         <Switch
-          value={weatherCheckEnabled}
+          value={invertedGameControls}
           onValueChange={setInvertedGameControls}
-          trackColor={{ false: '#767577', true: '#45da9cff' }}
+          trackColor={{ false: '#666', true: '#45da9cff' }}
         />
       </View>
 
-      <GradientButton 
-        title="SPARA INSTÄLLNINGAR" 
-        onPress={goBack} 
-        theme="blue" 
+      <GradientButton
+        title="SPARA"
+        onPress={goBack}
+        theme="blue"
         style={styles.backButton}
         textStyle={styles.backButtonText}
       />
@@ -152,11 +158,11 @@ export default function SettingsScreen({ route, navigation }: SettingsScreenProp
                 </TouchableOpacity>
               ))}
             </ScrollView>
-            <TouchableOpacity 
-              style={styles.modalCloseButton} 
+            <TouchableOpacity
+              style={styles.modalCloseButton}
               onPress={() => setShowPetSelector(false)}
             >
-              <Text style={styles.modalCloseText}>Stäng</Text>
+              <Text style={styles.modalCloseText}>Spara</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -182,9 +188,9 @@ export default function SettingsScreen({ route, navigation }: SettingsScreenProp
               maxLength={25}
               autoFocus
             />
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.clearButton}
-              onPress={() => {setCustomName('')}}
+              onPress={() => { setCustomName('') }}
               activeOpacity={0.7}
             >
               <Text style={styles.clearButtonText}>✕</Text>
@@ -200,24 +206,27 @@ export default function SettingsScreen({ route, navigation }: SettingsScreenProp
           </View>
         </View>
       </Modal>
-      
-    </View>
+    
+      </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
+   scrollContent: {
+    paddingBottom: 80,
+  },
   container: {
     flex: 1,
     backgroundColor: '#221c17ff',
     padding: 20,
-    paddingTop: 80,
+    paddingTop: 50,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     color: '#eee',
     marginTop: 40,
-    marginBottom: 20,
     textAlign: 'center',
   },
   settingsLabel: {
@@ -235,11 +244,14 @@ const styles = StyleSheet.create({
     marginTop: 5,
     marginBottom: 10,
   },
-
+  settingsText: {
+    fontSize: 16,
+    color: '#eee',
+  },
   petPreview: {
     backgroundColor: '#3d3d3d',
-    padding: 8,
-    borderRadius: 8,
+    padding: 6,
+    borderRadius: 6,
   },
   petEmoji: {
     fontSize: 24,
@@ -288,13 +300,14 @@ const styles = StyleSheet.create({
   petOption: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 15,
+    padding: 8,
+    paddingLeft: 14,
     borderRadius: 10,
     marginBottom: 10,
-    backgroundColor: '#3d3d3d',
+    backgroundColor: '#666',
   },
   selectedPetOption: {
-    backgroundColor: '#45da9cff',
+    backgroundColor: '#3894d1ff',
   },
   petOptionEmoji: {
     fontSize: 24,
@@ -306,8 +319,8 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   modalCloseButton: {
-    backgroundColor: '#666',
-    padding: 12,
+    backgroundColor: '#3894d1ff',
+    paddingVertical: 12,
     borderRadius: 8,
     marginTop: 15,
   },
@@ -315,6 +328,7 @@ const styles = StyleSheet.create({
     color: 'white',
     textAlign: 'center',
     fontSize: 16,
+    fontWeight: 'bold',
   },
   nameModalContent: {
     backgroundColor: '#2d2d2d',
@@ -325,7 +339,7 @@ const styles = StyleSheet.create({
     marginBottom: 140,
   },
   nameInput: {
-    backgroundColor: '#3d3d3d',
+    backgroundColor: '#666',
     color: '#eee',
     fontSize: 18,
     padding: 15,
@@ -345,7 +359,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   saveButton: {
-    backgroundColor: '#45da9cff',
+    backgroundColor: '#3894d1ff',
   },
   nameButtonText: {
     color: 'white',
@@ -360,7 +374,7 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: '#666',
     justifyContent: 'center',
     alignItems: 'center',
   },

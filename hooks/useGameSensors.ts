@@ -1,69 +1,42 @@
-import { Accelerometer, Gyroscope } from "expo-sensors";
-import { useEffect, useRef, useState } from "react";
+import { useAtom, useSetAtom } from 'jotai';
+import { useEffect } from 'react';
+import { accelDataAtom, gyroDataAtom, subscribeAccelAtom, subscribeGyroAtom } from '../atoms/sensorAtoms';
 
-export enum GyroMode { 
-    NORMAL = 'normal',
-    CHAOS = 'chaos'
+export enum GyroMode {
+  NORMAL = 'normal',
+  CHAOS = 'chaos'
 }
 
-interface SensorData { 
-    x: number;
-    y: number;
-    z: number;
+interface SensorData {
+  x: number;
+  y: number;
+  z: number;
 }
 
-interface UseGameSensorsReturn { 
-    accelData: SensorData;
-    gyroData: SensorData;
+interface UseGameSensorsReturn {
+  accelData: SensorData;
+  gyroData: SensorData;
 }
 
-export const useGameSensors = (gyroMode: GyroMode): UseGameSensorsReturn => { 
-  const [accelData, setAccelData] = useState<SensorData>({ x: 0, y: 0, z: 0 });
-  const [gyroData, setGyroData] = useState<SensorData>({ x: 0, y: 0, z: 0 });
-  const subscriptionRef = useRef<{ sensor: 'accel' | 'gyro', sub: any } | null>(null);
-  
-  const _subscribeAccel = () => {
-    const sub = Accelerometer.addListener(data => {
-      setAccelData(data);
-    });
-    Accelerometer.setUpdateInterval(16); // ~60fps
-    subscriptionRef.current = { sensor: 'accel', sub };
-  };
-
-  const _subscribeGyro = () => {
-    const sub = Gyroscope.addListener(data => {
-      setGyroData(data);
-    });
-    Gyroscope.setUpdateInterval(16); // ~60fps
-    subscriptionRef.current = { sensor: 'gyro', sub };
-  };
-
-  const _unsubscribe = () => {
-    if (subscriptionRef.current) {
-      subscriptionRef.current.sub.remove();
-      subscriptionRef.current = null;
-    }
-  };
+export const useGameSensors = (gyroMode: GyroMode): UseGameSensorsReturn => {
+  const [accelData] = useAtom(accelDataAtom);
+  const [gyroData] = useAtom(gyroDataAtom);
+  const subscribeAccel = useSetAtom(subscribeAccelAtom);
+  const subscribeGyro = useSetAtom(subscribeGyroAtom);
 
   useEffect(() => {
-    _unsubscribe();
-    
+    let unsubscribe: (() => void) | null = null;
+
     if (gyroMode === GyroMode.NORMAL) {
-      _subscribeAccel();
-    }
-    else
-    {
-      _subscribeGyro();
+      unsubscribe = subscribeAccel();
+    } else {
+      unsubscribe = subscribeGyro();
     }
 
     return () => {
-      _unsubscribe();
+      unsubscribe?.();
     };
   }, [gyroMode]);
 
-  return {
-    accelData,
-    gyroData
-  };
+  return { accelData, gyroData };
 };
-

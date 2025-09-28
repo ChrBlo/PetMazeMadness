@@ -1,6 +1,6 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
-import { Text, TextStyle, TouchableOpacity, ViewStyle } from 'react-native';
+import { Text, TextStyle, TouchableOpacity, View, ViewStyle } from 'react-native';
 
 const GradientThemes = {
   green: ['#45da9cff', '#31996eff'],
@@ -26,7 +26,9 @@ export const GradientButton: React.FC<GradientButtonProps> = ({title, onPress, t
         end={{ x: 0, y: 1 }}
         style={[style, { width: '100%' }]}
       >
+      <View>
         <Text style={textStyle}>{title}</Text>
+      </View>
       </LinearGradient>
     </TouchableOpacity>
   );
