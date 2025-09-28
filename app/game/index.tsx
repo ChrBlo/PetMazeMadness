@@ -133,7 +133,6 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
   const checkCollision = (newX: number, newY: number) => {
     const ballRadius = BALL_SIZE / 2;
     
-    // Check bounds
     if (newX - ballRadius < 0 || newX + ballRadius > MAZE_SIZE ||
       newY - ballRadius < 0 || newY + ballRadius > MAZE_SIZE) {
       return true;
@@ -142,27 +141,22 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
     const cellX = Math.floor(newX / CELL_SIZE);
     const cellY = Math.floor(newY / CELL_SIZE);
     
-    const checkPoints = [
-      { x: newX - ballRadius, y: newY - ballRadius },
-      { x: newX + ballRadius, y: newY - ballRadius },
-      { x: newX - ballRadius, y: newY + ballRadius },
-      { x: newX + ballRadius, y: newY + ballRadius },
-    ];
-    
-    // const checkPoints = [];
-    // for (let i = 0; i < 8; i++) {
-    //   const angle = (i * Math.PI * 2) / 8;
-    //   checkPoints.push({
-    //     x: newX + Math.cos(angle) * ballRadius,
-    //     y: newY + Math.sin(angle) * ballRadius,
-    //   });
-    // }
+    // check 16 points around ball to make it rounder
+    const checkPoints = [];
+    for (let i = 0; i < 16; i++)
+    {
+      const angle = (i * Math.PI * 2) / 16;
+      checkPoints.push({
+        x: newX + Math.cos(angle) * ballRadius,
+        y: newY + Math.sin(angle) * ballRadius,
+      });
+    }
 
     for (let point of checkPoints) {
       const pCellX = Math.floor(point.x / CELL_SIZE);
       const pCellY = Math.floor(point.y / CELL_SIZE);
       
-      // Check for explosive wall collision FIRST
+      // check if DANGER_CELL first
       if (getMazeCell(pCellX, pCellY, MAZE_LAYOUT) === DANGER_CELL)
       {
         if (extraLives > 0)
@@ -190,19 +184,19 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
           return true;
         }
       }
-      
-      // Check for regular walls
+
+      // check if WALL_CELL
       if (getMazeCell(pCellX, pCellY, MAZE_LAYOUT) === WALL_CELL) {
         return true;
       }
     }
 
-    // Check if reached snack
+    // check if SNACK_CELL
     if (getMazeCell(cellX, cellY, MAZE_LAYOUT) === SNACK_CELL) {
       const snackKey = `${cellY}-${cellX}`;
 
       if (!eatenSnacksRef.current.has(snackKey)) {
-        eatenSnacksRef.current.add(snackKey); // block further pickups instantly
+        eatenSnacksRef.current.add(snackKey);
         setEatenSnacks(new Set(eatenSnacksRef.current));
         setExtraLives(lives => lives + 1);
 
@@ -211,7 +205,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
       }
     }
     
-    // Check if reached goal
+    // Check if GOAL_CELL
     if (getMazeCell(cellX, cellY, MAZE_LAYOUT) === GOAL_CELL) {
       const completionTime = stopTimer();
       setCompletedLevels(prev => new Set([...prev, currentLevelId]));
@@ -285,8 +279,6 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
 
     setIsCountdownComplete(false);
     setIsReady(true);
-
-    // startTimer();
     
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
   };
