@@ -220,13 +220,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#221c17ff',
     padding: 20,
-    paddingTop: 50,
+    paddingTop: 30,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     color: '#eee',
-    marginTop: 40,
+    marginTop: 30,
     textAlign: 'center',
   },
   settingsLabel: {

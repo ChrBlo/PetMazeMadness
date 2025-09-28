@@ -180,8 +180,6 @@ const styles = StyleSheet.create({
   startButton: {
     paddingVertical: 15,
     borderRadius: 12,
-    // marginBottom: 2,
-    // marginTop: 2,
     width: '80%',
   },
   startButtonText: {
@@ -193,8 +191,6 @@ const styles = StyleSheet.create({
   settingsButton: {
     paddingVertical: 6,
     borderRadius: 12,
-    // marginBottom: 0,
-    // marginTop: 0,
     width: '80%',
   },
   settingsButtonText: {
@@ -206,15 +202,14 @@ const styles = StyleSheet.create({
   loadingContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    // paddingVertical: 2,
   },
   loadingIndicator: {
-    marginTop: 22,
+    marginTop: 8,
   },
   loadingText: {
     color: '#fcfcfc',
     fontSize: 16,
-    marginTop: 10,
+    marginTop: 8,
     marginBottom: 22,
   },
   logo: {
