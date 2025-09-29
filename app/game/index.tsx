@@ -85,7 +85,6 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
     const loadStats = async () => {
       const stats = await ScoreManager.getLevelStats(currentLevelId);
       setLevelStats(stats);
-      setCurrentAttempt(stats.totalAttempts + 1);
     };
     loadStats();
   }, [currentLevelId]);
@@ -301,7 +300,8 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
     
       const updatedStats = await ScoreManager.recordAttempt(currentLevelId);
       setLevelStats(updatedStats);
-      setCurrentAttempt(updatedStats.totalAttempts);
+      setCurrentAttempt(updatedStats.totalAttempts + 1);
+      
       setIsCountdownComplete(false);
       setIsReady(true);
     
@@ -327,7 +327,6 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
       setVelocity({ x: 0, y: 0 });
       setExtraLivesUsed(0);
 
-      ScoreManager.recordAttempt(nextId);
       setIsReady(false);
       setIsCountdownComplete(false);
     }
@@ -347,7 +346,6 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
       setEatenSnacks(new Set());
       setShowExplosion(false);
       setVelocity({ x: 0, y: 0 });
-      ScoreManager.recordAttempt(prevId);
       setIsReady(false);
       setIsCountdownComplete(false);
     }
