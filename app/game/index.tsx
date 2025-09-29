@@ -3,7 +3,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useAudioPlayer } from 'expo-audio';
 import * as Haptics from 'expo-haptics';
 import { useAtom, useSetAtom } from 'jotai';
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { isDeadAtom, isGameWonAtom, recordDeathAtom, recordWinAtom, resetGameStateAtom } from '../../atoms/gameAtoms';
 import { CountdownAnimation } from '../../components/countdown-animation';
@@ -43,16 +43,17 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
   //GAME FEATURES & EFFECTS
   const [showExplosion, setShowExplosion] = useState(false);
   const [explosionPosition, setExplosionPosition] = useState({ x: 0, y: 0 });
-  const [extraLives, setExtraLives] = useState(0);
-  const [eatenSnacks, setEatenSnacks] = useState<Set<string>>(new Set());
   const [showCountdown, setShowCountdown] = useState(false);
   const [isCountdownComplete, setIsCountdownComplete] = useState(false);
   const [isReady, setIsReady] = useState(false);
   // SCORE AND ATTEMPTS
   const [levelStats, setLevelStats] = useState<LevelStats | null>(null);
   const [currentAttempt, setCurrentAttempt] = useState(1);
+  const [eatenSnacks, setEatenSnacks] = useState<Set<string>>(new Set());
+  const [extraLives, setExtraLives] = useState(0);
   const [extraLivesUsed, setExtraLivesUsed] = useState(0);
   const [isGamePaused, setIsGamePaused] = useState(false);
+  const [isRespawning, setIsRespawning] = useState(false);
   //GAME LEVELS
   const [currentLevelId, setCurrentLevelId] = useState(route.params?.initialLevel || 1);
   const [currentLevel, setCurrentLevel] = useState<MazeLevel>(getCurrentLevel(route.params?.initialLevel || 1));
@@ -110,8 +111,8 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
         setIsGamePaused(true);
       };
     }, [])
-);
-
+  );
+  
   const handleCountdownComplete = () => {
     setShowCountdown(false);
     setIsCountdownComplete(true);
@@ -128,10 +129,11 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
   
   // CHECK WALL COLLISION
   const checkCollision = (newX: number, newY: number) => {
+
     const ballRadius = BALL_SIZE / 2;
     
     if (newX - ballRadius < 0 || newX + ballRadius > MAZE_SIZE ||
-      newY - ballRadius < 0 || newY + ballRadius > MAZE_SIZE)
+        newY - ballRadius < 0 || newY + ballRadius > MAZE_SIZE)
     {
       return true;
     }
@@ -141,6 +143,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
     
     // check 16 points around ball to make it rounder
     const checkPoints = [];
+
     for (let i = 0; i < 16; i++)
     {
       const angle = (i * Math.PI * 2) / 16;
@@ -165,7 +168,9 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
       {
         if (extraLives > 0)
         {
+          setIsRespawning(true);
           triggerRespawn(pCellX, pCellY);
+
           return false;
         }
         else
@@ -175,7 +180,8 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
           
           // Record death - Jotai
           recordDeath(currentLevelId).then((updatedStats) => {
-            if (updatedStats) {
+            if (updatedStats)
+            {
               setLevelStats(updatedStats);
             }
           });
@@ -251,47 +257,61 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
 
   // RESPAWN LOGIC --------------
   const triggerRespawn = (cellX: number, cellY: number) => {
-    setExtraLives(prev => prev - 1);
-    setExtraLivesUsed(prev => prev + 1);
-  
+
     const safeCell = findNearestSafeCell(cellX, cellY, MAZE_LAYOUT);
     
-    if (safeCell) {
+    if (safeCell)
+    {
       const centeredX = safeCell.x * CELL_SIZE + CELL_SIZE / 2;
       const centeredY = safeCell.y * CELL_SIZE + CELL_SIZE / 2;
       setBallPosition({ x: centeredX, y: centeredY });
     }
+      
+    resetGameState();
+    
+    setExtraLives(prev => prev - 1);
+    setExtraLivesUsed(prev => prev + 1);
     
     plop.seekTo(0);
     plop.play();
-
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
   };
 
   // RESET GAME -----------------
   const resetGame = async () => {
-    resetGameState();
-    resetTimer();
 
-    resetPosition();
-    setShowExplosion(false);
-    setExtraLives(0);
-    setEatenSnacks(new Set());
-    setVelocity({ x: 0, y: 0 });
-    setExtraLivesUsed(0);
-    
-    const updatedStats = await ScoreManager.recordAttempt(currentLevelId);
-    setLevelStats(updatedStats);
-    setCurrentAttempt(updatedStats.totalAttempts);
+    if (isRespawning)
+    {
+      setIsRespawning(false);
+      resetGameState();
+      setIsCountdownComplete(false);
+      setIsReady(true);
 
-    setIsCountdownComplete(false);
-    setIsReady(true);
+      return;
+    }
+    else
+    {
+      resetGameState();
+      resetTimer();
+      resetPosition();
+      setShowExplosion(false);
+      setEatenSnacks(new Set());
+      setVelocity({ x: 0, y: 0 });
+      setExtraLivesUsed(0);
     
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      const updatedStats = await ScoreManager.recordAttempt(currentLevelId);
+      setLevelStats(updatedStats);
+      setCurrentAttempt(updatedStats.totalAttempts);
+      setIsCountdownComplete(false);
+      setIsReady(true);
+    
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    }
   };
 
   // NEXT LEVEL -----------------
-    const nextLevel = () => {
+  const nextLevel = () => {
+      
     const nextId = currentLevelId + 1;
     if (nextId <= MAZE_LEVELS.length)
     {
@@ -305,9 +325,9 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
       setEatenSnacks(new Set());
       setShowExplosion(false);
       setVelocity({ x: 0, y: 0 });
+      setExtraLivesUsed(0);
 
       ScoreManager.recordAttempt(nextId);
-
       setIsReady(false);
       setIsCountdownComplete(false);
     }
@@ -320,7 +340,6 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
     {
       resetGameState();
       resetTimer();
-
       setCurrentLevelId(prevId);
       const prevLevel = getCurrentLevel(prevId);
       setCurrentLevel(prevLevel);
@@ -328,14 +347,12 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
       setEatenSnacks(new Set());
       setShowExplosion(false);
       setVelocity({ x: 0, y: 0 });
-
       ScoreManager.recordAttempt(prevId);
-
       setIsReady(false);
       setIsCountdownComplete(false);
     }
   };
-
+  
   // CUSTOM HOOKS ----------------
   const { accelData, gyroData } = useGameSensors(gyroMode);
   
@@ -347,24 +364,29 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
     gyroData,
     checkCollision,
     isGameWon,
-    isDead: isDead || isGamePaused || !isCountdownComplete, // Pause & countdown treates as death in gamePhysics
+    isDead: isDead || isGamePaused || !isCountdownComplete || isRespawning, // Pause, countdown & respawn treates as death in gamePhysics
     initialPosition: getStartPosition(),
     inverted: invertedGameControls
   });
+  
   //-----------------------------
-
   const formatTime = (timeMs: number) => `${(timeMs / 1000).toFixed(1)}s`;
+
+  const getButtonTitle = () => {
+    if (isRespawning) return "Fortsätt";
+    if (isDead) return "Starta om";
+    if (isCountdownComplete) return "Starta om";
+    return "REDO!";
+  };
 
   return (
     <View style={styles.container}>
-
       <View style={styles.header}>
         <Text style={styles.title}>Rädda {petName}! {selectedPet.emoji}</Text>
         <Text style={styles.instructions}>
           Luta din telefon i ALLA riktningar för att guida hem ditt husdjur!
         </Text>
       </View>
-
       <View style={styles.level}>
         <Text style={styles.levelText}>{currentLevel.name}</Text>
       </View>
@@ -378,7 +400,6 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
           {extraLives > 0 ? `${selectedPet.emoji}: ${extraLives}` : ''}
         </Text>
       </View>
-
       <View style={styles.gameContainer}>
         <View style={styles.maze}>
           <MazeRenderer
@@ -390,7 +411,6 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
             snackCell={SNACK_CELL}
             eatenSnacks={eatenSnacks}
         />
-
           {/* PET BALL */}
           <View
             style={[
@@ -405,7 +425,6 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
               {isDead ? DEATH_EMOJI : selectedPet.emoji}
             </Text>
           </View>
-
           {/* EXPLOSION */}
           {showExplosion && (
             <View
@@ -422,7 +441,6 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
           )}
         </View>
       </View>
-
       <View style={styles.gameTimer}>
         <Text style={styles.gameTimerText}>
           Tid: {`${(gameTime / 1000).toFixed(2)}s`}
@@ -445,13 +463,14 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
           textStyle={styles.goBackButtonText}
         />
         <GradientButton 
-          title={isCountdownComplete ? "Starta om" : "REDO!"} 
+          title={getButtonTitle()}
           onPress={resetGame} 
           theme="green" 
           style={styles.playButton}
           textStyle={styles.playButtonText}
         />
       </View>
+
       <View style={styles.controls}>
         <TouchableOpacity 
           style={[styles.levelButton, currentLevelId <= 1 && styles.disabledButton]} 
@@ -462,11 +481,18 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
             <Ionicons name="arrow-back" size={18} color="white" />  Förra
           </Text>
         </TouchableOpacity>
+
         <View style={styles.separator} />
-        <TouchableOpacity style={styles.statsButton} onPress={handleGoToMazeStats}>
-          <Ionicons name="stats-chart-outline" size={24} color="white" />
-        </TouchableOpacity>
+
+        <GradientButton
+          theme="beige"
+          // style={styles.statsButton}
+          onPress={handleGoToMazeStats}
+          iconName="stats-chart-outline"
+        />
+
         <View style={styles.separator} />
+
         <TouchableOpacity
           style={[styles.levelButton, !completedLevels.has(currentLevelId) && styles.disabledButton]}
           onPress={nextLevel}
@@ -483,6 +509,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
         onComplete={handleCountdownComplete}
         volume={0.1}
       />
+
     </View>
   );
 }
@@ -637,11 +664,5 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#eee',
     marginBottom: -30,
-  },
-  statsButton: {
-    backgroundColor: '#3894d1ff',
-    paddingHorizontal: 8,
-    paddingVertical: 8,
-    borderRadius: 12,
   },
 });
