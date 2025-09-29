@@ -108,9 +108,9 @@ useFocusEffect(
       </Text>
 
       <GradientButton 
-        title="STATISTIK" 
-        onPress={handleGoToMazeStats} 
-        theme="beige" 
+        title="INSTÄLLNINGAR" 
+        onPress={handleGoToSettings} 
+        theme="blue" 
         style={styles.settingsButton}
         textStyle={styles.settingsButtonText}
       />
@@ -122,21 +122,20 @@ useFocusEffect(
         </View>
       ) : (
         <GradientButton 
-          title="STARTA" 
-          onPress={handleStartGame} 
-          theme="green" 
-          style={styles.startButton}
-          textStyle={styles.startButtonText}
+        title="STARTA" 
+        onPress={handleStartGame} 
+        theme="green" 
+        style={styles.startButton}
+        textStyle={styles.startButtonText}
         />
       )}
-
-      <GradientButton 
-        title="INSTÄLLNINGAR" 
-        onPress={handleGoToSettings} 
-        theme="blue" 
-        style={styles.settingsButton}
-        textStyle={styles.settingsButtonText}
-      />
+      <View style={styles.statsButton}>
+        <GradientButton
+          theme="beige"
+          onPress={handleGoToMazeStats}
+          iconName="stats-chart-outline"
+        />
+      </View>
 
       <StatusBar barStyle="default"/>
     </View>
@@ -189,7 +188,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   settingsButton: {
-    paddingVertical: 6,
+    paddingVertical: 12,
     borderRadius: 12,
     width: '80%',
   },
@@ -210,12 +209,17 @@ const styles = StyleSheet.create({
     color: '#fcfcfc',
     fontSize: 16,
     marginTop: 8,
-    marginBottom: 22,
+    marginBottom: 10,
   },
   logo: {
     marginTop: -50,
     height: 320,
     resizeMode: 'contain',
     width: '80%',
+  },
+  statsButton: {
+    alignSelf: 'flex-start',
+    marginLeft: '10%',
+    marginTop: 10,
   },
 });
