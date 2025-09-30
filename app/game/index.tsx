@@ -484,7 +484,6 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
 
         <GradientButton
           theme="beige"
-          // style={styles.statsButton}
           onPress={handleGoToMazeStats}
           iconName="stats-chart-outline"
         />
