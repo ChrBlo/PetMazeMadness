@@ -223,7 +223,7 @@ const styles = StyleSheet.create({
   leaderboardTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#3894d1ff',
+    color: '#5da6d6ff',
     textAlign: 'center',
     marginBottom: 10,
   },
@@ -241,7 +241,7 @@ const styles = StyleSheet.create({
   rank: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#3894d1ff',
+    color: '#5da6d6ff',
     width: 30,
   },
   petInfo: {
@@ -252,7 +252,7 @@ const styles = StyleSheet.create({
   time: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: '#3894d1ff',
+    color: '#5da6d6ff',
   },
   noResults: {
     textAlign: 'center',
@@ -261,10 +261,10 @@ const styles = StyleSheet.create({
   },
   currentModeContainer: {
     borderWidth: 2,
-    borderColor: '#45da9cff',
+    borderColor: '#5ccf9fff',
   },
   currentModeTitle: {
-    color: '#45da9cff',
+    color: '#5ccf9fff',
   },
   extraLives: {
     fontSize: 12,
