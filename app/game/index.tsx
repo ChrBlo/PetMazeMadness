@@ -54,6 +54,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
   const [extraLivesUsed, setExtraLivesUsed] = useState(0);
   const [isGamePaused, setIsGamePaused] = useState(false);
   const [isRespawning, setIsRespawning] = useState(false);
+  const [hasStartedTimer, setHasStartedTimer] = useState(false);
   //GAME LEVELS
   const [currentLevelId, setCurrentLevelId] = useState(route.params?.initialLevel || 1);
   const [currentLevel, setCurrentLevel] = useState<MazeLevel>(getCurrentLevel(route.params?.initialLevel || 1));
@@ -97,9 +98,10 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
   }, [isReady]);
   
   useEffect(() => {
-    if (isCountdownComplete)
+    if (isCountdownComplete && !isRespawning && !hasStartedTimer)
     {
       startTimer();
+      setHasStartedTimer(true);
     }
   }, [isCountdownComplete]);
 
@@ -116,6 +118,13 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
     setShowCountdown(false);
     setIsCountdownComplete(true);
     setIsReady(false);
+
+    if (isRespawning)
+    {
+      resumeTimer();
+      setIsRespawning(false);
+      setHasStartedTimer(true);
+    }
   };
   
   const handleGoToMazeStats = () => {
@@ -270,6 +279,8 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
     
     setExtraLives(prev => prev - 1);
     setExtraLivesUsed(prev => prev + 1);
+
+    pauseTimer();
     
     plop.seekTo(0);
     plop.play();
@@ -281,7 +292,6 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
 
     if (isRespawning)
     {
-      setIsRespawning(false);
       resetGameState();
       setIsCountdownComplete(false);
       setIsReady(true);
@@ -304,6 +314,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
       
       setIsCountdownComplete(false);
       setIsReady(true);
+      setHasStartedTimer(false);
     
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     }
@@ -354,7 +365,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
   // CUSTOM HOOKS ----------------
   const { accelData, gyroData } = useGameSensors(gyroMode);
   
-  const { gameTime, startTimer, stopTimer, resetTimer } = useGameTimer(!isGameWon && !isDead && !isGamePaused && isCountdownComplete);
+  const { gameTime, startTimer, pauseTimer, resumeTimer, stopTimer, resetTimer } = useGameTimer(!isGameWon && !isDead && !isGamePaused && isCountdownComplete && !isRespawning);
 
   const { ballPosition, setBallPosition, velocity, setVelocity, resetPosition } = useGamePhysics({
     gyroMode,

@@ -3,12 +3,30 @@ import { useEffect, useRef, useState } from 'react';
 export const useGameTimer = (isActive: boolean) => {
   const [gameTime, setGameTime] = useState(0);
   const [startTime, setStartTime] = useState<number | null>(null);
+  const [pausedAt, setPausedAt] = useState<number | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const startTimer = () => {
     const now = Date.now();
     setStartTime(now);
     setGameTime(0);
+    setPausedAt(null);
+  };
+
+  const pauseTimer = () => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+    setPausedAt(gameTime);
+  };
+
+  const resumeTimer = () => {
+    const now = Date.now();
+    if (pausedAt !== null) {
+      const adjustedStartTime = now - pausedAt;
+      setStartTime(now - pausedAt);
+      setPausedAt(null);
+    }
   };
 
   const stopTimer = () => {
@@ -29,7 +47,8 @@ export const useGameTimer = (isActive: boolean) => {
   };
 
   useEffect(() => {
-    if (isActive && startTime)
+
+    if (isActive && startTime && pausedAt === null)
     {
       intervalRef.current = setInterval(() => { setGameTime(Date.now() - startTime);}, 100);
     }
@@ -52,6 +71,8 @@ export const useGameTimer = (isActive: boolean) => {
   return {
     gameTime,
     startTimer,
+    pauseTimer,
+    resumeTimer,
     stopTimer,
     resetTimer
   };
