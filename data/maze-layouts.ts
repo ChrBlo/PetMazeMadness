@@ -8,6 +8,7 @@
 export interface MazeLevel {
   id: number;
   name: string;
+  timeLimit: number;
   layout: number[][];
   startPosition: { x: number; y: number };
 }
@@ -16,6 +17,7 @@ export const MAZE_LEVELS: MazeLevel[] = [
   {
     id: 1,
     name: "Bana 1",
+    timeLimit: 5000,
     layout: [
       [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
       [1, 0, 4, 0, 1, 0, 0, 0, 0, 1],
@@ -33,6 +35,7 @@ export const MAZE_LEVELS: MazeLevel[] = [
   {
     id: 2,
     name: "Bana 2",
+    timeLimit: 4000,
     layout: [
       [1, 1, 1, 3, 1, 1, 1, 1, 1, 1],
       [1, 0, 1, 4, 0, 0, 0, 0, 0, 1],
@@ -49,6 +52,7 @@ export const MAZE_LEVELS: MazeLevel[] = [
   },
   {
     id: 3,
+    timeLimit: 4000,
     name: "Bana 3",
     layout: [
       [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -67,6 +71,7 @@ export const MAZE_LEVELS: MazeLevel[] = [
   {
     id: 4,
     name: "Bana 4",
+    timeLimit: 2000,
     layout: [
       [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
       [1, 4, 0, 0, 0, 0, 0, 0, 0, 1],
@@ -84,6 +89,7 @@ export const MAZE_LEVELS: MazeLevel[] = [
   {
     id: 5,
     name: "Bana 5",
+    timeLimit: 5000,
     layout: [
       [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
       [1, 0, 0, 0, 1, 0, 0, 0, 0, 1],
@@ -101,6 +107,7 @@ export const MAZE_LEVELS: MazeLevel[] = [
   {
     id: 6,
     name: "Bana 6",
+    timeLimit: 5000,
     layout: [
       [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
       [1, 0, 0, 0, 1, 0, 0, 0, 0, 1],
@@ -118,6 +125,7 @@ export const MAZE_LEVELS: MazeLevel[] = [
   {
     id: 7,
     name: "Bana 7",
+    timeLimit: 15000,
     layout: [
       [1, 1, 1, 1, 1, 1, 1, 3, 1, 1],
       [1, 0, 3, 0, 0, 4, 0, 0, 0, 1],
@@ -135,6 +143,7 @@ export const MAZE_LEVELS: MazeLevel[] = [
   {
     id: 8,
     name: "Maddox bana (bana 8)",
+    timeLimit: 10000,
     layout: [
       [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
       [1, 0, 1, 4, 3, 0, 0, 0, 0, 1],
@@ -152,6 +161,7 @@ export const MAZE_LEVELS: MazeLevel[] = [
   {
     id: 9,
     name: "Bana 9",
+    timeLimit: 2000,
     layout: [
       [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
       [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
@@ -169,6 +179,7 @@ export const MAZE_LEVELS: MazeLevel[] = [
   {
     id: 10,
     name: "Bana 10",
+    timeLimit: 50000,
     layout: [
       [3, 1, 3, 1, 3, 1, 3, 1, 1, 1],
       [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
@@ -186,6 +197,7 @@ export const MAZE_LEVELS: MazeLevel[] = [
   {
     id: 11,
     name: "Bana 11",
+    timeLimit: 4000,
     layout: [
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
       [1, 0, 0, 0, 0, 0, 0, 0, 3, 1],
@@ -203,6 +215,7 @@ export const MAZE_LEVELS: MazeLevel[] = [
   {
     id: 12,
     name: "Bana 12",
+    timeLimit: 15000,
     layout: [
       [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
       [1, 0, 0, 3, 0, 0, 3, 0, 4, 1],
@@ -220,6 +233,7 @@ export const MAZE_LEVELS: MazeLevel[] = [
   {
     id: 13,
     name: "Bana 13",
+    timeLimit: 10000,
     layout: [
       [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
       [1, 0, 3, 0, 1, 0, 3, 4, 1, 1],
@@ -237,6 +251,7 @@ export const MAZE_LEVELS: MazeLevel[] = [
   {
     id: 14,
     name: "Bana 14",
+    timeLimit: 5000,
     layout: [
       [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
       [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
@@ -254,6 +269,7 @@ export const MAZE_LEVELS: MazeLevel[] = [
   {
     id: 15,
     name: "Bana 15",
+    timeLimit: 11000,
     layout: [
       [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
       [1, 0, 1, 0, 1, 0, 1, 0, 1, 1],
@@ -271,6 +287,7 @@ export const MAZE_LEVELS: MazeLevel[] = [
   {
     id: 16,
     name: "Bana 16",
+    timeLimit: 9500,
     layout: [
       [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
       [1, 0, 0, 0, 3, 0, 0, 0, 4, 1],
@@ -288,6 +305,7 @@ export const MAZE_LEVELS: MazeLevel[] = [
   {
     id: 17,
     name: "Bana 17",
+    timeLimit: 13000,
     layout: [
       [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
       [1, 0, 0, 0, 1, 0, 0, 0, 0, 1],
@@ -305,6 +323,7 @@ export const MAZE_LEVELS: MazeLevel[] = [
   {
     id: 18,
     name: "Bana 18",
+    timeLimit: 15000,
     layout: [
       [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
       [1, 0, 3, 0, 0, 3, 0, 0, 4, 1],
@@ -322,6 +341,7 @@ export const MAZE_LEVELS: MazeLevel[] = [
   {
     id: 19,
     name: "Bana 19",
+    timeLimit: 15000,
     layout: [
       [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
       [1, 0, 3, 0, 1, 4, 3, 0, 1, 1],
@@ -339,6 +359,7 @@ export const MAZE_LEVELS: MazeLevel[] = [
   {
     id: 20,
     name: "Kiki's bana (bana 20)",
+    timeLimit: 60000,
     layout: [
       [3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
       [3, 0, 0, 0, 3, 0, 0, 0, 4, 3],

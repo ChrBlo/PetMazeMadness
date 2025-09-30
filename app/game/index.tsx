@@ -2,7 +2,9 @@ import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from '@react-navigation/native';
 import { useAudioPlayer } from 'expo-audio';
 import * as Haptics from 'expo-haptics';
+import { Image } from 'expo-image';
 import { useAtom, useSetAtom } from 'jotai';
+import LottieView from "lottie-react-native";
 import { useCallback, useEffect, useState } from "react";
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { isDeadAtom, isGameWonAtom, recordDeathAtom, recordWinAtom, resetGameStateAtom } from '../../atoms/gameAtoms';
@@ -15,9 +17,8 @@ import { useGamePhysics } from '../../hooks/useGamePhysics';
 import { GyroMode, useGameSensors } from '../../hooks/useGameSensors';
 import { useGameTimer } from '../../hooks/useGameTimer';
 import { findNearestSafeCell, getMazeCell, getPosition } from "../../utils/game-helpers";
-import { LevelStats, ScoreManager } from '../../utils/score-manager';
+import { LevelStars, LevelStats, ScoreManager } from '../../utils/score-manager';
 import { GameScreenProps } from "../root-layout";
-import LottieView from "lottie-react-native";
 
 const MAZE_SIZE = 300;
 const BALL_SIZE = 20;
@@ -58,6 +59,10 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
   const [isGamePaused, setIsGamePaused] = useState(false);
   const [isRespawning, setIsRespawning] = useState(false);
   const [hasStartedTimer, setHasStartedTimer] = useState(false);
+  const [normalModeCompleted, setNormalModeCompleted] = useState(false);
+  const [chaosModeCompleted, setChaosModeCompleted] = useState(false);
+  const [earnedStars, setEarnedStars] = useState(0);
+  const [levelStarsData, setLevelStarsData] = useState<LevelStars['stars'] | null>(null);
   //GAME LEVELS
   const [currentLevelId, setCurrentLevelId] = useState(route.params?.initialLevel || 1);
   const [currentLevel, setCurrentLevel] = useState<MazeLevel>(getCurrentLevel(route.params?.initialLevel || 1));
@@ -81,20 +86,27 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
       
       const progress = await ScoreManager.getGameProgress();
       setCompletedLevels(new Set(progress.completedLevels));
-
+      
       const savedLives = await ScoreManager.getExtraLives();
       setExtraLives(savedLives);
     };
     loadInitialData();
   }, []);
   
-  useEffect(() => {
+   useEffect(() => {
     const loadStats = async () => {
       const stats = await ScoreManager.getLevelStats(currentLevelId);
       setLevelStats(stats);
       
       const savedSnacks = await ScoreManager.getEatenSnacks(currentLevelId);
       setEatenSnacks(new Set(savedSnacks));
+
+      const completions = await ScoreManager.getTopCompletions(currentLevelId, 100);
+      const hasNormalComplete = completions.some(c => c.gyroMode === GyroMode.NORMAL.toString());
+      const hasKaosComplete = completions.some(c => c.gyroMode === GyroMode.CHAOS.toString());
+      
+      setNormalModeCompleted(hasNormalComplete);
+      setChaosModeCompleted(hasKaosComplete);
     };
     loadStats();
   }, [currentLevelId]);
@@ -113,6 +125,15 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
       setHasStartedTimer(true);
     }
   }, [isCountdownComplete]);
+
+  useEffect(() => {
+    const loadLevelStars = async () => {
+      const stars = await ScoreManager.getLevelStars(currentLevelId);
+      setLevelStarsData(stars);
+      setEarnedStars(ScoreManager.countEarnedStars(stars));
+    };
+    loadLevelStars();
+  }, [currentLevelId]);
 
   useFocusEffect(
     useCallback(() => {
@@ -143,10 +164,34 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
       gyroMode: gyroMode
     });
   };
+
+  const checkAndSaveStars = async (completionTime: number) => {
+    const totalSnacks = MAZE_LAYOUT.flat().filter(cell => cell === SNACK_CELL).length;
+    
+    const newStars: LevelStars['stars'] = {
+      completedNormalMode: gyroMode === GyroMode.NORMAL,
+      completedChaosMode: gyroMode === GyroMode.CHAOS,
+      allSnacksEaten: eatenSnacks.size === totalSnacks && totalSnacks > 0,
+      underMazeTimeLimit: currentLevel.timeLimit ? completionTime <= currentLevel.timeLimit : false,
+      noExtraLivesUsed: extraLivesUsed === 0,
+    };
+    
+    const existingStars = await ScoreManager.getLevelStars(currentLevelId);
+    const mergedStars = {
+      completedNormalMode: existingStars?.completedNormalMode || newStars.completedNormalMode,
+      completedChaosMode: existingStars?.completedChaosMode || newStars.completedChaosMode,
+      allSnacksEaten: existingStars?.allSnacksEaten || newStars.allSnacksEaten,
+      underMazeTimeLimit: existingStars?.underMazeTimeLimit || newStars.underMazeTimeLimit,
+      noExtraLivesUsed: existingStars?.noExtraLivesUsed || newStars.noExtraLivesUsed,
+    };
+    
+    await ScoreManager.saveLevelStars(currentLevelId, mergedStars);
+    setLevelStarsData(mergedStars);
+    setEarnedStars(ScoreManager.countEarnedStars(mergedStars));
+  };
   
   // CHECK WALL COLLISION
   const checkCollision = (newX: number, newY: number) => {
-
     const ballRadius = BALL_SIZE / 2;
     
     if (newX - ballRadius < 0 || newX + ballRadius > MAZE_SIZE ||
@@ -244,13 +289,14 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
     {
       const completionTime = stopTimer();
       setCompletedLevels(prev => new Set([...prev, currentLevelId]));
-      
+
+      checkAndSaveStars(completionTime);
+
       setShowVictoryAnimation(true);
 
       victory.seekTo(0);
       victory.play();
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      
 
       // Record win - Jotai
       recordWin({
@@ -268,7 +314,14 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
         });
         
         setTimeout(() => {
-        setShowVictoryAnimation(false);
+          setShowVictoryAnimation(false);
+          
+          ScoreManager.getTopCompletions(currentLevelId, 100).then(completions => {
+            const hasNormalComplete = completions.some(c => c.gyroMode === GyroMode.NORMAL.toString());
+            const hasKaosComplete = completions.some(c => c.gyroMode === GyroMode.CHAOS.toString());
+            setNormalModeCompleted(hasNormalComplete);
+            setChaosModeCompleted(hasKaosComplete);
+          });
       
           if (result?.isNewRecord)
           {
@@ -292,7 +345,6 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
 
   // RESPAWN LOGIC --------------
   const triggerRespawn = (cellX: number, cellY: number) => {
-
     const safeCell = findNearestSafeCell(cellX, cellY, MAZE_LAYOUT);
     
     if (safeCell)
@@ -318,7 +370,6 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
 
   // RESET GAME -----------------
   const resetGame = async () => {
-
     if (isRespawning)
     {
       resetGameState();
@@ -353,8 +404,8 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
 
   // NEXT LEVEL -----------------
   const nextLevel = () => {
-      
     const nextId = currentLevelId + 1;
+
     if (nextId <= MAZE_LEVELS.length)
     {
       resetGameState(); // Jotai - reset atoms
@@ -423,12 +474,76 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
 
   return (
     <View style={styles.container}>
+
       <View style={styles.header}>
-        <Text style={styles.title}>Rädda {petName}! {selectedPet.emoji}</Text>
-        <Text style={styles.instructions}>
-          Luta din telefon i ALLA riktningar för att guida hem ditt husdjur!
-        </Text>
+      <View style={styles.headerImage}>
+        <Image 
+          style={styles.logo} 
+          source={require('../../assets/images/gamelogo.png')} 
+        />
       </View>
+      
+      <View style={styles.headerContent}>
+        {!normalModeCompleted && !chaosModeCompleted ? (
+          <View style={styles.titleContainer}>
+            <Text style={styles.title}>Rädda {petName}! {selectedPet.emoji}</Text>
+          </View>
+        ) : (
+          <>
+            {/* Stars Row */}
+            <View style={styles.starsRow}>
+              {[0, 1, 2, 3, 4].map((index) => {
+                const starOrder = [0, 1, 4, 3, 2];
+                const starNumber = starOrder[index];
+                
+                return (
+                  <Image
+                    key={index}
+                    style={[
+                      styles.star,
+                      index === 0 && styles.star1,
+                      index === 1 && styles.star2,
+                      index === 2 && styles.star3,
+                      index === 3 && styles.star4,
+                      index === 4 && styles.star5,
+                    ]}
+                    source={starNumber < earnedStars 
+                      ? require('../../assets/images/star.png')
+                      : require('../../assets/images/no_star.png')
+                    }
+                  />
+                );
+              })}
+            </View>
+            
+            {/* Badges Row */}
+            <View style={styles.badgesRow}>
+              <View style={styles.modeBadge}>
+                <Text style={styles.badgeText}>Normal</Text>
+                <Image 
+                  style={styles.badge} 
+                  source={normalModeCompleted 
+                    ? require('../../assets/images/completed.png')
+                    : require('../../assets/images/not_completed.png')
+                  } 
+                />
+              </View>
+              
+              <View style={styles.modeBadge}>
+                <Text style={styles.badgeText}>Kaos</Text>
+                <Image 
+                  style={styles.badge} 
+                  source={chaosModeCompleted 
+                    ? require('../../assets/images/completed.png')
+                    : require('../../assets/images/not_completed.png')
+                  } 
+                />
+              </View>
+            </View>
+          </>
+        )}
+      </View>
+    </View>
       <View style={styles.level}>
         <Text style={styles.levelText}>{currentLevel.name}</Text>
       </View>
@@ -576,22 +691,70 @@ const styles = StyleSheet.create({
     backgroundColor: '#221c17ff',
     alignItems: 'center',
     justifyContent: 'center',
+    zIndex: -1,
   },
   header: {
     alignItems: 'center',
     width: '80%',
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    marginBottom: 10,
+  },
+  headerImage: {
+    width: '40%',
+    alignItems: 'flex-start',
+    marginLeft: -14,
+  },
+  headerContent: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 30,
+  },
+  logo: {
+    height: 110,
+    resizeMode: 'contain',
+    width: '100%',
+    transform: [{ rotate: '-15deg' }],
+  },
+  starsRow: {
+    flexDirection: 'row',
+    gap: 8,
+    alignItems: 'center',
+  },
+  star: {
+    width: 24,
+    height: 24,
+  },
+  badgesRow: {
+    flexDirection: 'row',
+    gap: 20,
+    alignItems: 'center',
+  },
+  modeBadge: {
+    alignItems: 'center',
+    gap: 4,
+  },
+  badge: {
+    width: 32,
+    height: 32,
+  },
+  badgeText: {
+    fontSize: 16,
+    color: '#bbb',
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 0,
+  },
+  titleContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     color: '#eee',
-    marginBottom: 10,
-  },
-  instructions: {
-    fontSize: 16,
-    color: '#bbb',
     textAlign: 'center',
-    marginBottom: 20,
   },
   gameContainer: {
     alignItems: 'center',
@@ -719,7 +882,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     color: '#eee',
-    marginBottom: -30,
+    marginBottom: -25,
   },
   lottieContainer: {
     position: 'absolute',
@@ -744,4 +907,30 @@ const styles = StyleSheet.create({
     bottom: 0,
     backgroundColor: 'rgba(0, 0, 0, 0.5)', // Black with 50% opacity
   },
+  star1: {
+    transform: [{ rotate: '-10deg' }],
+  },
+  star2: {
+    transform: [{ rotate: '-5deg' }, { scale: 1.2 }],
+    marginBottom: 15,
+  },
+  star3: {
+    transform: [{ scale: 1.4 }],
+    marginBottom: 25,
+    marginLeft: 6,
+    marginRight: 6,
+  },
+  star4: {
+    transform: [{ rotate: '5deg' }, { scale: 1.2 }],
+    marginBottom: 15,
+  },
+  star5: {
+    transform: [{ rotate: '10deg' }],
+  }
+  // logo: {
+  //   height: 120,
+  //   resizeMode: 'contain',
+  //   width: '80%',
+  //   transform: [{ rotate: '-15deg' }],
+  // },
 });

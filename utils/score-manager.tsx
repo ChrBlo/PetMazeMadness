@@ -29,6 +29,17 @@ export interface CompletionRecord {
   gyroMode: string;
 }
 
+export interface LevelStars {
+  levelId: number;
+  stars: {
+    completedNormalMode: boolean;
+    completedChaosMode: boolean;
+    allSnacksEaten: boolean;
+    underMazeTimeLimit: boolean;
+    noExtraLivesUsed: boolean;
+  };
+}
+
 export class ScoreManager {
   private static getKey(levelId: number): string {
     return `level_${levelId}_stats`;
@@ -266,4 +277,28 @@ export class ScoreManager {
     return snacks || [];
   }
 
+  static async saveLevelStars(levelId: number, stars: LevelStars['stars']): Promise<void> {
+    try {
+      const key = `level_stars_${levelId}`;
+      await store.save(key, stars);
+    } catch (error) {
+      console.error('Error saving level stars:', error);
+    }
+  }
+
+  static async getLevelStars(levelId: number): Promise<LevelStars['stars'] | null> {
+    try {
+      const key = `level_stars_${levelId}`;
+      const stars = await store.get(key);
+      return stars || null;
+    } catch (error) {
+      console.error('Error loading level stars:', error);
+      return null;
+    }
+  }
+
+  static countEarnedStars(stars: LevelStars['stars'] | null): number {
+    if (!stars) return 0;
+    return Object.values(stars).filter(Boolean).length;
+  }
 }
