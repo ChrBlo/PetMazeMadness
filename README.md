@@ -6,7 +6,7 @@ This project was created as a school assigment designed to encourage us students
 Guide your pet through dangerous mazes using your device's motion sensors.
 Start the game by pressing "STARTA" on the main menu.
 Tilt your device in ALL different directions guide the pet through the maze to the house.
-Avoid red walls - they explode and your pet will die a horrible death! 💀
+Avoid dangers - your pet will die a horrible death! 💀
 
 ## Repository
 This project can be found here: https://github.com/ChrBlo/PetMazeMadness
@@ -47,6 +47,7 @@ Other External modules/APIs used:
 - [X] yr.no weather forecast open API (https://developer.yr.no/doc) - Used in a game settings that blocks game if nice weather
 - [X] added react-native-simple-store for storing score data
 - [X] added jotai for simpler state handling (fixed bug with walls beeing hit several times)
+- [X] added LottieView (lottie-react-native) from LottiFiles - added animation on maze-completion 
 
 
 ## Installation 🚀 //TODO
@@ -102,6 +103,8 @@ https://reactnative.dev/docs/components-and-apis#basic-components
 https://docs.expo.dev/versions/latest/
 https://icons.expo.fyi/Index
 https://jotai.org/docs
+Animations from https://lottiefiles.com/free-animation/
+- https://lottiefiles.com/free-animation/success-confetti-f5PdexvrBK - used on maze-completion
 Sound effects from https://pixabay.com
 - https://pixabay.com/sound-effects/search/fart/ - used sound file called: "fart"
 - https://pixabay.com/sound-effects/search/woopee/ - used sound file called: "woopee.."

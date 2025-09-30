@@ -8,7 +8,7 @@ interface MazeRendererProps {
   wallCell: number;
   goalCell: number;
   dangerCell: number;
-  snackCell: number;
+  snackCell?: number;
   eatenSnacks: Set<string>;
 }
 

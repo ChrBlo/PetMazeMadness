@@ -17,6 +17,7 @@ import { useGameTimer } from '../../hooks/useGameTimer';
 import { findNearestSafeCell, getMazeCell, getPosition } from "../../utils/game-helpers";
 import { LevelStats, ScoreManager } from '../../utils/score-manager';
 import { GameScreenProps } from "../root-layout";
+import LottieView from "lottie-react-native";
 
 const MAZE_SIZE = 300;
 const BALL_SIZE = 20;
@@ -46,6 +47,8 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
   const [showCountdown, setShowCountdown] = useState(false);
   const [isCountdownComplete, setIsCountdownComplete] = useState(false);
   const [isReady, setIsReady] = useState(false);
+  const [showVictoryAnimation, setShowVictoryAnimation] = useState(false);
+  const [victoryData, setVictoryData] = useState<{ completionTime: number; isNewRecord: boolean;} | null>(null);
   // SCORE AND ATTEMPTS
   const [levelStats, setLevelStats] = useState<LevelStats | null>(null);
   const [currentAttempt, setCurrentAttempt] = useState(1);
@@ -78,6 +81,9 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
       
       const progress = await ScoreManager.getGameProgress();
       setCompletedLevels(new Set(progress.completedLevels));
+
+      const savedLives = await ScoreManager.getExtraLives();
+      setExtraLives(savedLives);
     };
     loadInitialData();
   }, []);
@@ -86,6 +92,9 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
     const loadStats = async () => {
       const stats = await ScoreManager.getLevelStats(currentLevelId);
       setLevelStats(stats);
+      
+      const savedSnacks = await ScoreManager.getEatenSnacks(currentLevelId);
+      setEatenSnacks(new Set(savedSnacks));
     };
     loadStats();
   }, [currentLevelId]);
@@ -212,13 +221,18 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
 
       if (!currentEatenSnacks.has(snackKey))
       {
-        setEatenSnacks(prevEatenSnacks => {
+          setEatenSnacks(prevEatenSnacks => {
           const newSet = new Set(prevEatenSnacks);
           newSet.add(snackKey);
+
+          ScoreManager.saveEatenSnacks(currentLevelId, Array.from(newSet));
+
           return newSet;
         });
   
-        setExtraLives(lives => lives + 1);
+        const newLives = extraLives + 1;
+        setExtraLives(newLives);
+        ScoreManager.saveExtraLives(newLives);
 
         snack.seekTo(0);
         snack.play();
@@ -231,10 +245,13 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
       const completionTime = stopTimer();
       setCompletedLevels(prev => new Set([...prev, currentLevelId]));
       
+      setShowVictoryAnimation(true);
+
       victory.seekTo(0);
       victory.play();
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       
+
       // Record win - Jotai
       recordWin({
         currentLevelId,
@@ -245,18 +262,28 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
         extraLivesUsed,
         gyroMode: gyroMode.toString()
       }).then((result) => {
-        if (result?.isNewRecord)
-        {
-          Alert.alert('Grattis!', `${petName} flydde! 🌈⭐\nNYTT REKORD: ${formatTime(completionTime)}!`, [
-            { text: 'Spela nästa', onPress: nextLevel }
-          ]);
-        }
-        else
-        {
-          Alert.alert('Grattis!', `${petName} flydde! 🌈⭐`, [
-            { text: 'Spela nästa', onPress: nextLevel }
-          ]);
-        }
+        setVictoryData({
+          completionTime,
+          isNewRecord: result?.isNewRecord || false
+        });
+        
+        setTimeout(() => {
+        setShowVictoryAnimation(false);
+      
+          if (result?.isNewRecord)
+          {
+            Alert.alert('Bra jobbat!', `⭐ NYTT REKORD: ${formatTime(completionTime)}! ⭐`, [
+              { text: 'Spela nästa', onPress: nextLevel }
+            ]);
+          }
+          else
+          {
+            Alert.alert('Bra jobbat!', `${petName} flydde! 🌈❤️`, [
+              { text: 'Spela nästa', onPress: nextLevel }
+            ]);
+          }
+          setVictoryData(null);
+        }, 1700);
       });
     }
     
@@ -277,8 +304,10 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
       
     resetGameState();
     
-    setExtraLives(prev => prev - 1);
+    const newLives = extraLives - 1;
+    setExtraLives(newLives);
     setExtraLivesUsed(prev => prev + 1);
+    ScoreManager.saveExtraLives(newLives);
 
     pauseTimer();
     
@@ -304,10 +333,12 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
       resetTimer();
       resetPosition();
       setShowExplosion(false);
-      setEatenSnacks(new Set());
       setVelocity({ x: 0, y: 0 });
       setExtraLivesUsed(0);
-    
+      
+      const savedSnacks = await ScoreManager.getEatenSnacks(currentLevelId);
+      setEatenSnacks(new Set(savedSnacks));
+
       const updatedStats = await ScoreManager.recordAttempt(currentLevelId);
       setLevelStats(updatedStats);
       setCurrentAttempt(updatedStats.totalAttempts + 1);
@@ -328,12 +359,12 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
     {
       resetGameState(); // Jotai - reset atoms
       resetTimer();
+      setShowVictoryAnimation(false);
       
       setCurrentLevelId(nextId);
       const newLevel = getCurrentLevel(nextId);
       setCurrentLevel(newLevel);
       setBallPosition(getPosition(newLevel, MAZE_SIZE));
-      setEatenSnacks(new Set());
       setShowExplosion(false);
       setVelocity({ x: 0, y: 0 });
       setExtraLivesUsed(0);
@@ -351,10 +382,12 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
       resetGameState();
       resetTimer();
       setCurrentLevelId(prevId);
+
+      setShowVictoryAnimation(false);
+
       const prevLevel = getCurrentLevel(prevId);
       setCurrentLevel(prevLevel);
       setBallPosition(getPosition(prevLevel, MAZE_SIZE));
-      setEatenSnacks(new Set());
       setShowExplosion(false);
       setVelocity({ x: 0, y: 0 });
       setIsReady(false);
@@ -379,7 +412,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
   });
   
   //-----------------------------
-  const formatTime = (timeMs: number) => `${(timeMs / 1000).toFixed(1)}s`;
+  const formatTime = (timeMs: number) => `${(timeMs / 1000).toFixed(2)}s`;
 
   const getButtonTitle = () => {
     if (isRespawning) return "Fortsätt";
@@ -511,6 +544,21 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
           </Text>
         </TouchableOpacity>
       </View>
+      
+      {/* Confetti animation */}
+      {showVictoryAnimation && (
+        <>
+          <View style={styles.lottieContainer}>
+            <LottieView
+              source={require("../../assets/animations/success_confetti.json")}
+              autoPlay
+              loop={false}
+              style={styles.lottieWin}
+            />
+            <View style={styles.overlay} />
+          </View>
+        </>
+      )}
 
       <CountdownAnimation 
         isVisible={showCountdown} 
@@ -645,7 +693,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   separator: {
-    flex:1,
+    flex: 1,
   },
   levelButton: {
     backgroundColor: '#3d3d3dff',
@@ -672,5 +720,28 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#eee',
     marginBottom: -30,
+  },
+  lottieContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    pointerEvents: 'auto',
+  },
+  lottieWin: {
+    width: 400,
+    height: 400,
+    zIndex: 1,
+  },
+  overlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Black with 50% opacity
   },
 });

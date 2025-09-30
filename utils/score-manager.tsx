@@ -207,37 +207,63 @@ export class ScoreManager {
   }
   
   static async getPetCompletions(levelId: number, petId: string, gyroMode?: string): Promise<CompletionRecord[]> {
-  const key = this.getCompletionsKey(levelId);
-  const completions = await store.get(key);
+    const key = this.getCompletionsKey(levelId);
+    const completions = await store.get(key);
   
-  if (!completions) return [];
+    if (!completions) return [];
   
-  let filteredCompletions = completions.filter(
-    (completion: CompletionRecord) => completion.petId === petId
-  );
+    let filteredCompletions = completions.filter(
+      (completion: CompletionRecord) => completion.petId === petId
+    );
   
-  if (gyroMode)
-  {
-    filteredCompletions = filteredCompletions.filter((completion: CompletionRecord) => completion.gyroMode === gyroMode);
-  }
-  return filteredCompletions;
-}
-
-static async clearAllData(): Promise<void> {
-  try {
-    // Get all keys first
-    const keys = await store.keys();
-    console.log('Found keys:', keys);
-    
-    // Delete each key individually
-    for (const key of keys) {
-      await store.delete(key);
-      console.log('Deleted key:', key);
+    if (gyroMode) {
+      filteredCompletions = filteredCompletions.filter((completion: CompletionRecord) => completion.gyroMode === gyroMode);
     }
-    
-    console.log('All game data cleared successfully');
-  } catch (error) {
-    console.error('Error clearing game data:', error);
+    return filteredCompletions;
   }
-}
+
+  static async clearAllData(): Promise<void> {
+    try {
+      // Get all keys first
+      const keys = await store.keys();
+      console.log('Found keys:', keys);
+    
+      // Delete each key individually
+      for (const key of keys) {
+        await store.delete(key);
+        console.log('Deleted key:', key);
+      }
+    
+      console.log('All game data cleared successfully');
+    } catch (error) {
+      console.error('Error clearing game data:', error);
+    }
+  }
+
+  private static getExtraLivesKey(): string {
+    return 'current_extra_lives';
+  }
+
+  static async saveExtraLives(extraLives: number): Promise<void> {
+    await store.save(this.getExtraLivesKey(), extraLives);
+  }
+
+  static async getExtraLives(): Promise<number> {
+    const lives = await store.get(this.getExtraLivesKey());
+    return lives || 0;
+  }
+
+  private static getEatenSnacksKey(levelId: number): string {
+    return `level_${levelId}_eaten_snacks`;
+  }
+
+  static async saveEatenSnacks(levelId: number, snackKeys: string[]): Promise<void> {
+    await store.save(this.getEatenSnacksKey(levelId), snackKeys);
+  }
+
+  static async getEatenSnacks(levelId: number): Promise<string[]> {
+    const snacks = await store.get(this.getEatenSnacksKey(levelId));
+    return snacks || [];
+  }
+
 }
