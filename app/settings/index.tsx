@@ -73,7 +73,7 @@ export default function SettingsScreen({ route, navigation }: SettingsScreenProp
         <Switch
           value={weatherCheckEnabled}
           onValueChange={setWeatherCheckEnabled}
-          trackColor={{ false: '#666', true: '#45da9cff' }}
+          trackColor={{ false: '#666', true: '#5ccf9fff' }}
         />
       </View>
 
@@ -121,7 +121,7 @@ export default function SettingsScreen({ route, navigation }: SettingsScreenProp
         <Switch
           value={invertedGameControls}
           onValueChange={setInvertedGameControls}
-          trackColor={{ false: '#666', true: '#45da9cff' }}
+          trackColor={{ false: '#666', true: '#5ccf9fff' }}
         />
       </View>
 
@@ -232,7 +232,7 @@ const styles = StyleSheet.create({
   settingsLabel: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#45da9cff',
+    color: '#5ccf9fff',
     marginTop: 35,
   },
   settingRow: {
@@ -258,7 +258,7 @@ const styles = StyleSheet.create({
   },
   petNameDisplay: {
     fontSize: 16,
-    color: '#45da9cff',
+    color: '#5ccf9fff',
     fontWeight: 'bold',
   },
   backButton: {
@@ -307,7 +307,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#666',
   },
   selectedPetOption: {
-    backgroundColor: '#3894d1ff',
+    backgroundColor: '#5da6d6ff',
   },
   petOptionEmoji: {
     fontSize: 24,
@@ -319,7 +319,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   modalCloseButton: {
-    backgroundColor: '#3894d1ff',
+    backgroundColor: '#5da6d6ff',
     paddingVertical: 12,
     borderRadius: 8,
     marginTop: 15,
@@ -359,7 +359,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   saveButton: {
-    backgroundColor: '#3894d1ff',
+    backgroundColor: '#5da6d6ff',
   },
   nameButtonText: {
     color: 'white',
@@ -394,7 +394,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   activeSegment: {
-    backgroundColor: '#45da9cff',
+    backgroundColor: '#5ccf9fff',
   },
   segmentText: {
     color: 'white',
