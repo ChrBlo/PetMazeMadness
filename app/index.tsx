@@ -6,6 +6,7 @@ import { WeatherForecaster } from '../api/weather-forecast';
 import { GradientButton } from "../components/gradient-button";
 import { getDefaultPet } from '../data/pets';
 import { GyroMode } from '../hooks/useGameSensors';
+import { CRUDManager } from "../utils/CRUD-manager";
 import { ScoreManager } from "../utils/score-manager";
 import { StartScreenProps } from './root-layout';
 
@@ -41,7 +42,7 @@ export default function StartScreen({ route, navigation }: StartScreenProps) {
   
   useEffect(() => {
     const loadSavedPet = async () => {
-      const pet = await ScoreManager.getSelectedPet();
+      const pet = await CRUDManager.getSelectedPet();
       if (pet) {
         setSavedPet(pet);
       }

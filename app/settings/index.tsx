@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Modal, ScrollView, StyleSheet, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { GradientButton } from '../../components/gradient-button';
 import { getDefaultPet, getPetById, Pet, pets } from '../../data/pets';
 import { GyroMode } from '../../hooks/useGameSensors';
-import { ScoreManager } from '../../utils/score-manager';
+import { CRUDManager } from '../../utils/CRUD-manager';
 import { SettingsScreenProps } from '../root-layout';
 
 export default function SettingsScreen({ route, navigation }: SettingsScreenProps) {
@@ -22,7 +22,7 @@ export default function SettingsScreen({ route, navigation }: SettingsScreenProp
     setCustomName(newPet.name);
     setShowPetSelector(false);
 
-    await ScoreManager.saveSelectedPet(newPet);
+    await CRUDManager.saveSelectedPet(newPet);
   };
 
   const handleNameEdit = () => {
@@ -43,7 +43,7 @@ export default function SettingsScreen({ route, navigation }: SettingsScreenProp
     setCustomName(finalName);
     setShowNameEditor(false);
 
-    await ScoreManager.saveSelectedPet(updatedPet);
+    await CRUDManager.saveSelectedPet(updatedPet);
   };
 
   const handleNameEditCancel = () => {

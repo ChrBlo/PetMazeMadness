@@ -16,6 +16,7 @@ import { DEATH_EMOJI, getDefaultPet } from '../../data/pets';
 import { useGamePhysics } from '../../hooks/useGamePhysics';
 import { GyroMode, useGameSensors } from '../../hooks/useGameSensors';
 import { useGameTimer } from '../../hooks/useGameTimer';
+import { CRUDManager } from "../../utils/CRUD-manager";
 import { findNearestSafeCell, getMazeCell, getPosition } from "../../utils/game-helpers";
 import { LevelStars, LevelStats, ScoreManager } from '../../utils/score-manager';
 import { GameScreenProps } from "../root-layout";
@@ -88,7 +89,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
       const progress = await ScoreManager.getGameProgress();
       setCompletedLevels(new Set(progress.completedLevels));
       
-      const savedLives = await ScoreManager.getExtraLives();
+      const savedLives = await CRUDManager.getExtraLives();
       setExtraLives(savedLives);
     };
     loadInitialData();
@@ -99,7 +100,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
       const stats = await ScoreManager.getLevelStats(currentLevelId);
       setLevelStats(stats);
       
-      const savedSnacks = await ScoreManager.getEatenSnacks(currentLevelId);
+      const savedSnacks = await CRUDManager.getEatenSnacks(currentLevelId);
       setEatenSnacks(new Set(savedSnacks));
 
       const completions = await ScoreManager.getTopCompletions(currentLevelId, 100);
@@ -129,7 +130,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
 
   useEffect(() => {
     const loadLevelStars = async () => {
-      const stars = await ScoreManager.getLevelStars(currentLevelId);
+      const stars = await CRUDManager.getLevelStars(currentLevelId);
       setLevelStarsData(stars);
     };
     loadLevelStars();
@@ -181,7 +182,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
       noExtraLivesUsed: extraLivesUsed === 0,
     };
     
-    const existingStars = await ScoreManager.getLevelStars(currentLevelId);
+    const existingStars = await CRUDManager.getLevelStars(currentLevelId);
     const mergedStars = {
       completedNormalMode: existingStars?.completedNormalMode || newStars.completedNormalMode,
       completedChaosMode: existingStars?.completedChaosMode || newStars.completedChaosMode,
@@ -190,7 +191,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
       noExtraLivesUsed: existingStars?.noExtraLivesUsed || newStars.noExtraLivesUsed,
     };
     
-    await ScoreManager.saveLevelStars(currentLevelId, mergedStars);
+    await CRUDManager.saveLevelStars(currentLevelId, mergedStars);
     setLevelStarsData(mergedStars);
   };
   
@@ -265,14 +266,14 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
           const newSet = new Set(prevEatenSnacks);
           newSet.add(snackKey);
 
-          ScoreManager.saveEatenSnacks(currentLevelId, Array.from(newSet));
+          CRUDManager.saveEatenSnacks(currentLevelId, Array.from(newSet));
 
           return newSet;
         });
   
         const newLives = extraLives + 1;
         setExtraLives(newLives);
-        ScoreManager.saveExtraLives(newLives);
+        CRUDManager.saveExtraLives(newLives);
 
         snack.seekTo(0);
         snack.play();
@@ -390,7 +391,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
     const newLives = extraLives - 1;
     setExtraLives(newLives);
     setExtraLivesUsed(prev => prev + 1);
-    ScoreManager.saveExtraLives(newLives);
+    CRUDManager.saveExtraLives(newLives);
 
     pauseTimer();
     
@@ -418,7 +419,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
       setVelocity({ x: 0, y: 0 });
       setExtraLivesUsed(0);
       
-      const savedSnacks = await ScoreManager.getEatenSnacks(currentLevelId);
+      const savedSnacks = await CRUDManager.getEatenSnacks(currentLevelId);
       setEatenSnacks(new Set(savedSnacks));
 
       const updatedStats = await ScoreManager.recordAttempt(currentLevelId);

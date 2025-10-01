@@ -223,6 +223,11 @@ export class ScoreManager {
     return filteredCompletions;
   }
 
+  static countEarnedStars(stars: LevelStars['stars'] | null): number {
+    if (!stars) return 0;
+    return Object.values(stars).filter(Boolean).length;
+  }
+  
   //TODO Ta bort den här innan inlämning!
   static async clearAllData(): Promise<void> {
     try {
@@ -240,60 +245,5 @@ export class ScoreManager {
     } catch (error) {
       console.error('Error clearing game data:', error);
     }
-  }
-
-  private static getExtraLivesKey(): string {
-    return 'current_extra_lives';
-  }
-
-  static async saveExtraLives(extraLives: number): Promise<void> {
-    await store.save(this.getExtraLivesKey(), extraLives);
-  }
-
-  static async getExtraLives(): Promise<number> {
-    const lives = await store.get(this.getExtraLivesKey());
-    return lives || 0;
-  }
-
-  private static getEatenSnacksKey(levelId: number): string {
-    return `level_${levelId}_eaten_snacks`;
-  }
-
-  static async saveEatenSnacks(levelId: number, snackKeys: string[]): Promise<void> {
-    await store.save(this.getEatenSnacksKey(levelId), snackKeys);
-  }
-
-  static async getEatenSnacks(levelId: number): Promise<string[]> {
-    const snacks = await store.get(this.getEatenSnacksKey(levelId));
-    return snacks || [];
-  }
-
-  static async saveLevelStars(levelId: number, stars: LevelStars['stars']): Promise<void> {
-    const key = `level_stars_${levelId}`;
-    await store.save(key, stars);
-  }
-
-  static async getLevelStars(levelId: number): Promise<LevelStars['stars'] | null> {
-    const key = `level_stars_${levelId}`;
-    const stars = await store.get(key);
-    return stars || null;
-  }
-
-  static countEarnedStars(stars: LevelStars['stars'] | null): number {
-    if (!stars) return 0;
-    return Object.values(stars).filter(Boolean).length;
-  }
-
-  private static getSelectedPetKey(): string {
-    return 'selected_pet';
-  }
-
-  static async saveSelectedPet(pet: { id: string; name: string; emoji: string }): Promise<void> {
-    await store.save(this.getSelectedPetKey(), pet);
-  }
-
-  static async getSelectedPet(): Promise<{ id: string; name: string; emoji: string } | null> {
-    const pet = await store.get(this.getSelectedPetKey());
-    return pet || null;
   }
 }
