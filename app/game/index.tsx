@@ -5,7 +5,7 @@ import * as Haptics from 'expo-haptics';
 import { Image } from 'expo-image';
 import { useAtom, useSetAtom } from 'jotai';
 import LottieView from "lottie-react-native";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { isDeadAtom, isGameWonAtom, recordDeathAtom, recordWinAtom, resetGameStateAtom } from '../../atoms/gameAtoms';
 import { CountdownAnimation } from '../../components/countdown-animation';
@@ -49,6 +49,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
   const [isCountdownComplete, setIsCountdownComplete] = useState(false);
   const [isReady, setIsReady] = useState(false);
   const [showVictoryAnimation, setShowVictoryAnimation] = useState(false);
+  const [showGameCompletedAnimation, setShowGameCompletedAnimation] = useState(false);
   const [victoryData, setVictoryData] = useState<{ completionTime: number; isNewRecord: boolean;} | null>(null);
   // SCORE AND ATTEMPTS
   const [levelStats, setLevelStats] = useState<LevelStats | null>(null);
@@ -61,7 +62,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
   const [hasStartedTimer, setHasStartedTimer] = useState(false);
   const [normalModeCompleted, setNormalModeCompleted] = useState(false);
   const [chaosModeCompleted, setChaosModeCompleted] = useState(false);
-  const [earnedStars, setEarnedStars] = useState(0);
+  // const [earnedStars, setEarnedStars] = useState(0);
   const [levelStarsData, setLevelStarsData] = useState<LevelStars['stars'] | null>(null);
   //GAME LEVELS
   const [currentLevelId, setCurrentLevelId] = useState(route.params?.initialLevel || 1);
@@ -79,7 +80,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
   const explosion = useAudioPlayer(explodingWallSound);
   const snack = useAudioPlayer(snackSound);
   const plop = useAudioPlayer(spawnSound);
-  
+    
   useEffect(() => {
     const loadInitialData = async () => {
       resetGameState();
@@ -93,7 +94,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
     loadInitialData();
   }, []);
   
-   useEffect(() => {
+  useEffect(() => {
     const loadStats = async () => {
       const stats = await ScoreManager.getLevelStats(currentLevelId);
       setLevelStats(stats);
@@ -130,7 +131,6 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
     const loadLevelStars = async () => {
       const stars = await ScoreManager.getLevelStars(currentLevelId);
       setLevelStarsData(stars);
-      setEarnedStars(ScoreManager.countEarnedStars(stars));
     };
     loadLevelStars();
   }, [currentLevelId]);
@@ -165,6 +165,11 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
     });
   };
 
+  const earnedStars = useMemo(() => {
+    if (!levelStarsData) return 0;
+    return ScoreManager.countEarnedStars(levelStarsData);
+  }, [levelStarsData]);
+
   const checkAndSaveStars = async (completionTime: number) => {
     const totalSnacks = MAZE_LAYOUT.flat().filter(cell => cell === SNACK_CELL).length;
     
@@ -187,7 +192,6 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
     
     await ScoreManager.saveLevelStars(currentLevelId, mergedStars);
     setLevelStarsData(mergedStars);
-    setEarnedStars(ScoreManager.countEarnedStars(mergedStars));
   };
   
   // CHECK WALL COLLISION
@@ -292,7 +296,13 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
 
       checkAndSaveStars(completionTime);
 
-      setShowVictoryAnimation(true);
+      if (currentLevelId !== MAZE_LEVELS.length) {
+        setShowVictoryAnimation(true);
+      }
+      else
+      { 
+        setShowGameCompletedAnimation(true);
+      }
 
       victory.seekTo(0);
       victory.play();
@@ -461,7 +471,6 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
     initialPosition: getStartPosition(),
     inverted: invertedGameControls
   });
-  
   //-----------------------------
   const formatTime = (timeMs: number) => `${(timeMs / 1000).toFixed(2)}s`;
 
@@ -471,6 +480,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
     if (isCountdownComplete) return "Starta om";
     return "REDO!";
   };
+
 
   return (
     <View style={styles.container}>
@@ -495,7 +505,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
               {[0, 1, 2, 3, 4].map((index) => {
                 const starOrder = [0, 1, 4, 3, 2];
                 const starNumber = starOrder[index];
-                
+
                 return (
                   <Image
                     key={index}
@@ -508,7 +518,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
                       index === 4 && styles.star5,
                     ]}
                     source={starNumber < earnedStars 
-                      ? require('../../assets/images/star.png')
+                      ? require('../../assets/images/orange_star.png')
                       : require('../../assets/images/no_star.png')
                     }
                   />
@@ -523,7 +533,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
                 <Image 
                   style={styles.badge} 
                   source={normalModeCompleted 
-                    ? require('../../assets/images/completed.png')
+                    ? require('../../assets/images/bluegreen_check.png')
                     : require('../../assets/images/not_completed.png')
                   } 
                 />
@@ -534,7 +544,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
                 <Image 
                   style={styles.badge} 
                   source={chaosModeCompleted 
-                    ? require('../../assets/images/completed.png')
+                    ? require('../../assets/images/bluegreen_check.png')
                     : require('../../assets/images/not_completed.png')
                   } 
                 />
@@ -661,7 +671,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
       </View>
       
       {/* Confetti animation */}
-      {showVictoryAnimation && (
+      {showVictoryAnimation && !showGameCompletedAnimation && (
         <>
           <View style={styles.lottieContainer}>
             <LottieView
@@ -669,6 +679,21 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
               autoPlay
               loop={false}
               style={styles.lottieWin}
+            />
+            <View style={styles.overlay} />
+          </View>
+        </>
+      )}
+
+      {/* Whole game won animation */}
+      {showGameCompletedAnimation && (
+        <>
+          <View style={styles.lottieContainer}>
+            <LottieView
+              source={require("../../assets/animations/trophy.json")}
+              autoPlay
+              loop={false}
+              style={styles.gameCompleted}
             />
             <View style={styles.overlay} />
           </View>
@@ -709,7 +734,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    marginLeft: 30,
+    marginLeft: 25,
   },
   logo: {
     height: 110,
@@ -721,6 +746,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 8,
     alignItems: 'center',
+    marginLeft: 11,
   },
   star: {
     width: 24,
@@ -728,12 +754,12 @@ const styles = StyleSheet.create({
   },
   badgesRow: {
     flexDirection: 'row',
-    gap: 20,
+    gap: 14,
     alignItems: 'center',
   },
   modeBadge: {
     alignItems: 'center',
-    gap: 4,
+    gap: 3,
   },
   badge: {
     width: 32,
@@ -744,7 +770,6 @@ const styles = StyleSheet.create({
     color: '#bbb',
     fontWeight: 'bold',
     textAlign: 'center',
-    marginBottom: 0,
   },
   titleContainer: {
     justifyContent: 'center',
@@ -905,7 +930,12 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Black with 50% opacity
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  gameCompleted: {
+    width: 400,
+    height: 400,
+    zIndex: 1,
   },
   star1: {
     transform: [{ rotate: '-10deg' }],
@@ -927,10 +957,4 @@ const styles = StyleSheet.create({
   star5: {
     transform: [{ rotate: '10deg' }],
   }
-  // logo: {
-  //   height: 120,
-  //   resizeMode: 'contain',
-  //   width: '80%',
-  //   transform: [{ rotate: '-15deg' }],
-  // },
 });
