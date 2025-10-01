@@ -10,13 +10,14 @@ import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { isDeadAtom, isGameWonAtom, recordDeathAtom, recordWinAtom, resetGameStateAtom } from '../../atoms/gameAtoms';
 import { CountdownAnimation } from '../../components/countdown-animation';
 import { GradientButton } from "../../components/gradient-button";
-import { MazeRenderer } from "../../components/maze-renderer";
 import { LevelStarsAndBadgeDisplay } from "../../components/level-stars-and-badge-display";
+import { MazeRenderer } from "../../components/maze-renderer";
 import { MAZE_LEVELS, MazeLevel, getCurrentLevel } from '../../data/maze-layouts';
 import { DEATH_EMOJI, getDefaultPet } from '../../data/pets';
 import { useGamePhysics } from '../../hooks/useGamePhysics';
 import { GyroMode, useGameSensors } from '../../hooks/useGameSensors';
 import { useGameTimer } from '../../hooks/useGameTimer';
+import { useLevelData } from "../../hooks/useLevelData";
 import { CRUDManager } from "../../utils/CRUD-manager";
 import { findNearestSafeCell, getMazeCell, getPosition } from "../../utils/game-helpers";
 import { LevelStars, LevelStats, ScoreManager } from '../../utils/score-manager';
@@ -54,18 +55,12 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
   const [showGameCompletedAnimation, setShowGameCompletedAnimation] = useState(false);
   const [victoryData, setVictoryData] = useState<{ completionTime: number; isNewRecord: boolean;} | null>(null);
   // SCORE AND ATTEMPTS
-  const [levelStats, setLevelStats] = useState<LevelStats | null>(null);
   const [currentAttempt, setCurrentAttempt] = useState(1);
-  const [eatenSnacks, setEatenSnacks] = useState<Set<string>>(new Set());
   const [extraLives, setExtraLives] = useState(0);
   const [extraLivesUsed, setExtraLivesUsed] = useState(0);
   const [isGamePaused, setIsGamePaused] = useState(false);
   const [isRespawning, setIsRespawning] = useState(false);
   const [hasStartedTimer, setHasStartedTimer] = useState(false);
-  const [normalModeCompleted, setNormalModeCompleted] = useState(false);
-  const [chaosModeCompleted, setChaosModeCompleted] = useState(false);
-  // const [earnedStars, setEarnedStars] = useState(0);
-  const [levelStarsData, setLevelStarsData] = useState<LevelStars['stars'] | null>(null);
   //GAME LEVELS
   const [currentLevelId, setCurrentLevelId] = useState(route.params?.initialLevel || 1);
   const [currentLevel, setCurrentLevel] = useState<MazeLevel>(getCurrentLevel(route.params?.initialLevel || 1));
@@ -95,24 +90,6 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
     };
     loadInitialData();
   }, []);
-  
-  useEffect(() => {
-    const loadStats = async () => {
-      const stats = await ScoreManager.getLevelStats(currentLevelId);
-      setLevelStats(stats);
-      
-      const savedSnacks = await CRUDManager.getEatenSnacks(currentLevelId);
-      setEatenSnacks(new Set(savedSnacks));
-
-      const completions = await ScoreManager.getTopCompletions(currentLevelId, 100);
-      const hasNormalComplete = completions.some(c => c.gyroMode === GyroMode.NORMAL.toString());
-      const hasKaosComplete = completions.some(c => c.gyroMode === GyroMode.CHAOS.toString());
-      
-      setNormalModeCompleted(hasNormalComplete);
-      setChaosModeCompleted(hasKaosComplete);
-    };
-    loadStats();
-  }, [currentLevelId]);
 
   useEffect(() => {
     if (isReady)
@@ -128,14 +105,6 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
       setHasStartedTimer(true);
     }
   }, [isCountdownComplete]);
-
-  useEffect(() => {
-    const loadLevelStars = async () => {
-      const stars = await CRUDManager.getLevelStars(currentLevelId);
-      setLevelStarsData(stars);
-    };
-    loadLevelStars();
-  }, [currentLevelId]);
 
   useFocusEffect(
     useCallback(() => {
@@ -167,11 +136,6 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
     });
   };
 
-  const earnedStars = useMemo(() => {
-    if (!levelStarsData) return 0;
-    return ScoreManager.countEarnedStars(levelStarsData);
-  }, [levelStarsData]);
-
   const checkAndSaveStars = async (completionTime: number) => {
     const totalSnacks = MAZE_LAYOUT.flat().filter(cell => cell === SNACK_CELL).length;
     
@@ -201,7 +165,8 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
     const ballRadius = BALL_SIZE / 2;
     
     if (newX - ballRadius < 0 || newX + ballRadius > MAZE_SIZE ||
-        newY - ballRadius < 0 || newY + ballRadius > MAZE_SIZE) {
+        newY - ballRadius < 0 || newY + ballRadius > MAZE_SIZE)
+    {
       return true;
     }
 
@@ -211,7 +176,8 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
     // check 16 points around ball to make it rounder
     const checkPoints = [];
 
-    for (let i = 0; i < 16; i++) {
+    for (let i = 0; i < 16; i++)
+    {
       const angle = (i * Math.PI * 2) / 16;
       checkPoints.push({
         x: newX + Math.cos(angle) * ballRadius,
@@ -219,30 +185,35 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
       });
     }
 
-    for (let point of checkPoints) {
+    for (let point of checkPoints)
+    {
       const pCellX = Math.floor(point.x / CELL_SIZE);
       const pCellY = Math.floor(point.y / CELL_SIZE);
       
       // check if WALL_CELL
-      if (getMazeCell(pCellX, pCellY, MAZE_LAYOUT) === WALL_CELL) {
+      if (getMazeCell(pCellX, pCellY, MAZE_LAYOUT) === WALL_CELL)
+      {
         return true;
       }
 
       // check if DANGER_CELL
-      if (getMazeCell(pCellX, pCellY, MAZE_LAYOUT) === DANGER_CELL) {
+      if (getMazeCell(pCellX, pCellY, MAZE_LAYOUT) === DANGER_CELL)
+      {
         if (extraLives > 0) {
           setIsRespawning(true);
           triggerRespawn(pCellX, pCellY);
 
           return false;
         }
-        else {
+        else
+        {
           setExplosionPosition({ x: newX, y: newY });
           setShowExplosion(true);
           
           // Record death - Jotai
           recordDeath(currentLevelId).then((updatedStats) => {
-            if (updatedStats) {
+            if (updatedStats)
+            {
               setLevelStats(updatedStats);
             }
           });
@@ -258,11 +229,13 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
     }
 
     // check if SNACK_CELL
-    if (getMazeCell(cellX, cellY, MAZE_LAYOUT) === SNACK_CELL) {
+    if (getMazeCell(cellX, cellY, MAZE_LAYOUT) === SNACK_CELL)
+    {
       const snackKey = `${cellY}-${cellX}`;
       const currentEatenSnacks = eatenSnacks;
 
-      if (!currentEatenSnacks.has(snackKey)) {
+      if (!currentEatenSnacks.has(snackKey))
+      {
         setEatenSnacks(prevEatenSnacks => {
           const newSet = new Set(prevEatenSnacks);
           newSet.add(snackKey);
@@ -330,7 +303,8 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
             setChaosModeCompleted(hasKaosComplete);
           });
   
-          if (isLastLevel) {
+          if (isLastLevel)
+          {
             Alert.alert(
               'Bra jobbat!',
               `Du har räddat ${petName} från ALLA faror! \nMen har du samlat alla stjärnor? ⭐`,
@@ -494,7 +468,25 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
     initialPosition: getStartPosition(),
     inverted: invertedGameControls
   });
+
+  const {
+    levelStats,
+    levelStarsData,
+    eatenSnacks,
+    normalModeCompleted,
+    chaosModeCompleted,
+    setLevelStats,
+    setEatenSnacks,
+    setLevelStarsData,
+    setNormalModeCompleted,
+    setChaosModeCompleted } = useLevelData(currentLevelId);
   //-----------------------------
+
+  const earnedStars = useMemo(() => {
+    if (!levelStarsData) return 0;
+    return ScoreManager.countEarnedStars(levelStarsData);
+  }, [levelStarsData]);
+
   const formatTime = (timeMs: number) => `${(timeMs / 1000).toFixed(2)}s`;
 
   const getButtonTitle = () => {
@@ -503,7 +495,6 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
     if (isCountdownComplete) return "Starta om";
     return "REDO!";
   };
-
 
   return (
     <View style={styles.container}>
