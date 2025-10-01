@@ -72,8 +72,8 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
   const selectedPet = route.params?.selectedPet || getDefaultPet();
   const petName = selectedPet?.name || getDefaultPet().name;
   // MAZE AND POSITIONING
-  const MAZE_LAYOUT = currentLevel.layout;
-  const CELL_SIZE = MAZE_SIZE / MAZE_LAYOUT.length;
+  const MAZE_LAYOUT = useMemo(() => currentLevel.layout, [currentLevel]);
+  const CELL_SIZE = useMemo(() => MAZE_SIZE / MAZE_LAYOUT.length, [MAZE_LAYOUT]);
   const getStartPosition = () => getPosition(currentLevel, MAZE_SIZE);
   //SOUND EFFECTS
   const victory = useAudioPlayer(victorySound);
@@ -496,7 +496,8 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
       <View style={styles.headerContent}>
         {!normalModeCompleted && !chaosModeCompleted ? (
           <View style={styles.titleContainer}>
-            <Text style={styles.title}>Rädda {petName}! {selectedPet.emoji}</Text>
+            <Text style={styles.title}>Rädda {petName}!</Text>
+            <Text style={styles.titleEmoji}> {selectedPet.emoji}</Text>
           </View>
         ) : (
           <>
@@ -780,6 +781,11 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#eee',
     textAlign: 'center',
+  },
+  titleEmoji: {
+    fontSize: 50,
+    textAlign: 'center',
+    marginRight: 7,
   },
   gameContainer: {
     alignItems: 'center',
