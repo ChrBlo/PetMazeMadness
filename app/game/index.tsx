@@ -11,6 +11,7 @@ import { isDeadAtom, isGameWonAtom, recordDeathAtom, recordWinAtom, resetGameSta
 import { CountdownAnimation } from '../../components/countdown-animation';
 import { GradientButton } from "../../components/gradient-button";
 import { MazeRenderer } from "../../components/maze-renderer";
+import { LevelStarsAndBadgeDisplay } from "../../components/level-stars-and-badge-display";
 import { MAZE_LEVELS, MazeLevel, getCurrentLevel } from '../../data/maze-layouts';
 import { DEATH_EMOJI, getDefaultPet } from '../../data/pets';
 import { useGamePhysics } from '../../hooks/useGamePhysics';
@@ -521,59 +522,12 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
             <Text style={styles.title}>Rädda {petName}!</Text>
             <Text style={styles.titleEmoji}> {selectedPet.emoji}</Text>
           </View>
-        ) : (
-          <>
-            {/* Stars Row */}
-            <View style={styles.starsRow}>
-              {[0, 1, 2, 3, 4].map((index) => {
-                const starOrder = [0, 1, 4, 3, 2];
-                const starNumber = starOrder[index];
-
-                return (
-                  <Image
-                    key={index}
-                    style={[
-                      styles.star,
-                      index === 0 && styles.star1,
-                      index === 1 && styles.star2,
-                      index === 2 && styles.star3,
-                      index === 3 && styles.star4,
-                      index === 4 && styles.star5,
-                    ]}
-                    source={starNumber < earnedStars 
-                      ? require('../../assets/images/orange_star.png')
-                      : require('../../assets/images/no_star.png')
-                    }
-                  />
-                );
-              })}
-            </View>
-            
-            {/* Badges Row */}
-            <View style={styles.badgesRow}>
-              <View style={styles.modeBadge}>
-                <Text style={styles.badgeText}>Normal</Text>
-                <Image 
-                  style={styles.badge} 
-                  source={normalModeCompleted 
-                    ? require('../../assets/images/bluegreen_check.png')
-                    : require('../../assets/images/not_completed.png')
-                  } 
-                />
-              </View>
-              
-              <View style={styles.modeBadge}>
-                <Text style={styles.badgeText}>Kaos</Text>
-                <Image 
-                  style={styles.badge} 
-                  source={chaosModeCompleted 
-                    ? require('../../assets/images/bluegreen_check.png')
-                    : require('../../assets/images/not_completed.png')
-                  } 
-                />
-              </View>
-            </View>
-          </>
+          ) : (
+            <LevelStarsAndBadgeDisplay 
+              earnedStars={earnedStars}
+              normalModeCompleted={normalModeCompleted}
+              chaosModeCompleted={chaosModeCompleted}
+            />
         )}
       </View>
     </View>
@@ -765,35 +719,6 @@ const styles = StyleSheet.create({
     width: '100%',
     transform: [{ rotate: '-15deg' }],
   },
-  starsRow: {
-    flexDirection: 'row',
-    gap: 8,
-    alignItems: 'center',
-    marginLeft: 11,
-  },
-  star: {
-    width: 24,
-    height: 24,
-  },
-  badgesRow: {
-    flexDirection: 'row',
-    gap: 14,
-    alignItems: 'center',
-  },
-  modeBadge: {
-    alignItems: 'center',
-    gap: 3,
-  },
-  badge: {
-    width: 32,
-    height: 32,
-  },
-  badgeText: {
-    fontSize: 16,
-    color: '#bbb',
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
   titleContainer: {
     justifyContent: 'center',
     alignItems: 'center',
@@ -965,24 +890,4 @@ const styles = StyleSheet.create({
     height: 400,
     zIndex: 1,
   },
-  star1: {
-    transform: [{ rotate: '-10deg' }],
-  },
-  star2: {
-    transform: [{ rotate: '-5deg' }, { scale: 1.2 }],
-    marginBottom: 15,
-  },
-  star3: {
-    transform: [{ scale: 1.4 }],
-    marginBottom: 25,
-    marginLeft: 6,
-    marginRight: 6,
-  },
-  star4: {
-    transform: [{ rotate: '5deg' }, { scale: 1.2 }],
-    marginBottom: 15,
-  },
-  star5: {
-    transform: [{ rotate: '10deg' }],
-  }
 });
