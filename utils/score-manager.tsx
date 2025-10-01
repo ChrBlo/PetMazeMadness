@@ -41,6 +41,7 @@ export interface LevelStars {
 }
 
 export class ScoreManager {
+
   private static getKey(levelId: number): string {
     return `level_${levelId}_stats`;
   }
@@ -132,12 +133,6 @@ export class ScoreManager {
     await store.save(this.getProgressKey(), progress);
   }
 
-  static async setCurrentLevel(levelId: number): Promise<void> {
-    const progress = await this.getGameProgress();
-    progress.currentLevel = levelId;
-    await store.save(this.getProgressKey(), progress);
-  }
-
   private static getNextUncompletedLevel(progress: GameProgress): number {
     const uncompletedLevels = progress.unlockedLevels.filter(
       level => !progress.completedLevels.includes(level)
@@ -149,11 +144,6 @@ export class ScoreManager {
   static async getStartLevel(): Promise<number> {
     const progress = await this.getGameProgress();
     return progress.currentLevel;
-  }
-
-  static async isLevelUnlocked(levelId: number): Promise<boolean> {
-    const progress = await this.getGameProgress();
-    return progress.unlockedLevels.includes(levelId);
   }
 
   private static getCompletionsKey(levelId: number): string {
@@ -233,6 +223,7 @@ export class ScoreManager {
     return filteredCompletions;
   }
 
+  //TODO Ta bort den här innan inlämning!
   static async clearAllData(): Promise<void> {
     try {
       // Get all keys first
