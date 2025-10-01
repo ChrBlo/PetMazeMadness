@@ -13,6 +13,14 @@ export const useGameTimer = (isActive: boolean) => {
     setPausedAt(null);
   };
 
+  const stopTimer = () => {
+    if (intervalRef.current)
+      {
+        clearInterval(intervalRef.current);
+      }
+      return gameTime;
+    };
+    
   const pauseTimer = () => {
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
@@ -29,14 +37,6 @@ export const useGameTimer = (isActive: boolean) => {
     }
   };
 
-  const stopTimer = () => {
-    if (intervalRef.current)
-    {
-      clearInterval(intervalRef.current);
-    }
-    return gameTime;
-  };
-
   const resetTimer = () => {
     setGameTime(0);
     setStartTime(null);
@@ -50,7 +50,9 @@ export const useGameTimer = (isActive: boolean) => {
 
     if (isActive && startTime && pausedAt === null)
     {
-      intervalRef.current = setInterval(() => { setGameTime(Date.now() - startTime);}, 100);
+      intervalRef.current = setInterval(() => {
+        setGameTime(Date.now() - startTime);
+      }, 100);
     }
     else
     {

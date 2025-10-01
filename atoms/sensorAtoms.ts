@@ -1,7 +1,7 @@
 import { atom } from 'jotai';
 import { Accelerometer, Gyroscope } from 'expo-sensors';
 
-interface SensorData {
+export interface SensorData {
   x: number;
   y: number;
   z: number;

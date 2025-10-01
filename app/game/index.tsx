@@ -20,7 +20,7 @@ import { useGameTimer } from '../../hooks/useGameTimer';
 import { useLevelData } from "../../hooks/useLevelData";
 import { CRUDManager } from "../../utils/CRUD-manager";
 import { findNearestSafeCell, getMazeCell, getPosition } from "../../utils/game-helpers";
-import { LevelStars, LevelStats, ScoreManager } from '../../utils/score-manager';
+import { LevelStars, ScoreManager } from '../../utils/score-manager';
 import { GameScreenProps } from "../root-layout";
 
 const MAZE_SIZE = 300;

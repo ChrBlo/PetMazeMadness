@@ -41,8 +41,8 @@ export const MazeRenderer: React.FC<MazeRendererProps> = React.memo(({
               {
                 left: col * cellSize,
                 top: row * cellSize,
-                width: cellSize + 1,
-                height: cellSize + 1,
+                width: cellSize,
+                height: cellSize,
               }
             ]}
             contentFit="cover"
@@ -80,8 +80,8 @@ export const MazeRenderer: React.FC<MazeRendererProps> = React.memo(({
               {
                 left: col * cellSize,
                 top: row * cellSize,
-                width: cellSize + 1,
-                height: cellSize + 1,
+                width: cellSize,
+                height: cellSize,
               }
             ]}
             contentFit="cover"
@@ -137,7 +137,7 @@ export const MazeRenderer: React.FC<MazeRendererProps> = React.memo(({
     prevProps.dangerCell === nextProps.dangerCell &&
     prevProps.snackCell === nextProps.snackCell &&
     prevProps.eatenSnacks.size === nextProps.eatenSnacks.size &&
-    // Check if the actual snacks are the same
+    // Check if the snacks are the same
     Array.from(prevProps.eatenSnacks).every(snack => nextProps.eatenSnacks.has(snack))
   );
 });

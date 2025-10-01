@@ -36,8 +36,8 @@ Used React Native Core Components:
 Used Expo SDK 54 Components:
 - [X] Gyroscope (expo-sensors): Game controls - CHAOS mode
 - [X] Accelerometer (expo-sensors): Game controls - NORMAL mode
-- [X] Haptics (expo-haptics): Vibration feedback system
-- [X] Audio (expo-audio): Sound effects management
+- [X] Haptics (expo-haptics): Vibration feedback
+- [X] Audio (expo-audio): Sound effects
 - [X] Image: For game logotype on startScreen and rocks/fire in maze
 - [X] Ionicons: used in gameScreen on button navigation user to maze stats
 - [X] LinearGradient (expo-linear-gradient): for button style
@@ -73,11 +73,11 @@ Inlämningen sker som vanligt via läroplattformen. I din projektmapp ska det fi
 
 Presentation
 Du ska i samband med inlämning hålla i en presentation där du för klassen presenterar:
-- [ ] din applikation
-- [ ] vilka komponenter du har använt 
-- [ ] kort beskriva vad dom används till
+- [X] din applikation
+- [X] vilka komponenter du har använt 
+- [X] kort beskriva vad dom används till
 - [ ] här kan det var intressant att visa lite kod kring några utvalda komponenter. 
-- [ ] Du ska även presentera hur du har planerat, genomfört och strukturerat ditt arbete. 
+- [X] Du ska även presentera hur du har planerat, genomfört och strukturerat ditt arbete. 
 - [ ] Dessutom ska presentationen innefatta en reflekterande del. 
 Presentationen kommer att ske i mindre grupper under presentationsdagen - du kommer att ha ca 10 minuter att presentera på.
 

@@ -1,16 +1,10 @@
 import { useAtom, useSetAtom } from 'jotai';
 import { useEffect } from 'react';
-import { accelDataAtom, gyroDataAtom, subscribeAccelAtom, subscribeGyroAtom } from '../atoms/sensorAtoms';
+import { accelDataAtom, gyroDataAtom, subscribeAccelAtom, subscribeGyroAtom, SensorData } from '../atoms/sensorAtoms';
 
 export enum GyroMode {
   NORMAL = 'normal',
   CHAOS = 'chaos'
-}
-
-interface SensorData {
-  x: number;
-  y: number;
-  z: number;
 }
 
 interface UseGameSensorsReturn {
@@ -27,11 +21,8 @@ export const useGameSensors = (gyroMode: GyroMode): UseGameSensorsReturn => {
   useEffect(() => {
     let unsubscribe: (() => void) | null = null;
 
-    if (gyroMode === GyroMode.NORMAL) {
-      unsubscribe = subscribeAccel();
-    } else {
-      unsubscribe = subscribeGyro();
-    }
+    if (gyroMode === GyroMode.NORMAL){ unsubscribe = subscribeAccel();}
+    else { unsubscribe = subscribeGyro();}
 
     return () => {
       unsubscribe?.();
