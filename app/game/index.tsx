@@ -199,8 +199,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
     const ballRadius = BALL_SIZE / 2;
     
     if (newX - ballRadius < 0 || newX + ballRadius > MAZE_SIZE ||
-        newY - ballRadius < 0 || newY + ballRadius > MAZE_SIZE)
-    {
+        newY - ballRadius < 0 || newY + ballRadius > MAZE_SIZE) {
       return true;
     }
 
@@ -210,8 +209,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
     // check 16 points around ball to make it rounder
     const checkPoints = [];
 
-    for (let i = 0; i < 16; i++)
-    {
+    for (let i = 0; i < 16; i++) {
       const angle = (i * Math.PI * 2) / 16;
       checkPoints.push({
         x: newX + Math.cos(angle) * ballRadius,
@@ -224,30 +222,25 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
       const pCellY = Math.floor(point.y / CELL_SIZE);
       
       // check if WALL_CELL
-      if (getMazeCell(pCellX, pCellY, MAZE_LAYOUT) === WALL_CELL)
-      {
+      if (getMazeCell(pCellX, pCellY, MAZE_LAYOUT) === WALL_CELL) {
         return true;
       }
 
       // check if DANGER_CELL
-      if (getMazeCell(pCellX, pCellY, MAZE_LAYOUT) === DANGER_CELL)
-      {
-        if (extraLives > 0)
-        {
+      if (getMazeCell(pCellX, pCellY, MAZE_LAYOUT) === DANGER_CELL) {
+        if (extraLives > 0) {
           setIsRespawning(true);
           triggerRespawn(pCellX, pCellY);
 
           return false;
         }
-        else
-        {
+        else {
           setExplosionPosition({ x: newX, y: newY });
           setShowExplosion(true);
           
           // Record death - Jotai
           recordDeath(currentLevelId).then((updatedStats) => {
-            if (updatedStats)
-            {
+            if (updatedStats) {
               setLevelStats(updatedStats);
             }
           });
@@ -263,14 +256,12 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
     }
 
     // check if SNACK_CELL
-    if (getMazeCell(cellX, cellY, MAZE_LAYOUT) === SNACK_CELL)
-    {
+    if (getMazeCell(cellX, cellY, MAZE_LAYOUT) === SNACK_CELL) {
       const snackKey = `${cellY}-${cellX}`;
       const currentEatenSnacks = eatenSnacks;
 
-      if (!currentEatenSnacks.has(snackKey))
-      {
-          setEatenSnacks(prevEatenSnacks => {
+      if (!currentEatenSnacks.has(snackKey)) {
+        setEatenSnacks(prevEatenSnacks => {
           const newSet = new Set(prevEatenSnacks);
           newSet.add(snackKey);
 
@@ -296,14 +287,17 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
 
       checkAndSaveStars(completionTime);
 
-      if (currentLevelId !== MAZE_LEVELS.length) {
-        setShowVictoryAnimation(true);
-      }
-      else
-      { 
+      const isLastLevel = currentLevelId === MAZE_LEVELS.length;
+
+      if (isLastLevel)
+      {
         setShowGameCompletedAnimation(true);
       }
-
+      else
+      {
+        setShowVictoryAnimation(true);
+      }
+      
       victory.seekTo(0);
       victory.play();
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -325,33 +319,60 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
         
         setTimeout(() => {
           setShowVictoryAnimation(false);
-          
+          setShowGameCompletedAnimation(false);
+      
           ScoreManager.getTopCompletions(currentLevelId, 100).then(completions => {
             const hasNormalComplete = completions.some(c => c.gyroMode === GyroMode.NORMAL.toString());
             const hasKaosComplete = completions.some(c => c.gyroMode === GyroMode.CHAOS.toString());
             setNormalModeCompleted(hasNormalComplete);
             setChaosModeCompleted(hasKaosComplete);
           });
-      
-          if (result?.isNewRecord)
+  
+          if (isLastLevel) {
+            Alert.alert(
+              'Bra jobbat!',
+              `Du har räddat ${petName} från ALLA faror! \nMen har du samlat alla stjärnor? ⭐`,
+              [{
+                text: 'Till bana 1',
+                onPress: () => {
+                  resetGameState();
+                  resetTimer();
+                  setCurrentLevelId(1);
+                  const level1 = getCurrentLevel(1);
+                  setCurrentLevel(level1);
+                  setBallPosition(getPosition(level1, MAZE_SIZE));
+                  setShowExplosion(false);
+                  setVelocity({ x: 0, y: 0 });
+                  setExtraLivesUsed(0);
+                  setIsReady(false);
+                  setIsCountdownComplete(false);
+                  setHasStartedTimer(false);
+                }
+              }]
+            );
+          }
+          else if (result?.isNewRecord)
           {
             Alert.alert('Bra jobbat!', `⭐ NYTT REKORD: ${formatTime(completionTime)}! ⭐`, [
-              { text: 'Spela nästa', onPress: nextLevel }
+              { text: 'Stanna kvar', style: 'cancel' },
+              { text: 'Nästa bana', onPress: nextLevel }
             ]);
           }
           else
           {
             Alert.alert('Bra jobbat!', `${petName} flydde! 🌈❤️`, [
-              { text: 'Spela nästa', onPress: nextLevel }
+              { text: 'Stanna kvar', style: 'cancel' },
+              { text: 'Nästa bana', onPress: nextLevel }
             ]);
           }
+      
           setVictoryData(null);
         }, 1700);
       });
     }
-    
+
     return false;
-  };
+  }
 
   // RESPAWN LOGIC --------------
   const triggerRespawn = (cellX: number, cellY: number) => {
