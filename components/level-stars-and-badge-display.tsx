@@ -44,7 +44,7 @@ export function LevelStarsAndBadgeDisplay({ earnedStars, normalModeCompleted, ch
           <Image 
             style={styles.badge} 
             source={normalModeCompleted 
-              ? require('../assets/images/bluegreen_check.png')
+              ? require('../assets/images/dark_bluegreen_check.png')
               : require('../assets/images/not_completed.png')
             } 
           />
@@ -55,7 +55,7 @@ export function LevelStarsAndBadgeDisplay({ earnedStars, normalModeCompleted, ch
           <Image 
             style={styles.badge} 
             source={chaosModeCompleted 
-              ? require('../assets/images/bluegreen_check.png')
+              ? require('../assets/images/dark_bluegreen_check.png')
               : require('../assets/images/not_completed.png')
             } 
           />

@@ -593,14 +593,14 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
         <GradientButton 
           title="Till menyn" 
           onPress={() => navigation.goBack()} 
-          theme="blue" 
+          theme="darkBlue" 
           style={styles.goBackButton}
           textStyle={styles.goBackButtonText}
         />
         <GradientButton 
           title={getButtonTitle()}
           onPress={resetGame} 
-          theme="green" 
+          theme="darkGreen" 
           style={styles.playButton}
           textStyle={styles.playButtonText}
         />
@@ -620,7 +620,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
         <View style={styles.separator} />
 
         <GradientButton
-          theme="beige"
+          theme="darkBeige"
           onPress={handleGoToMazeStats}
           iconName="stats-chart-outline"
         />

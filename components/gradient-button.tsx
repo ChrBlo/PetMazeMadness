@@ -7,6 +7,9 @@ const GradientThemes = {
   green: ['#5ccf9fff', '#42a079ff'],
   blue: ['#5da6d6ff', '#45799cff'],
   beige: ['#eeb867ff', '#c99951ff'],
+  darkGreen: ['#44d397ff', '#2d8b64ff'],
+  darkBlue: ['#459edaff', '#3678a5ff'],
+  darkBeige: ['#f0b153ff', '#b38137ff'],
 } as const;
 
 type GradientTheme = keyof typeof GradientThemes;
