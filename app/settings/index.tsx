@@ -1,25 +1,28 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Modal, ScrollView, StyleSheet, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { GradientButton } from '../../components/gradient-button';
 import { getDefaultPet, getPetById, Pet, pets } from '../../data/pets';
 import { GyroMode } from '../../hooks/useGameSensors';
+import { ScoreManager } from '../../utils/score-manager';
 import { SettingsScreenProps } from '../root-layout';
 
 export default function SettingsScreen({ route, navigation }: SettingsScreenProps) {
     
   const [selectedGyroMode, setSelectedGyroMode] = useState<GyroMode>(route.params?.gyroMode || GyroMode.NORMAL);
   const [weatherCheckEnabled, setWeatherCheckEnabled] = useState(route.params?.weatherCheckEnabled ?? true);
-  const [selectedPet, setSelectedPet] = useState<Pet>(route.params?.selectedPet || getDefaultPet());
   const [showPetSelector, setShowPetSelector] = useState(false);
   const [showNameEditor, setShowNameEditor] = useState(false);
+  const [selectedPet, setSelectedPet] = useState<Pet>(route.params?.selectedPet || getDefaultPet());
   const [customName, setCustomName] = useState(route.params?.selectedPet?.name || getDefaultPet().name);
   const [invertedGameControls, setInvertedGameControls] = useState(route.params?.invertedGameControls ?? false);
   
-  const handlePetSelection = (petId: string) => {
+  const handlePetSelection = async (petId: string) => {
     const newPet = getPetById(petId);
     setSelectedPet(newPet);
     setCustomName(newPet.name);
     setShowPetSelector(false);
+
+    await ScoreManager.saveSelectedPet(newPet);
   };
 
   const handleNameEdit = () => {
@@ -27,7 +30,7 @@ export default function SettingsScreen({ route, navigation }: SettingsScreenProp
     setShowNameEditor(true);
   };
 
-  const handleNameSave = () => {
+  const handleNameSave = async () => {
     const originalPet = getPetById(selectedPet.id);
     const trimmedName = customName.trim();
     const finalName = trimmedName || originalPet.name;
@@ -39,6 +42,8 @@ export default function SettingsScreen({ route, navigation }: SettingsScreenProp
     setSelectedPet(updatedPet);
     setCustomName(finalName);
     setShowNameEditor(false);
+
+    await ScoreManager.saveSelectedPet(updatedPet);
   };
 
   const handleNameEditCancel = () => {

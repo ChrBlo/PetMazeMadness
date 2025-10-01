@@ -13,7 +13,8 @@ export default function StartScreen({ route, navigation }: StartScreenProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [weatherCheckEnabled, setWeatherCheckEnabled] = useState(true);
   const [currentWeather, setCurrentWeather] = useState<string | null>(null);
-  const selectedPet = route.params?.selectedPet || getDefaultPet();
+  const [savedPet, setSavedPet] = useState(getDefaultPet());
+  const selectedPet = route.params?.selectedPet || savedPet;
   const petEmoji = selectedPet.emoji || getDefaultPet().emoji;
   const niceWeather = (currentWeather !== 'rain' && currentWeather !== 'rainshowers_day' && currentWeather !== 'thunderstorm');
   const [currentLevel, setCurrentLevel] = useState(1);
@@ -27,24 +28,34 @@ export default function StartScreen({ route, navigation }: StartScreenProps) {
   //   clearData();
   // }, []);
   
-useFocusEffect(
-  useCallback(() => {
-    if (route.params?.weatherCheckEnabled !== undefined) {
-      setWeatherCheckEnabled(route.params.weatherCheckEnabled);
-    }
-    if (route.params?.invertedGameControls !== undefined) {
-      setInvertedGameControls(route.params.invertedGameControls);
-    }
-  }, [route.params?.weatherCheckEnabled, route.params?.invertedGameControls])
-);
+  useFocusEffect(
+    useCallback(() => {
+      if (route.params?.weatherCheckEnabled !== undefined) {
+        setWeatherCheckEnabled(route.params.weatherCheckEnabled);
+      }
+      if (route.params?.invertedGameControls !== undefined) {
+        setInvertedGameControls(route.params.invertedGameControls);
+      }
+    }, [route.params?.weatherCheckEnabled, route.params?.invertedGameControls])
+  );
+  
+  useEffect(() => {
+    const loadSavedPet = async () => {
+      const pet = await ScoreManager.getSelectedPet();
+      if (pet) {
+        setSavedPet(pet);
+      }
+    };
+    loadSavedPet();
+  }, []);
 
   useEffect(() => {
-  const loadStartLevel = async () => {
-    const level = await ScoreManager.getStartLevel();
-    setCurrentLevel(level);
-  };
-  loadStartLevel();
-}, []);
+    const loadStartLevel = async () => {
+      const level = await ScoreManager.getStartLevel();
+      setCurrentLevel(level);
+    };
+    loadStartLevel();
+  }, []);
 
   const handleStartGame = () => {
     if (weatherCheckEnabled && niceWeather) {

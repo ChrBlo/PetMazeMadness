@@ -269,27 +269,31 @@ export class ScoreManager {
   }
 
   static async saveLevelStars(levelId: number, stars: LevelStars['stars']): Promise<void> {
-    try {
-      const key = `level_stars_${levelId}`;
-      await store.save(key, stars);
-    } catch (error) {
-      console.error('Error saving level stars:', error);
-    }
+    const key = `level_stars_${levelId}`;
+    await store.save(key, stars);
   }
 
   static async getLevelStars(levelId: number): Promise<LevelStars['stars'] | null> {
-    try {
-      const key = `level_stars_${levelId}`;
-      const stars = await store.get(key);
-      return stars || null;
-    } catch (error) {
-      console.error('Error loading level stars:', error);
-      return null;
-    }
+    const key = `level_stars_${levelId}`;
+    const stars = await store.get(key);
+    return stars || null;
   }
 
   static countEarnedStars(stars: LevelStars['stars'] | null): number {
     if (!stars) return 0;
     return Object.values(stars).filter(Boolean).length;
+  }
+
+  private static getSelectedPetKey(): string {
+    return 'selected_pet';
+  }
+
+  static async saveSelectedPet(pet: { id: string; name: string; emoji: string }): Promise<void> {
+    await store.save(this.getSelectedPetKey(), pet);
+  }
+
+  static async getSelectedPet(): Promise<{ id: string; name: string; emoji: string } | null> {
+    const pet = await store.get(this.getSelectedPetKey());
+    return pet || null;
   }
 }
