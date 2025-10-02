@@ -449,8 +449,14 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
       setVelocity({ x: 0, y: 0 });
       setExtraLivesUsed(0);
       
-      const savedSnacks = await CRUDManager.getEatenSnacks(currentLevelId);
-      setEatenSnacks(new Set(savedSnacks));
+      if (extraLives === 0) {
+        setEatenSnacks(new Set());
+      }
+      else
+      {
+        const savedSnacks = await CRUDManager.getEatenSnacks(currentLevelId);
+        setEatenSnacks(new Set(savedSnacks));
+      }
 
       const updatedStats = await ScoreManager.recordAttempt(currentLevelId);
       setLevelStats(updatedStats);
