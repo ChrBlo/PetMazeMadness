@@ -42,6 +42,8 @@ export function useEnemyMovement(enemies: Enemy[] | undefined, cellSize: number,
 
     if (!enemies || !isGameActive) return;
 
+    lastUpdateRef.current = Date.now();
+
     const animate = () => {
       const now = Date.now();
       const deltaTime = (now - lastUpdateRef.current) / 1000;
