@@ -30,6 +30,8 @@ const WALL_CELL = 1;
 const GOAL_CELL = 2;
 const DANGER_CELL = 3;
 const SNACK_CELL = 4;
+const SECRET_WALL_CELL = 5;
+const SECRET_SNACK_CELL = 6;
 
 const explodingWallSound = require('../../assets/sounds/explosion.mp3');
 const victorySound = require('../../assets/sounds/whopee.mp3');
@@ -174,7 +176,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
 
     const cellX = Math.floor(newX / CELL_SIZE);
     const cellY = Math.floor(newY / CELL_SIZE);
-    
+
     // check 16 points around ball to make it rounder
     const checkPoints = [];
 
@@ -247,29 +249,28 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
         }
         else
         {
-            setExplosionPosition({ x: newX, y: newY });
-            setShowExplosion(true);
-            
-            recordDeath(currentLevelId).then((updatedStats) => {
-              if (updatedStats)
-              {
-                setLevelStats(updatedStats);
-              }
-            });
-            
-            explosion.seekTo(0);
-            explosion.play();
-            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-            
-            setTimeout(() => setShowExplosion(false), 1000);
-            return true;
-          }
+          setExplosionPosition({ x: newX, y: newY });
+          setShowExplosion(true);
+          
+          recordDeath(currentLevelId).then((updatedStats) => {
+            if (updatedStats)
+            {
+              setLevelStats(updatedStats);
+            }
+          });
+          
+          explosion.seekTo(0);
+          explosion.play();
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+          
+          setTimeout(() => setShowExplosion(false), 1000);
+          return true;
         }
       }
-      
-
+    }      
     // check if SNACK_CELL
-    if (getMazeCell(cellX, cellY, MAZE_LAYOUT) === SNACK_CELL)
+    if (getMazeCell(cellX, cellY, MAZE_LAYOUT) === SNACK_CELL ||
+        getMazeCell(cellX, cellY, MAZE_LAYOUT) === SECRET_SNACK_CELL)
     {
       const snackKey = `${cellY}-${cellX}`;
       const currentEatenSnacks = eatenSnacks;
@@ -603,15 +604,6 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
       </View>
       <View style={styles.gameContainer}>
         <View style={styles.maze}>
-          <MazeRenderer
-            mazeLayout={MAZE_LAYOUT}
-            cellSize={CELL_SIZE}
-            wallCell={WALL_CELL}
-            goalCell={GOAL_CELL}
-            dangerCell={DANGER_CELL}
-            snackCell={SNACK_CELL}
-            eatenSnacks={eatenSnacks}
-        />
           {/* PET BALL */}
           <View
             style={[
@@ -626,6 +618,18 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
               {isDead ? DEATH_EMOJI : selectedPet.emoji}
             </Text>
           </View>
+
+          <MazeRenderer
+            mazeLayout={MAZE_LAYOUT}
+            cellSize={CELL_SIZE}
+            wallCell={WALL_CELL}
+            goalCell={GOAL_CELL}
+            dangerCell={DANGER_CELL}
+            snackCell={SNACK_CELL}
+            eatenSnacks={eatenSnacks}
+            secretWallCell={SECRET_WALL_CELL}
+            secretSnackCell={SECRET_SNACK_CELL}
+          />
 
           {/* ENEMIES */}
           {enemyPositions.map(enemy => (
@@ -841,6 +845,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
+    zIndex: 1,
   },
   animalEmoji: {
     fontSize: 14,
@@ -977,5 +982,6 @@ const styles = StyleSheet.create({
   },
   enemyEmoji: {
     fontSize: 16,
+    zIndex: 19,
   },
 });

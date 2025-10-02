@@ -11,11 +11,13 @@ import { formatTime } from "../../utils/game-helpers";
 import { CompletionRecord, ScoreManager } from "../../utils/score-manager";
 import { GameStatsScreenProps } from "../root-layout";
 
-const MAZE_SIZE = 300;
 const WALL_CELL = 1;
 const GOAL_CELL = 2;
 const DANGER_CELL = 3;
 const SNACK_CELL = 4;
+const SECRET_WALL_CELL = 5
+const SECRET_SNACK_CELL = 6
+const MAZE_SIZE = 300;
 const BALL_SIZE = 20;
 
 export default function MazeStatisticsScreen({ route, navigation }: GameStatsScreenProps) {
@@ -124,6 +126,8 @@ const previousLevel = () => {
             dangerCell={DANGER_CELL}
             snackCell={SNACK_CELL}
             eatenSnacks={eatenSnacks}
+            secretWallCell={SECRET_WALL_CELL}
+            secretSnackCell={SECRET_SNACK_CELL}
           />
 
           {/* ENEMIES */}
@@ -158,7 +162,7 @@ const previousLevel = () => {
           </View>
 
           {!completedLevels.has(currentLevelId) && currentLevelId > 1 && (
-            <BlurView intensity={70} tint="dark" style={StyleSheet.absoluteFill}>
+            <BlurView intensity={60} tint="dark" style={[StyleSheet.absoluteFill, {zIndex:20}]}>
               <View style={styles.lockedOverlay}>
                 <Text style={styles.lockedText}>
                   Du har inte klarat denna labyrint ännu!

@@ -1,6 +1,6 @@
+import { Image } from 'expo-image';
 import React from 'react';
 import { StyleSheet, Text, View } from "react-native";
-import { Image } from 'expo-image';
 
 interface MazeRendererProps { 
   mazeLayout: number[][];
@@ -10,6 +10,8 @@ interface MazeRendererProps {
   dangerCell: number;
   snackCell?: number;
   eatenSnacks: Set<string>;
+  secretWallCell: number;
+  secretSnackCell: number;
 }
 
 export const MazeRenderer: React.FC<MazeRendererProps> = React.memo(({
@@ -20,6 +22,8 @@ export const MazeRenderer: React.FC<MazeRendererProps> = React.memo(({
   dangerCell,
   snackCell,
   eatenSnacks,
+  secretWallCell,
+  secretSnackCell,
 }) => {
   const walls = [];
   const goals = [];
@@ -33,12 +37,12 @@ export const MazeRenderer: React.FC<MazeRendererProps> = React.memo(({
       const cell = mazeLayout[row][col];
       const key = `${row}-${col}`;
           
-      if (cell === wallCell)
+      if (cell === wallCell || cell === secretWallCell)
       {
         walls.push(
           <Image
             key={key}
-            source={require('../assets/images/pixelsten.png')}
+            source={require('../assets/images/pixelsten_removed_bg.png')}
             style={[
               styles.wall,
               {
@@ -46,6 +50,7 @@ export const MazeRenderer: React.FC<MazeRendererProps> = React.memo(({
                 top: row * cellSize,
                 width: cellSize,
                 height: cellSize,
+                zIndex: 10,
               }
             ]}
             contentFit="cover"
@@ -54,6 +59,55 @@ export const MazeRenderer: React.FC<MazeRendererProps> = React.memo(({
             transition={0}
           />
         );
+      }
+      else if (cell === secretSnackCell)
+      {
+        walls.push(
+          <Image
+            key={key}
+            source={require('../assets/images/pixelsten_removed_bg.png')}
+            style={[
+              styles.wall,
+              {
+                left: col * cellSize,
+                top: row * cellSize,
+                width: cellSize,
+                height: cellSize,
+                zIndex: 10,
+              }
+            ]}
+            contentFit="cover"
+            cachePolicy="memory-disk"
+            recyclingKey={`wall-${cellSize}`}
+            transition={0}
+          />
+        );
+        
+        const snackKey = `${row}-${col}`;
+        if (!eatenSnacks.has(snackKey))
+        {
+          const fruits = ['🍎', '🍉', '🍌', '🍇', '🍓', '🍒'];
+          const seed = (row * 100 + col) % fruits.length;
+          const fruit = fruits[seed];
+
+          healthSnacks.push(
+            <View
+              key={key}
+              style={[
+                styles.healthSnack,
+                {
+                  left: col * cellSize,
+                  top: row * cellSize,
+                  width: cellSize,
+                  height: cellSize,
+                  zIndex: 5,
+                }
+              ]}
+            >
+              <Text style={styles.healthSnackText}>{fruit}</Text>
+            </View>
+          );
+        }
       }
       else if (cell === goalCell)
       {
@@ -115,6 +169,7 @@ export const MazeRenderer: React.FC<MazeRendererProps> = React.memo(({
                   top: row * cellSize,
                   width: cellSize,
                   height: cellSize,
+                  zIndex: 5,
                 }
               ]}
             >
