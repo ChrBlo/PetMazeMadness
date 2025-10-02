@@ -1,0 +1,32 @@
+{
+  "start":{
+    "description": "Help {{petEmoji}} escape the maze!",
+    "instructions": "Tilt your device in all direction to guide you pet to safety!",
+    "settingsButtonLabel": "SETTINGS",
+    "starButtonLabel": "START",
+    "loadingText":"Loading..."
+  },
+  "weatherAlert": {
+    "title": "The weather is nice!",
+    "message": "Go out and play instead!",
+    "buttonText": "OK, you're right!"
+  },
+  "game": {
+    "title": "Save {{petName}}!",
+    "attempts": "Attempts",
+    "bestTime": "Best time",
+    "time": "Time",
+    "continue": "Continue",
+    "restart": "Restart",
+    "ready": "READY!",
+    "toMenu": "To menu",
+    "nextLevel": "Next",
+    "prevLevel": "Previous",
+    "congrats": "Well done!",
+    "recordMessage": "⭐ NEW RECORD: {{time}}! ⭐",
+    "petEscaped": "{{petName}} escaped! 🌈❤️",
+    "stayHere": "Stay here",
+    "allLevelsComplete": "You saved {{petName}} from ALL dangers!\nBut have you collected all stars? ⭐",
+    "toLevel1": "To level 1"
+  }
+}

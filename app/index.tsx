@@ -9,8 +9,12 @@ import { GyroMode } from '../hooks/useGameSensors';
 import { CRUDManager } from "../utils/CRUD-manager";
 import { ScoreManager } from "../utils/score-manager";
 import { StartScreenProps } from './root-layout';
+import { useTranslation } from 'react-i18next';
+import { LanguageSwitcher } from '../components/language-switcher';
 
 export default function StartScreen({ route, navigation }: StartScreenProps) {
+  const { t } = useTranslation();
+
   const [isLoading, setIsLoading] = useState(false);
   const [weatherCheckEnabled, setWeatherCheckEnabled] = useState(true);
   const [currentWeather, setCurrentWeather] = useState<string | null>(null);
@@ -61,10 +65,10 @@ export default function StartScreen({ route, navigation }: StartScreenProps) {
   const handleStartGame = () => {
     if (weatherCheckEnabled && niceWeather) {
       Alert.alert(
-        'Det är fint väder ute!',
-        'Ut och lek med dig istället!',
+        t('weatherAlert.title'),
+        t('weatherAlert.message'),
         [
-          { text: 'OK, du har rätt!' },
+          { text: t('weatherAlert.buttonText') },
         ]
       );
       return;
@@ -110,17 +114,21 @@ export default function StartScreen({ route, navigation }: StartScreenProps) {
       <View style={styles.weather}>
         <WeatherForecaster onWeatherUpdate={handleWeatherUpdate} />
       </View>
+
+      <View style={styles.languageSwitchContainer}>
+        <LanguageSwitcher />
+      </View>
       
       <Image style={styles.logo} source={require('../assets/images/gamelogo.png')}/>
       <Text style={styles.description}>
-        Hjälp {petEmoji} ur labyrinten!
+        {t('start.description', { petEmoji: petEmoji })}
       </Text>
       <Text style={styles.instructions}>
-        Luta din telefon i alla riktningar för att guida ditt husdjur mot friheten!
+        {t('start.instructions')}
       </Text>
-
+      
       <GradientButton 
-        title="INSTÄLLNINGAR" 
+        titleKey="start.settingsButtonLabel"
         onPress={handleGoToSettings} 
         theme="blue" 
         style={styles.settingsButton}
@@ -130,11 +138,11 @@ export default function StartScreen({ route, navigation }: StartScreenProps) {
       {isLoading ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#45da9cff" style={styles.loadingIndicator} />
-          <Text style={styles.loadingText}>Laddar spel...</Text>
+          <Text style={styles.loadingText}>{t('start.loadingText')}</Text>
         </View>
       ) : (
         <GradientButton 
-        title="STARTA" 
+        titleKey="start.starButtonLabel"
         onPress={handleStartGame} 
         theme="green" 
         style={styles.startButton}
@@ -233,5 +241,12 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     marginLeft: '10%',
     marginTop: 10,
+  },
+  languageSwitchContainer: {
+    position: 'absolute',
+    top: 60,
+    left: 20,
+    alignItems: 'center',
+    backgroundColor: '#221c17ff',
   },
 });

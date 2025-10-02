@@ -1,7 +1,8 @@
+import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Text, TextStyle, TouchableOpacity, View, ViewStyle } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 
 const GradientThemes = {
   green: ['#5ccf9fff', '#42a079ff'],
@@ -16,17 +17,19 @@ type GradientTheme = keyof typeof GradientThemes;
 
 interface GradientButtonProps {
   title?: string;
+  titleKey?: string;
   onPress: () => void;
   theme: GradientTheme;
   style?: ViewStyle;
   textStyle?: TextStyle;
-  iconName?: keyof typeof Ionicons.glyphMap; // icon support
+  iconName?: keyof typeof Ionicons.glyphMap;
   iconSize?: number;
   iconColor?: string;
 }
 
 export const GradientButton: React.FC<GradientButtonProps> = ({
   title,
+  titleKey,
   onPress,
   theme,
   style,
@@ -35,6 +38,8 @@ export const GradientButton: React.FC<GradientButtonProps> = ({
   iconSize = 20,
   iconColor = 'white',
 }) => {
+  const { t } = useTranslation();
+  
   return (
     <TouchableOpacity onPress={onPress} style={style}>
       <LinearGradient
@@ -57,10 +62,14 @@ export const GradientButton: React.FC<GradientButtonProps> = ({
               name={iconName}
               size={iconSize}
               color={iconColor}
-              style={{ marginRight: title ? 8 : 0 }}
+              style={{ marginRight: (titleKey || title) ? 8 : 0 }}
             />
           )}
-          {title && <Text style={[{ color: 'white', fontWeight: '600' }, textStyle]}>{title}</Text>}
+          {(titleKey || title) && (
+            <Text style={[{ color: 'white', fontWeight: '600' }, textStyle]}>
+              {titleKey ? t(titleKey) : title}
+            </Text>
+          )}
         </View>
       </LinearGradient>
     </TouchableOpacity>

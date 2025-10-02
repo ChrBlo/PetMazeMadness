@@ -1,0 +1,32 @@
+{
+"start":{
+  "description": "Hjälp {{petEmoji}} ur labyrinten!",
+  "instructions": "Luta din telefon i alla riktningar för att guida ditt husdjur mot friheten!",
+  "settingsButtonLabel": "INSTÄLLNINGAR",
+  "starButtonLabel": "STARTA",
+  "loadingText":"Laddar spel..."
+},
+"weatherAlert": {
+  "title": "Det är fint väder ute!",
+  "message": "Ut och lek med dig istället!",
+  "buttonText": "OK, du har rätt!"
+},
+"game": {
+  "title": "Rädda {{petName}}!",
+  "attempts": "Försök",
+  "bestTime": "Bästa tid",
+  "time": "Tid",
+  "continue": "Fortsätt",
+  "restart": "Starta om",
+  "ready": "REDO!",
+  "toMenu": "Till menyn",
+  "nextLevel": "Nästa",
+  "prevLevel": "Förra",
+  "congrats": "Bra jobbat!",
+  "recordMessage": "⭐ NYTT REKORD: {{time}}! ⭐",
+  "petEscaped": "{{petName}} flydde! 🌈❤️",
+  "stayHere": "Stanna kvar",
+  "allLevelsComplete": "Du har räddat {{petName}} från ALLA faror!\nMen har du samlat alla stjärnor? ⭐",
+  "toLevel1": "Till bana 1"
+  }
+}

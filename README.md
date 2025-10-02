@@ -42,6 +42,7 @@ Used Expo SDK 54 Components:
 - [X] Ionicons: used in gameScreen on button navigation user to maze stats
 - [X] LinearGradient (expo-linear-gradient): for button style
 - [X] Blur (expo-blur): For not yet cleared maze levels in maze-statistics
+- [X] Localization + i18next (expo-localization & react-i18next): For multi-language-support
 
 Other External modules/APIs used:
 - [X] yr.no weather forecast open API (https://developer.yr.no/doc) - Used in a game settings that blocks game if nice weather
@@ -91,14 +92,14 @@ Krav för godkänt:
 - [X] React Navigation används för att skapa en bättre upplevelse i appen.
 - [X] Git & GitHub har använts
 - [X] Projektmappen innehåller en README.md fil - (läs ovan för mer info)
-- [ ] Uppgiften lämnas in i tid!
-- [ ] Muntlig presentation är genomförd
+- [X] Uppgiften lämnas in i tid!
+- [X] Muntlig presentation är genomförd
 
 Krav för väl godkänt:
 - [X] Alla punkter för godkänt är uppfyllda
 - [X] Ytterligare en valfri extern modul används i projektet (ex. react-hook-form).
 - [X] Appen ska prata med ett Web-API för att hämta data.
-- [ ] Appen ska förberedas för lansering till en Appstore (Deadline samma dag som kursen slutar)
+- [X] Appen ska förberedas för lansering till en Appstore (Deadline samma dag som kursen slutar)
 
 
 ## Acknowledgments ⭐ 
