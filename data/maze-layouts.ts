@@ -11,6 +11,13 @@ export interface MazeLevel {
   timeLimit: number;
   layout: number[][];
   startPosition: { x: number; y: number };
+  enemies?: Enemy[];
+}
+
+export interface Enemy {
+  id: string;
+  path: { x: number; y: number }[];
+  speed: number;
 }
 
 export const MAZE_LEVELS: MazeLevel[] = [
@@ -30,7 +37,17 @@ export const MAZE_LEVELS: MazeLevel[] = [
       [1, 4, 1, 1, 1, 0, 0, 0, 0, 1],
       [1, 1, 1, 1, 1, 2, 1, 1, 1, 1],
     ],
-    startPosition: { x: 1, y: 1 }
+    startPosition: { x: 1, y: 1 },
+    enemies: [
+      {
+        id: "enemy1",
+        path: [
+          { x: 3, y: 3 },
+          { x: 6, y: 3 }
+        ],
+        speed: 2
+      }
+    ]
   },
   {
     id: 2,
@@ -48,7 +65,17 @@ export const MAZE_LEVELS: MazeLevel[] = [
       [1, 0, 1, 0, 0, 0, 0, 0, 2, 1],
       [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     ],
-    startPosition: { x: 1, y: 1 }
+    startPosition: { x: 1, y: 1 },
+    enemies: [
+      {
+        id: "enemy1",
+        path: [
+          { x: 3, y: 3 },
+          { x: 3, y: 8 }
+        ],
+        speed: 2
+      }
+    ]
   },
   {
     id: 3,
@@ -66,7 +93,17 @@ export const MAZE_LEVELS: MazeLevel[] = [
       [1, 1, 1, 1, 1, 1, 1, 0, 2, 1],
       [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     ],
-    startPosition: { x: 1, y: 1 }
+    startPosition: { x: 1, y: 1 },
+    enemies: [
+      {
+        id: "enemy1",
+        path: [
+          { x: 1, y: 3 },
+          { x: 6, y: 3 }
+        ],
+        speed: 2
+      }
+    ]
   },
   {
     id: 4,
@@ -84,7 +121,17 @@ export const MAZE_LEVELS: MazeLevel[] = [
       [1, 4, 0, 0, 0, 0, 0, 0, 2, 1],
       [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     ],
-    startPosition: { x: 8, y: 1 }
+    startPosition: { x: 8, y: 1 },
+    enemies: [
+      {
+        id: "enemy1",
+        path: [
+          { x: 1, y: 1 },
+          { x: 1, y: 8 }
+        ],
+        speed: 3
+      }
+    ]
   },
   {
     id: 5,
@@ -102,7 +149,17 @@ export const MAZE_LEVELS: MazeLevel[] = [
       [1, 4, 1, 1, 1, 1, 1, 1, 2, 1],
       [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     ],
-    startPosition: { x: 1, y: 1 }
+    startPosition: { x: 1, y: 1 },
+    enemies: [
+      {
+        id: "enemy1",
+        path: [
+          { x: 1, y: 5 },
+          { x: 6, y: 5 }
+        ],
+        speed: 2
+      }
+    ]
   },
   {
     id: 6,
@@ -120,7 +177,25 @@ export const MAZE_LEVELS: MazeLevel[] = [
       [3, 4, 3, 1, 0, 0, 0, 0, 0, 1],
       [3, 3, 3, 1, 1, 1, 1, 1, 1, 1],
     ],
-    startPosition: { x: 1, y: 1 }
+    startPosition: { x: 1, y: 1 },
+    enemies: [
+      {
+        id: "enemy1",
+        path: [
+          { x: 3, y: 6 },
+          { x: 8, y: 6 }
+        ],
+        speed: 2
+      },
+      {
+        id: "enemy2",
+        path: [
+          { x: 8, y: 3 },
+          { x: 3, y: 3 }
+        ],
+        speed: 2
+      }
+    ]
   },
   {
     id: 7,
@@ -138,7 +213,25 @@ export const MAZE_LEVELS: MazeLevel[] = [
       [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
       [1, 1, 1, 1, 3, 1, 1, 1, 1, 1],
     ],
-    startPosition: { x: 1, y: 1 }
+    startPosition: { x: 1, y: 1 },
+    enemies: [
+      {
+        id: "enemy1",
+        path: [
+          { x: 1, y: 3 },
+          { x: 8, y: 3 }
+        ],
+        speed: 3
+      },
+      {
+        id: "enemy2",
+        path: [
+          { x: 2, y: 5 },
+          { x: 2, y: 8 }
+        ],
+        speed: 2
+      }
+    ]
   },
   {
     id: 8,
@@ -156,7 +249,25 @@ export const MAZE_LEVELS: MazeLevel[] = [
       [1, 4, 3, 0, 0, 0, 0, 0, 2, 1],
       [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     ],
-    startPosition: { x: 1, y: 1 }
+    startPosition: { x: 1, y: 1 },
+    enemies: [
+      {
+        id: "enemy1",
+        path: [
+          { x: 1, y: 4 },
+          { x: 6, y: 4 }
+        ],
+        speed: 2
+      },
+      {
+        id: "enemy2",
+        path: [
+          { x: 1, y: 4 },
+          { x: 6, y: 4 }
+        ],
+        speed: 2
+      }
+    ]
   },
   {
     id: 9,
@@ -174,7 +285,25 @@ export const MAZE_LEVELS: MazeLevel[] = [
       [1, 0, 0, 0, 0, 0, 0, 0, 2, 1],
       [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     ],
-    startPosition: { x: 1, y: 1 }
+    startPosition: { x: 1, y: 1 },
+    enemies: [
+      {
+        id: "enemy1",
+        path: [
+          { x: 1, y: 2 },
+          { x: 8, y: 2 }
+        ],
+        speed: 3
+      },
+      {
+        id: "enemy2",
+        path: [
+          { x: 8, y: 8 },
+          { x: 1, y: 8 }
+        ],
+        speed: 3
+      }
+    ]
   },
   {
     id: 10,
@@ -192,7 +321,17 @@ export const MAZE_LEVELS: MazeLevel[] = [
       [3, 4, 3, 0, 3, 1, 3, 0, 2, 1],
       [1, 1, 1, 0, 0, 0, 0, 0, 3, 3],
     ],
-    startPosition: { x: 1, y: 1 }
+    startPosition: { x: 1, y: 1 },
+    enemies: [
+      {
+        id: "enemy1",
+        path: [
+          { x: 6, y: 1 },
+          { x: 6, y: 6 }
+        ],
+        speed: 3
+      }
+    ]
   },
   {
     id: 11,
@@ -211,6 +350,16 @@ export const MAZE_LEVELS: MazeLevel[] = [
       [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     ],
     startPosition: { x: 1, y: 1 },
+    enemies: [
+      {
+        id: "enemy1",
+        path: [
+          { x: 7, y: 1 },
+          { x: 7, y: 8 }
+        ],
+        speed: 3
+      }
+    ]
   },
   {
     id: 12,
@@ -229,6 +378,24 @@ export const MAZE_LEVELS: MazeLevel[] = [
       [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     ],
     startPosition: { x: 1, y: 1 },
+    enemies: [
+      {
+        id: "enemy1",
+        path: [
+          { x: 1, y: 3 },
+          { x: 7, y: 3 }
+        ],
+        speed: 3
+      },
+      {
+        id: "enemy2",
+        path: [
+          { x: 7, y: 5 },
+          { x: 7, y: 8 }
+        ],
+        speed: 3
+      }
+    ]
   },
   {
     id: 13,
@@ -247,6 +414,24 @@ export const MAZE_LEVELS: MazeLevel[] = [
       [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     ],
     startPosition: { x: 1, y: 1 },
+    enemies: [
+      {
+        id: "enemy1",
+        path: [
+          { x: 5, y: 1 },
+          { x: 5, y: 8 }
+        ],
+        speed: 3
+      },
+      {
+        id: "enemy2",
+        path: [
+          { x: 1, y: 5 },
+          { x: 8, y: 5 }
+        ],
+        speed: 3
+      }
+    ]
   },
   {
     id: 14,
@@ -265,6 +450,24 @@ export const MAZE_LEVELS: MazeLevel[] = [
       [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     ],
     startPosition: { x: 1, y: 1 },
+    enemies: [
+      {
+        id: "enemy1",
+        path: [
+          { x: 7, y: 1 },
+          { x: 7, y: 8 }
+        ],
+        speed: 3
+      },
+      {
+        id: "enemy2",
+        path: [
+          { x: 1, y: 5 },
+          { x: 8, y: 5 }
+        ],
+        speed: 3
+      }
+    ]
   },
   {
     id: 15,
@@ -283,6 +486,24 @@ export const MAZE_LEVELS: MazeLevel[] = [
       [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     ],
     startPosition: { x: 1, y: 1 },
+    enemies: [
+      {
+        id: "enemy1",
+        path: [
+          { x: 8, y: 2 },
+          { x: 1, y: 2 }
+        ],
+        speed: 3
+      },
+      {
+        id: "enemy2",
+        path: [
+          { x: 1, y: 6 },
+          { x: 8, y: 6 }
+        ],
+        speed: 3
+      }
+    ]
   },
   {
     id: 16,
@@ -301,6 +522,24 @@ export const MAZE_LEVELS: MazeLevel[] = [
       [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     ],
     startPosition: { x: 1, y: 1 },
+    enemies: [
+      {
+        id: "enemy1",
+        path: [
+          { x: 3, y: 5 },
+          { x: 3, y: 1 }
+        ],
+        speed: 3
+      },
+      {
+        id: "enemy2",
+        path: [
+          { x: 5, y: 1 },
+          { x: 5, y: 8 }
+        ],
+        speed: 3
+      }
+    ]
   },
   {
     id: 17,
@@ -319,6 +558,16 @@ export const MAZE_LEVELS: MazeLevel[] = [
       [1, 1, 1, 1, 1, 1, 1, 3, 3, 1],
     ],
     startPosition: { x: 1, y: 1 },
+    enemies: [
+      {
+        id: "enemy1",
+        path: [
+          { x: 4, y: 3 },
+          { x: 4, y: 7 }
+        ],
+        speed: 2
+      }
+    ]
   },
   {
     id: 18,
@@ -337,6 +586,24 @@ export const MAZE_LEVELS: MazeLevel[] = [
       [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     ],
     startPosition: { x: 1, y: 1 },
+    enemies: [
+      {
+        id: "enemy1",
+        path: [
+          { x: 8, y: 5 },
+          { x: 8, y: 1 }
+        ],
+        speed: 3
+      },
+      {
+        id: "enemy2",
+        path: [
+          { x: 1, y: 5 },
+          { x: 3, y: 5 }
+        ],
+        speed: 2
+      }
+    ]
   },
   {
     id: 19,
@@ -355,6 +622,24 @@ export const MAZE_LEVELS: MazeLevel[] = [
       [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     ],
     startPosition: { x: 1, y: 1 },
+    enemies: [
+      {
+        id: "enemy1",
+        path: [
+          { x: 5, y: 1 },
+          { x: 5, y: 7 }
+        ],
+        speed: 3
+      },
+      {
+        id: "enemy2",
+        path: [
+          { x: 5, y: 5 },
+          { x: 8, y: 5 }
+        ],
+        speed: 3
+      }
+    ]
   },
   {
     id: 20,
@@ -373,6 +658,16 @@ export const MAZE_LEVELS: MazeLevel[] = [
       [3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
     ],
     startPosition: { x: 1, y: 1 },
+    enemies: [
+      {
+        id: "enemy1",
+        path: [
+          { x: 7, y: 2 },
+          { x: 1, y: 2 }
+        ],
+        speed: 2
+      }
+    ]
   },
 ];
 

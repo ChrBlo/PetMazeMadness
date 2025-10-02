@@ -5,7 +5,7 @@ import * as Haptics from 'expo-haptics';
 import { Image } from 'expo-image';
 import { useAtom, useSetAtom } from 'jotai';
 import LottieView from "lottie-react-native";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { isDeadAtom, isGameWonAtom, recordDeathAtom, recordWinAtom, resetGameStateAtom } from '../../atoms/gameAtoms';
 import { CountdownAnimation } from '../../components/countdown-animation';
@@ -14,6 +14,7 @@ import { LevelStarsAndBadgeDisplay } from "../../components/level-stars-and-badg
 import { MazeRenderer } from "../../components/maze-renderer";
 import { MAZE_LEVELS, MazeLevel, getCurrentLevel } from '../../data/maze-layouts';
 import { DEATH_EMOJI, getDefaultPet } from '../../data/pets';
+import { useEnemyMovement } from "../../hooks/useEnemyMovement";
 import { useGamePhysics } from '../../hooks/useGamePhysics';
 import { GyroMode, useGameSensors } from '../../hooks/useGameSensors';
 import { useGameTimer } from '../../hooks/useGameTimer';
@@ -61,6 +62,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
   const [isGamePaused, setIsGamePaused] = useState(false);
   const [isRespawning, setIsRespawning] = useState(false);
   const [hasStartedTimer, setHasStartedTimer] = useState(false);
+  const isProcessingWin = useRef(false);
   //GAME LEVELS
   const [currentLevelId, setCurrentLevelId] = useState(route.params?.initialLevel || 1);
   const [currentLevel, setCurrentLevel] = useState<MazeLevel>(getCurrentLevel(route.params?.initialLevel || 1));
@@ -228,6 +230,44 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
       }
     }
 
+    // ENEMY-logic
+    for (const enemy of enemyPositions)
+    {
+      const dx = newX - enemy.x;
+      const dy = newY - enemy.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+        
+      if (distance < ballRadius * 2)
+      {
+        if (extraLives > 0)
+        {
+            setIsRespawning(true);
+            triggerRespawn(cellX, cellY);
+            return false;
+        }
+        else
+        {
+            setExplosionPosition({ x: newX, y: newY });
+            setShowExplosion(true);
+            
+            recordDeath(currentLevelId).then((updatedStats) => {
+              if (updatedStats)
+              {
+                setLevelStats(updatedStats);
+              }
+            });
+            
+            explosion.seekTo(0);
+            explosion.play();
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+            
+            setTimeout(() => setShowExplosion(false), 1000);
+            return true;
+          }
+        }
+      }
+      
+
     // check if SNACK_CELL
     if (getMazeCell(cellX, cellY, MAZE_LAYOUT) === SNACK_CELL)
     {
@@ -257,6 +297,11 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
     // Check if GOAL_CELL
     if (getMazeCell(cellX, cellY, MAZE_LAYOUT) === GOAL_CELL)
     {
+      if (isProcessingWin.current) { 
+        return false;
+      }
+      isProcessingWin.current = true;
+
       const completionTime = stopTimer();
       setCompletedLevels(prev => new Set([...prev, currentLevelId]));
 
@@ -350,6 +395,13 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
     return false;
   }
 
+  // POSITION ENEMIES -----------
+  const enemyPositions = useEnemyMovement(
+    currentLevel.enemies,
+    CELL_SIZE,
+    !isDead && !isGameWon && isCountdownComplete && !isRespawning
+  );
+
   // RESPAWN LOGIC --------------
   const triggerRespawn = (cellX: number, cellY: number) => {
     const safeCell = findNearestSafeCell(cellX, cellY, MAZE_LAYOUT);
@@ -377,6 +429,9 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
 
   // RESET GAME -----------------
   const resetGame = async () => {
+
+    isProcessingWin.current = false;
+    
     if (isRespawning)
     {
       resetGameState();
@@ -411,30 +466,34 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
 
   // NEXT LEVEL -----------------
   const nextLevel = () => {
-    const nextId = currentLevelId + 1;
 
-    if (nextId <= MAZE_LEVELS.length)
-    {
-      resetGameState(); // Jotai - reset atoms
-      resetTimer();
-      setShowVictoryAnimation(false);
-      
-      setCurrentLevelId(nextId);
-      const newLevel = getCurrentLevel(nextId);
-      setCurrentLevel(newLevel);
-      setBallPosition(getPosition(newLevel, MAZE_SIZE));
-      setShowExplosion(false);
-      setVelocity({ x: 0, y: 0 });
-      setExtraLivesUsed(0);
+    isProcessingWin.current = false;
+    const nextId = currentLevelId >= MAZE_LEVELS.length ? 1 : currentLevelId + 1;
 
-      setIsReady(false);
-      setIsCountdownComplete(false);
-    }
+    resetGameState(); // Jotai - reset atoms
+    resetTimer();
+    setShowVictoryAnimation(false);
+    
+    setCurrentLevelId(nextId);
+    const newLevel = getCurrentLevel(nextId);
+    setCurrentLevel(newLevel);
+    setBallPosition(getPosition(newLevel, MAZE_SIZE));
+  
+    setShowExplosion(false);
+    setVelocity({ x: 0, y: 0 });
+    setExtraLivesUsed(0);
+
+    setIsReady(false);
+    setIsCountdownComplete(false);
   };
 
   // PREVIOUS LEVEL -------------
   const previousLevel = () => {
-    const prevId = currentLevelId - 1;
+
+    isProcessingWin.current = false;
+    const lastMazeLevel = MAZE_LEVELS.length;
+    const prevId = currentLevelId === 1 ? lastMazeLevel : currentLevelId - 1;
+
     if (prevId >= 1)
     {
       resetGameState();
@@ -508,7 +567,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
       </View>
       
       <View style={styles.headerContent}>
-        {!normalModeCompleted && !chaosModeCompleted ? (
+        {!normalModeCompleted && !chaosModeCompleted && earnedStars === 0 ? (
           <View style={styles.titleContainer}>
             <Text style={styles.title}>Rädda {petName}!</Text>
             <Text style={styles.titleEmoji}> {selectedPet.emoji}</Text>
@@ -521,8 +580,9 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
             />
         )}
       </View>
-    </View>
-      <View style={styles.level}>
+      
+      </View>
+        <View style={styles.level}>
         <Text style={styles.levelText}>{currentLevel.name}</Text>
       </View>
       
@@ -560,6 +620,25 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
               {isDead ? DEATH_EMOJI : selectedPet.emoji}
             </Text>
           </View>
+
+          {/* ENEMIES */}
+          {enemyPositions.map(enemy => (
+            <View
+              key={enemy.id}
+              style={[
+                styles.enemy,
+                {
+                  left: enemy.x - BALL_SIZE / 2,
+                  top: enemy.y - BALL_SIZE / 2,
+                  width: BALL_SIZE,
+                  height: BALL_SIZE,
+                }
+              ]}
+            >
+              <Text style={styles.enemyEmoji}>{selectedPet.enemyEmoji || getDefaultPet().enemyEmoji}</Text>
+            </View>
+          ))}
+
           {/* EXPLOSION */}
           {showExplosion && (
             <View
@@ -608,9 +687,11 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
 
       <View style={styles.controls}>
         <TouchableOpacity 
-          style={[styles.levelButton, currentLevelId <= 1 && styles.disabledButton]} 
+          style={[styles.levelButton,
+            currentLevelId <= 1 && !completedLevels.has(MAZE_LEVELS.length) && styles.disabledButton
+          ]} 
           onPress={previousLevel}
-          disabled={currentLevelId <= 1}
+          disabled={currentLevelId === 1 && !completedLevels.has(MAZE_LEVELS.length)}
         >
           <Text style={styles.levelButtonText}>
             <Ionicons name="arrow-back" size={18} color="white" />  Förra
@@ -628,9 +709,11 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
         <View style={styles.separator} />
 
         <TouchableOpacity
-          style={[styles.levelButton, !completedLevels.has(currentLevelId) && styles.disabledButton]}
+          style={[styles.levelButton, 
+            !completedLevels.has(currentLevelId) && currentLevelId < MAZE_LEVELS.length && styles.disabledButton
+          ]}
           onPress={nextLevel}
-          disabled={!completedLevels.has(currentLevelId)}
+          disabled={!completedLevels.has(currentLevelId) && currentLevelId < MAZE_LEVELS.length}
         >
           <Text style={styles.levelButtonText}>
             Nästa  <Ionicons name="arrow-forward" size={18} color="white"/>
@@ -880,5 +963,13 @@ const styles = StyleSheet.create({
     width: 400,
     height: 400,
     zIndex: 1,
+  },
+  enemy: {
+    position: 'absolute',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  enemyEmoji: {
+    fontSize: 16,
   },
 });

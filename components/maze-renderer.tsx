@@ -19,19 +19,22 @@ export const MazeRenderer: React.FC<MazeRendererProps> = React.memo(({
   goalCell,
   dangerCell,
   snackCell,
-  eatenSnacks                      
+  eatenSnacks,
 }) => {
   const walls = [];
   const goals = [];
   const explosiveWalls = [];
   const healthSnacks = [];
     
-  for (let row = 0; row < mazeLayout.length; row++) {
-    for (let col = 0; col < mazeLayout[row].length; col++) {
+  for (let row = 0; row < mazeLayout.length; row++)
+  {
+    for (let col = 0; col < mazeLayout[row].length; col++)
+    {
       const cell = mazeLayout[row][col];
       const key = `${row}-${col}`;
           
-      if (cell === wallCell) {
+      if (cell === wallCell)
+      {
         walls.push(
           <Image
             key={key}
@@ -52,7 +55,8 @@ export const MazeRenderer: React.FC<MazeRendererProps> = React.memo(({
           />
         );
       }
-      else if (cell === goalCell) {
+      else if (cell === goalCell)
+      {
         goals.push(
           <View
             key={key}
@@ -70,7 +74,8 @@ export const MazeRenderer: React.FC<MazeRendererProps> = React.memo(({
           </View>
         );
       }
-      else if (cell === dangerCell) {
+      else if (cell === dangerCell)
+      {
         explosiveWalls.push(
           <Image
             key={key}
@@ -91,9 +96,11 @@ export const MazeRenderer: React.FC<MazeRendererProps> = React.memo(({
           />
         );
       }
-      else if (cell === snackCell) {
+      else if (cell === snackCell)
+      {
         const snackKey = `${row}-${col}`;
-        if (!eatenSnacks.has(snackKey)) {
+        if (!eatenSnacks.has(snackKey))
+        {
           const fruits = ['🍎', '🍉', '🍌', '🍇', '🍓', '🍒'];
           const seed = (row * 100 + col) % fruits.length;
           const fruit = fruits[seed];
@@ -120,15 +127,19 @@ export const MazeRenderer: React.FC<MazeRendererProps> = React.memo(({
   }
 
   return (
-    <View style={{ width: mazeLayout[0].length * cellSize, height: mazeLayout.length * cellSize, position: 'relative' }}>
+    <View style={{ 
+      width: mazeLayout[0].length * cellSize, 
+      height: mazeLayout.length * cellSize, 
+      position: 'relative' 
+    }}>
       {walls}
       {goals}
       {explosiveWalls}
       {healthSnacks}
+      {/* {enemies} */}
     </View>
   );
 }, (prevProps, nextProps) => {
-  // Only re-render if these specific props change
   return (
     prevProps.mazeLayout === nextProps.mazeLayout && 
     prevProps.cellSize === nextProps.cellSize &&
@@ -137,7 +148,6 @@ export const MazeRenderer: React.FC<MazeRendererProps> = React.memo(({
     prevProps.dangerCell === nextProps.dangerCell &&
     prevProps.snackCell === nextProps.snackCell &&
     prevProps.eatenSnacks.size === nextProps.eatenSnacks.size &&
-    // Check if the snacks are the same
     Array.from(prevProps.eatenSnacks).every(snack => nextProps.eatenSnacks.has(snack))
   );
 });

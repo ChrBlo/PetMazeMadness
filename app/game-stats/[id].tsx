@@ -16,6 +16,7 @@ const WALL_CELL = 1;
 const GOAL_CELL = 2;
 const DANGER_CELL = 3;
 const SNACK_CELL = 4;
+const BALL_SIZE = 20;
 
 export default function MazeStatisticsScreen({ route, navigation }: GameStatsScreenProps) {
   const eatenSnacks = new Set<string>();

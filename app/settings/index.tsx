@@ -160,6 +160,9 @@ export default function SettingsScreen({ route, navigation }: SettingsScreenProp
                 >
                   <Text style={styles.petOptionEmoji}>{pet.emoji}</Text>
                   <Text style={styles.petOptionName}>{pet.name}</Text>
+                  <View style={styles.separator} />
+                  <Text style={styles.petOptionName}>Fiende: </Text>
+                  <Text style={styles.petOptionName}>{pet.enemyEmoji}</Text>
                 </TouchableOpacity>
               ))}
             </ScrollView>
@@ -405,5 +408,8 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 14,
     fontWeight: 'bold',
+  },
+  separator: {
+    flex: 1,
   },
 });

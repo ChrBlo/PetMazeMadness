@@ -2,6 +2,7 @@ export interface Pet {
   id: string;
   emoji: string;
   name: string;
+  enemyEmoji?: string;
 }
 
 export const DEATH_EMOJI = '💀';
@@ -10,47 +11,62 @@ export const pets: Pet[] = [
   {
     id: 'hamster',
     emoji: '🐹',
-    name: 'Fjutten'
+    name: 'Fjutten',
+    enemyEmoji: '🐈'
   },
   {
     id: 'mouse',
     emoji: '🐭',
-    name: 'Bengt'
+    name: 'Bengt',
+    enemyEmoji: '🦅'
   },
   {
     id: 'rabbit',
     emoji: '🐰',
-    name: 'Hopplös'
+    name: 'Hopplös',
+    enemyEmoji: '🐢'
   },
   {
     id: 'cat',
     emoji: '🐱',
-    name: 'Mördarkatten'
+    name: 'Mördarkatten',
+    enemyEmoji: '🐕'
   },
   {
     id: 'dog',
     emoji: '🐶',
-    name: 'Fluff'
+    name: 'Fluff',
+    enemyEmoji: '🍫'
   },
   {
     id: 'frog',
     emoji: '🐸',
-    name: 'Boll'
+    name: 'Boll',
+    enemyEmoji: '🐍'
   },
   {
     id: 'pig',
     emoji: '🐷',
-    name: 'Fläsk'
+    name: 'Fläsk',
+    enemyEmoji: '🥓'
   },
   {
     id: 'chick',
     emoji: '🐥',
-    name: 'Nugget'
+    name: 'Nugget',
+    enemyEmoji: '🐍'
   },
   {
     id: 'crocodile',
     emoji: '🐊',
-    name: 'Schnappi'
+    name: 'Schnappi',
+    enemyEmoji: '👜'
+  },
+  {
+    id: 'goat',
+    emoji: '🐐',
+    name: 'Bosse',
+    enemyEmoji: '🦖'
   }
 ];
 
