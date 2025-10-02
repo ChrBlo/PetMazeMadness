@@ -193,7 +193,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
     {
       const pCellX = Math.floor(point.x / CELL_SIZE);
       const pCellY = Math.floor(point.y / CELL_SIZE);
-      
+
       // check if WALL_CELL
       if (getMazeCell(pCellX, pCellY, MAZE_LAYOUT) === WALL_CELL)
       {
@@ -960,7 +960,7 @@ const styles = StyleSheet.create({
   lottieWin: {
     width: 400,
     height: 400,
-    zIndex: 1,
+    zIndex: 30,
   },
   overlay: {
     position: 'absolute',
@@ -969,11 +969,12 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    zIndex: 28,
   },
   gameCompleted: {
     width: 400,
     height: 400,
-    zIndex: 1,
+    zIndex: 30,
   },
   enemy: {
     position: 'absolute',

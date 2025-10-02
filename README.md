@@ -50,16 +50,19 @@ Other External modules/APIs used:
 - [X] added LottieView (lottie-react-native) from LottiFiles - added animation on maze-completion 
 
 
-## Installation 🚀 //TODO
-1. Clone repository:
+## Installation 🚀
+1. Clone/fork repository:
 git clone https://github.com/ChrBlo/PetMazeMadness
 2. Install dependencies:
 npm install
-3. Install required Expo packages //TODO
-npm install expo-sensors expo-haptics expo-audio expo-status-bar
-4. Start dev server
+3. Start server
 npm start
+4. NOTE that the app does not work on an emulator, 
 
+## Device Requirements📱 
+Physical device required - Gyroscope sensors don't work in simulators
+(iOS or Android with gyroscope/accelerometer-support)
+Expo Go app for dev testing
 
 ## ASSIGNMENT (from teacher) 🖋️
 För att bli godkänd på den här uppgiften MÅSTE du använda GIT och GitHub.
@@ -67,7 +70,7 @@ Inlämningen sker som vanligt via läroplattformen. I din projektmapp ska det fi
 (utöver all kod) en README.md fil. Den ska innehålla:
    - [X] titel
    - [X] beskrivning av projektet
-   - [ ] info om hur projektet byggs och körs 
+   - [X] info om hur projektet byggs och körs 
    - [X] samt vilka uppgiftskrav som är uppfyllda. 
 - [X] Kom ihåg att .git mappen måste finnas så jag kan hitta till ditt publika repo.
 
@@ -76,9 +79,9 @@ Du ska i samband med inlämning hålla i en presentation där du för klassen pr
 - [X] din applikation
 - [X] vilka komponenter du har använt 
 - [X] kort beskriva vad dom används till
-- [ ] här kan det var intressant att visa lite kod kring några utvalda komponenter. 
+- [X] här kan det var intressant att visa lite kod kring några utvalda komponenter. 
 - [X] Du ska även presentera hur du har planerat, genomfört och strukturerat ditt arbete. 
-- [ ] Dessutom ska presentationen innefatta en reflekterande del. 
+- [X] Dessutom ska presentationen innefatta en reflekterande del. 
 Presentationen kommer att ske i mindre grupper under presentationsdagen - du kommer att ha ca 10 minuter att presentera på.
 
 Krav för godkänt:
@@ -111,7 +114,3 @@ Sound effects from https://pixabay.com
 - https://pixabay.com/sound-effects/search/plop/ - used sound file called: "plopp"
 - https://pixabay.com/sound-effects/search/woopee/ - used sound file called: "woopee.."
 
-## Device Requirements📱 
-Physical device required - Gyroscope sensors don't work in simulators
-iOS or Android with gyroscope/accelerometer-support
-Expo Go app for dev testing
