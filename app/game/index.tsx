@@ -843,7 +843,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   animalEmoji: {
-    fontSize: 12,
+    fontSize: 14,
   },
   explosion: {
     position: 'absolute',

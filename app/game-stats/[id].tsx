@@ -36,6 +36,12 @@ export default function MazeStatisticsScreen({ route, navigation }: GameStatsScr
   const CELL_SIZE = MAZE_SIZE / MAZE_LAYOUT.length;
   const [completedLevels, setCompletedLevels] = useState<Set<number>>(new Set());
 
+  const enemyPositions = currentLevel.enemies?.map(enemy => ({
+    id: enemy.id,
+    x: enemy.path[0].x * CELL_SIZE + CELL_SIZE / 2,
+    y: enemy.path[0].y * CELL_SIZE + CELL_SIZE / 2
+  })) || [];
+
   useEffect(() => {
     const loadData = async () => {
       const normalTop = await ScoreManager.getTopCompletions(currentLevelId, 10, 'normal');
@@ -119,6 +125,37 @@ const previousLevel = () => {
             snackCell={SNACK_CELL}
             eatenSnacks={eatenSnacks}
           />
+
+          {/* ENEMIES */}
+          {currentLevel.enemies?.map(enemy => (
+            <View
+              key={enemy.id}
+              style={{
+                position: 'absolute',
+                left: enemy.path[0].x * CELL_SIZE + CELL_SIZE / 2 - BALL_SIZE / 2,
+                top: enemy.path[0].y * CELL_SIZE + CELL_SIZE / 2 - BALL_SIZE / 2,
+                width: BALL_SIZE,
+                height: BALL_SIZE,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Text style={{ fontSize: 16 }}>{currentPet.enemyEmoji || getDefaultPet().enemyEmoji}</Text>
+            </View>
+          ))}
+
+          {/* PET BALL */}
+          <View
+            style={[
+              styles.ball,
+              {
+                left: currentLevel.startPosition.x * CELL_SIZE + CELL_SIZE / 2 - BALL_SIZE / 2,
+                top: currentLevel.startPosition.y * CELL_SIZE + CELL_SIZE / 2 - BALL_SIZE / 2,
+              }
+            ]}
+          >
+            <Text style={styles.animalEmoji}>{currentPet.emoji || getDefaultPet().emoji} </Text>
+          </View>
 
           {!completedLevels.has(currentLevelId) && currentLevelId > 1 && (
             <BlurView intensity={70} tint="dark" style={StyleSheet.absoluteFill}>
@@ -317,5 +354,25 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     textAlign: 'center',
+  },
+  ball: {
+    width: BALL_SIZE,
+    height: BALL_SIZE,
+    borderRadius: BALL_SIZE / 2,
+    backgroundColor: '#fff56bff',
+    position: 'absolute',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  animalEmoji: {
+    fontSize: 14,
   },
 });
