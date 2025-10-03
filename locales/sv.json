@@ -31,6 +31,15 @@
   "nameYourPet": "Namnge ditt husdjur",
   "abortNamingPetButton": "Avbryt"
 },
+"statistics": {
+  "noResults": "Inga resultat ännu",
+  "notCompletedMaze": "Du har inte klarat denna labyrint ännu!",
+  "nextButtonText": "Nästa",
+  "previousButtonText": "Förra",
+  "top10NormalLabel":"Topp 10 - Normal",
+  "top10ChaosLabel":"Topp 10 - Kaos",
+  "goBackButton": "TILLBAKA"
+},
 "game": {
   "title": "Rädda {{petName}}!",
   "attempts": "Försök",

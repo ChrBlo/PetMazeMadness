@@ -30,7 +30,16 @@
     "savePetAndNameSelctionButtons": "Save",
     "nameYourPet": "Name your pet",
     "abortNamingPetButton": "Cancel"
-},
+  },
+  "statistics": {
+    "noResults": "There are no results yet",
+    "notCompletedMaze": "You have not completed this maze yet!",
+    "nextButtonText": "Next",
+    "previousButtonText": "Previous",
+    "top10NormalLabel":"Top 10 - Normal",
+    "top10ChaosLabel":"Top 10 - Chaos",
+    "goBackButton": "GO BACK"
+  },
   "game": {
     "title": "Save {{petName}}!",
     "attempts": "Attempts",

@@ -25,7 +25,7 @@ export interface Enemy {
 export const MAZE_LEVELS: MazeLevel[] = [
   {
     id: 1,
-    name: "Bana 1",
+    name: "1",
     timeLimit: 5000,
     layout: [
       [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],

@@ -1,6 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { BlurView } from 'expo-blur';
 import { useEffect, useState } from "react";
+import { useTranslation } from 'react-i18next';
 import { FlatList, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { GradientButton } from "../../components/gradient-button";
 import { MazeRenderer } from "../../components/maze-renderer";
@@ -21,6 +22,8 @@ const MAZE_SIZE = 300;
 const BALL_SIZE = 20;
 
 export default function MazeStatisticsScreen({ route, navigation }: GameStatsScreenProps) {
+  const { t } = useTranslation();
+
   const eatenSnacks = new Set<string>();
   const currentPet = route.params?.currentPet || getDefaultPet();
   const levelId = route.params?.levelId || 1;
@@ -80,7 +83,7 @@ export default function MazeStatisticsScreen({ route, navigation }: GameStatsScr
           scrollEnabled={false}
         />
       ) : (
-        <Text style={styles.noResults}>Inga resultat än</Text>
+        <Text style={styles.noResults}>{t('statistics.noResults')}</Text>
       )}
     </View>
   );
@@ -165,7 +168,7 @@ const previousLevel = () => {
             <BlurView intensity={60} tint="dark" style={[StyleSheet.absoluteFill, {zIndex:20}]}>
               <View style={styles.lockedOverlay}>
                 <Text style={styles.lockedText}>
-                  Du har inte klarat denna labyrint ännu!
+                  {t('statistics.notCompletedMaze')}
                 </Text>
               </View>
             </BlurView>
@@ -180,7 +183,7 @@ const previousLevel = () => {
           disabled={currentLevelId <= 1}
           >
           <Text style={styles.levelButtonText}>
-            <Ionicons name="arrow-back" size={18} color="white" />  Förra
+            <Ionicons name="arrow-back" size={18} color="white" />  {t('statistics.previousButtonText')}
           </Text>
         </TouchableOpacity>
 
@@ -192,21 +195,24 @@ const previousLevel = () => {
           disabled={currentLevelId >= maxLevel}
           >
           <Text style={styles.levelButtonText}>
-            Nästa  <Ionicons name="arrow-forward" size={18} color="white"/>
+            {t('statistics.nextButtonText')}  <Ionicons name="arrow-forward" size={18} color="white"/>
           </Text>
         </TouchableOpacity>
       </View>
       
       <View style={styles.buttonContainer}>
         <GradientButton
-          title="TILLBAKA"
+          titleKey="statistics.goBackButton"
           onPress={() => navigation.goBack()}
           theme="green"
           style={styles.goToGameButton}
           textStyle={styles.goToStartMenuText}
           />
       </View>
-          
+      
+      {/* TODO FIXA DE HÄR */}
+      {/* {t('statistics.top10NormalLabel')}
+      {t('statistics.top10ChaosLabel')} */}
       {renderLeaderboard(normalResults, "Topp 10 - Normal", currentGyroMode === GyroMode.NORMAL)}
       {renderLeaderboard(chaosResults, "Topp 10 - Kaos", currentGyroMode === GyroMode.CHAOS)}
       
