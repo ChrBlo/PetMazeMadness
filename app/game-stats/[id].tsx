@@ -116,7 +116,7 @@ const previousLevel = () => {
       showsVerticalScrollIndicator={true}
     >
       <View style={styles.level}>
-        <Text style={styles.levelText}>{currentLevel.name}</Text>
+        <Text style={styles.levelText}>{t('statistics.level')}{currentLevel.name}</Text>
       </View>
             
       <View style={styles.gameContainer}>
@@ -210,12 +210,9 @@ const previousLevel = () => {
           />
       </View>
       
-      {/* TODO FIXA DE HÄR */}
-      {/* {t('statistics.top10NormalLabel')}
-      {t('statistics.top10ChaosLabel')} */}
-      {renderLeaderboard(normalResults, "Topp 10 - Normal", currentGyroMode === GyroMode.NORMAL)}
-      {renderLeaderboard(chaosResults, "Topp 10 - Kaos", currentGyroMode === GyroMode.CHAOS)}
-      
+      {renderLeaderboard(normalResults, t('statistics.top10NormalLabel'),  currentGyroMode === GyroMode.NORMAL)}
+      {renderLeaderboard(chaosResults,  t('statistics.top10ChaosLabel'),  currentGyroMode === GyroMode.CHAOS)}
+
     </ScrollView>
   );
 }

@@ -23,6 +23,7 @@ import { CRUDManager } from "../../utils/CRUD-manager";
 import { findNearestSafeCell, getMazeCell, getPosition } from "../../utils/game-helpers";
 import { LevelStars, ScoreManager } from '../../utils/score-manager';
 import { GameScreenProps } from "../root-layout";
+import { useTranslation } from 'react-i18next';
 
 const MAZE_SIZE = 300;
 const BALL_SIZE = 20;
@@ -39,6 +40,8 @@ const snackSound = require('../../assets/sounds/snackSound1.mp3');
 const spawnSound = require('../../assets/sounds/plop.mp3');
 
 export default function GameScreen({ route, navigation }: GameScreenProps) {
+  const { t } = useTranslation();
+
   // JOTAI STATE HANDLING
   const [isGameWon] = useAtom(isGameWonAtom);
   const [isDead] = useAtom(isDeadAtom);
@@ -349,13 +352,12 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
             setChaosModeCompleted(hasKaosComplete);
           });
   
-          if (isLastLevel)
-          {
+          if (isLastLevel) {
             Alert.alert(
-              'Bra jobbat!',
-              `Du har räddat ${petName} från ALLA faror! \nMen har du samlat alla stjärnor? ⭐`,
+              t('gameAlerts.mazeCompleteTitle'),
+              t('gameAlerts.gameCompleteMessage', { petName: petName }),
               [{
-                text: 'Till bana 1',
+                text: t('gameAlerts.gameCompleteButtonText'),
                 onPress: () => {
                   resetGameState();
                   resetTimer();
@@ -373,19 +375,28 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
               }]
             );
           }
-          else if (result?.isNewRecord)
-          {
-            Alert.alert('Bra jobbat!', `⭐ NYTT REKORD: ${formatTime(completionTime)}! ⭐`, [
-              { text: 'Stanna kvar', style: 'cancel' },
-              { text: 'Nästa bana', onPress: nextLevel }
-            ]);
+
+          else if (result?.isNewRecord) {
+            const formattedTime = formatTime(completionTime);
+            Alert.alert(
+              t('gameAlerts.mazeCompleteTitle'),
+              t('gameAlerts.mazeCompleteNewRecordMessage', { time: formattedTime }),
+              [
+                { text: t('gameAlerts.mazeCompleteButtonCancel'), style: 'cancel' },
+                { text: t('gameAlerts.mazeCompleteButtonText'), onPress: nextLevel }
+              ]
+            );
           }
           else
           {
-            Alert.alert('Bra jobbat!', `${petName} flydde! 🌈❤️`, [
-              { text: 'Stanna kvar', style: 'cancel' },
-              { text: 'Nästa bana', onPress: nextLevel }
-            ]);
+            Alert.alert(
+              t('gameAlerts.mazeCompleteTitle'),
+              t('gameAlerts.mazeCompleteMessage', { petName: petName }),
+              [
+                { text: t('gameAlerts.mazeCompleteButtonCancel'), style: 'cancel' },
+                { text: t('gameAlerts.mazeCompleteButtonText'), onPress: nextLevel }
+              ]
+            );
           }
       
           setVictoryData(null);
@@ -553,13 +564,13 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
     return ScoreManager.countEarnedStars(levelStarsData);
   }, [levelStarsData]);
 
-  const formatTime = (timeMs: number) => `${(timeMs / 1000).toFixed(2)}s`;
+  const formatTime = (timeMs: number) => `${(timeMs / 1000).toFixed(2)}${t('game.gameTimeUnit')}`;
 
   const getButtonTitle = () => {
-    if (isRespawning) return "Fortsätt";
-    if (isDead) return "Starta om";
-    if (isCountdownComplete) return "Starta om";
-    return "REDO!";
+    if (isRespawning) return t('game.gameButtonContinue');
+    if (isDead) return t('game.gameButtonRestart');
+    if (isCountdownComplete) return t('game.gameButtonRestart');
+    return t('game.gameButtonReady');
   };
 
   return (
@@ -576,7 +587,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
       <View style={styles.headerContent}>
         {!normalModeCompleted && !chaosModeCompleted && earnedStars === 0 ? (
           <View style={styles.titleContainer}>
-            <Text style={styles.title}>Rädda {petName}!</Text>
+              <Text style={styles.title}>{t('game.mazeFirstTryTitle', { petName: petName })}</Text>
             <Text style={styles.titleEmoji}> {selectedPet.emoji}</Text>
           </View>
           ) : (
@@ -590,12 +601,12 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
       
       </View>
         <View style={styles.level}>
-        <Text style={styles.levelText}>{currentLevel.name}</Text>
+        <Text style={styles.levelText}>{t('game.level')}{currentLevel.name}</Text>
       </View>
       
       <View style={styles.stats}>
         <Text style={styles.statsText}>
-          Försök: {levelStats?.totalAttempts || 0}
+          {t('game.tryCount')}{levelStats?.totalAttempts || 0}
         </Text>
         <View style={styles.separator} />
         <Text style={styles.statsText}>
@@ -667,12 +678,12 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
       </View>
       <View style={styles.gameTimer}>
         <Text style={styles.gameTimerText}>
-          Tid: {`${(gameTime / 1000).toFixed(2)}s`}
+          {t('game.time')}{`${(gameTime / 1000).toFixed(2)}${t('game.gameTimeUnit')}`}
         </Text>
         <View style={styles.separator} />
         {levelStats?.bestTime && (
           <Text style={styles.gameTimerText}>
-            Bästa tid: {formatTime(levelStats.bestTime)}
+            {t('game.bestTime')}{formatTime(levelStats.bestTime)}
           </Text>
         )}
       </View>
@@ -680,7 +691,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
       {/* BUTTONS */}
       <View style={styles.controls}>
         <GradientButton 
-          title="Till menyn" 
+          titleKey="game.gameButtonToMenu"
           onPress={() => navigation.goBack()} 
           theme="darkBlue" 
           style={styles.goBackButton}
@@ -704,7 +715,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
           disabled={currentLevelId === 1 && !completedLevels.has(MAZE_LEVELS.length)}
         >
           <Text style={styles.levelButtonText}>
-            <Ionicons name="arrow-back" size={18} color="white" />  Förra
+            <Ionicons name="arrow-back" size={18} color="white" />  {t('game.previousButtonText')}
           </Text>
         </TouchableOpacity>
 
@@ -726,7 +737,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
           disabled={!completedLevels.has(currentLevelId) && currentLevelId < MAZE_LEVELS.length}
         >
           <Text style={styles.levelButtonText}>
-            Nästa  <Ionicons name="arrow-forward" size={18} color="white"/>
+            {t('game.nextButtonText')}  <Ionicons name="arrow-forward" size={18} color="white"/>
           </Text>
         </TouchableOpacity>
       </View>

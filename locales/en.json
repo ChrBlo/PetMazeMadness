@@ -35,27 +35,37 @@
     "noResults": "There are no results yet",
     "notCompletedMaze": "You have not completed this maze yet!",
     "nextButtonText": "Next",
+    "level": "Level ",
     "previousButtonText": "Previous",
     "top10NormalLabel":"Top 10 - Normal",
     "top10ChaosLabel":"Top 10 - Chaos",
     "goBackButton": "GO BACK"
   },
+  "gameAlerts": {
+    "mazeCompleteTitle": "Well done!",
+    "mazeCompleteMessage": "{{petName}} escaped! 🌈❤️",
+    "mazeCompleteButtonCancel": "Stay here",
+    "mazeCompleteButtonText": "Next level",
+    "mazeCompleteNewRecordMessage": "⭐ NEW RECORD: {{time}}! ⭐",
+    "gameCompleteMessage": "You saved {{petName}} from all dangers! \nBut did you collect all stars? ⭐",
+    "gameCompleteButtonText": "To level 1"
+  },
   "game": {
-    "title": "Save {{petName}}!",
-    "attempts": "Attempts",
-    "bestTime": "Best time",
-    "time": "Time",
-    "continue": "Continue",
-    "restart": "Restart",
-    "ready": "READY!",
-    "toMenu": "To menu",
-    "nextLevel": "Next",
-    "prevLevel": "Previous",
-    "congrats": "Well done!",
-    "recordMessage": "⭐ NEW RECORD: {{time}}! ⭐",
-    "petEscaped": "{{petName}} escaped! 🌈❤️",
-    "stayHere": "Stay here",
-    "allLevelsComplete": "You saved {{petName}} from ALL dangers!\nBut have you collected all stars? ⭐",
-    "toLevel1": "To level 1"
+    "level": "Level ",
+    "gameTimeUnit": "s",
+    "gameButtonContinue": "Continue",
+    "gameButtonRestart": "Restart",
+    "gameButtonReady": "READY!",
+    "mazeFirstTryTitle": "Save {{petName}}!",
+    "tryCount": "Try count: ",
+    "time": "Time: ",
+    "bestTime": "Best time: ",
+    "gameButtonToMenu": "To menu",
+    "nextButtonText": "Next",
+    "previousButtonText": "Prev."
+  },
+  "BadgeDisplayComponent": {
+    "normalBadgeText": "Normal",
+    "chaosBadgeText": "Chaos"
   }
 }

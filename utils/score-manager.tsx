@@ -228,7 +228,7 @@ export class ScoreManager {
     return Object.values(stars).filter(Boolean).length;
   }
   
-  //TODO Ta bort den här innan inlämning!
+  // RENSAR SIMPLE STORAGE
   static async clearAllData(): Promise<void> {
     try {
       // Get all keys first

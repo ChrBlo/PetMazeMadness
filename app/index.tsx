@@ -25,7 +25,7 @@ export default function StartScreen({ route, navigation }: StartScreenProps) {
   const [currentLevel, setCurrentLevel] = useState(1);
   const [invertedGameControls, setInvertedGameControls] = useState(false);
 
-  // TODO TA BORT INNAN INLÄMNING, ENBART FÖR ATT RENSA SIMPLE-STORAGE
+  // TA FRAM FÖR ATT RENSA SIMPLE STORAGE
   // useEffect(() => {
   //   const clearData = async () => {
   //     await ScoreManager.clearAllData();

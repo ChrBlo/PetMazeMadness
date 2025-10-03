@@ -1,6 +1,7 @@
 import { Image } from 'expo-image';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 interface LevelStarsDisplayProps {
   earnedStars: number;
@@ -9,6 +10,8 @@ interface LevelStarsDisplayProps {
 }
 
 export function LevelStarsAndBadgeDisplay({ earnedStars, normalModeCompleted, chaosModeCompleted }: LevelStarsDisplayProps) {
+  const { t } = useTranslation();
+  
   return (
     <>
       {/* Stars Row */}
@@ -40,7 +43,7 @@ export function LevelStarsAndBadgeDisplay({ earnedStars, normalModeCompleted, ch
       {/* Badges Row */}
       <View style={styles.badgesRow}>
         <View style={styles.modeBadge}>
-          <Text style={styles.badgeText}>Normal</Text>
+          <Text style={styles.badgeText}>{t('BadgeDisplayComponent.normalBadgeText')}</Text>
           <Image 
             style={styles.badge} 
             source={normalModeCompleted 
@@ -51,7 +54,7 @@ export function LevelStarsAndBadgeDisplay({ earnedStars, normalModeCompleted, ch
         </View>
         
         <View style={styles.modeBadge}>
-          <Text style={styles.badgeText}>Kaos</Text>
+          <Text style={styles.badgeText}>{t('BadgeDisplayComponent.chaosBadgeText')}</Text>
           <Image 
             style={styles.badge} 
             source={chaosModeCompleted 

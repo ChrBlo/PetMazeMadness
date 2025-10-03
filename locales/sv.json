@@ -1,61 +1,71 @@
 {
-"start":{
-  "description": "Hjälp {{petEmoji}} ur labyrinten!",
-  "instructions": "Luta din telefon i alla riktningar för att guida ditt husdjur mot friheten!",
-  "settingsButtonLabel": "INSTÄLLNINGAR",
-  "starButtonLabel": "STARTA",
-  "loadingText":"Laddar spel..."
-},
-"weatherAlert": {
-  "title": "Det är fint väder ute!",
-  "message": "Ut och lek med dig istället!",
-  "buttonText": "OK, du har rätt!"
-},
-"settings":{
-  "screenTitle": "Inställningar",
-  "weaterLabel": "Väder",
-  "selectPetLabel": "Husdjur",
-  "gameControlsLabel": "Spelstyrning",
-  "invertControlsLabel": "Invertera spelstyrning",
-  "weaterSwitchText": "Blockera spel vid fint väder",
-  "selectPet": "Välj husdjur",
-  "name": "Namn",
-  "gyroMode": "Gyro-läge",
-  "gyroModeNormal": "Normal",
-  "gyroModeChaos": "Kaos",
-  "invert":"Invertera",
-  "saveButtonText": "SPARA",
-  "selectYourPet": "Välj ditt husdjur",
-  "enemy": "Enemy: ",
-  "savePetAndNameSelctionButtons": "Spara",
-  "nameYourPet": "Namnge ditt husdjur",
-  "abortNamingPetButton": "Avbryt"
-},
-"statistics": {
-  "noResults": "Inga resultat ännu",
-  "notCompletedMaze": "Du har inte klarat denna labyrint ännu!",
-  "nextButtonText": "Nästa",
-  "previousButtonText": "Förra",
-  "top10NormalLabel":"Topp 10 - Normal",
-  "top10ChaosLabel":"Topp 10 - Kaos",
-  "goBackButton": "TILLBAKA"
-},
-"game": {
-  "title": "Rädda {{petName}}!",
-  "attempts": "Försök",
-  "bestTime": "Bästa tid",
-  "time": "Tid",
-  "continue": "Fortsätt",
-  "restart": "Starta om",
-  "ready": "REDO!",
-  "toMenu": "Till menyn",
-  "nextLevel": "Nästa",
-  "prevLevel": "Förra",
-  "congrats": "Bra jobbat!",
-  "recordMessage": "⭐ NYTT REKORD: {{time}}! ⭐",
-  "petEscaped": "{{petName}} flydde! 🌈❤️",
-  "stayHere": "Stanna kvar",
-  "allLevelsComplete": "Du har räddat {{petName}} från ALLA faror!\nMen har du samlat alla stjärnor? ⭐",
-  "toLevel1": "Till bana 1"
+  "start":{
+    "description": "Hjälp {{petEmoji}} ur labyrinten!",
+    "instructions": "Luta din telefon i alla riktningar för att guida ditt husdjur mot friheten!",
+    "settingsButtonLabel": "INSTÄLLNINGAR",
+    "starButtonLabel": "STARTA",
+    "loadingText":"Laddar spel..."
+  },
+  "weatherAlert": {
+    "title": "Det är fint väder ute!",
+    "message": "Ut och lek med dig istället!",
+    "buttonText": "OK, du har rätt!"
+  },
+  "settings":{
+    "screenTitle": "Inställningar",
+    "weaterLabel": "Väder",
+    "selectPetLabel": "Husdjur",
+    "gameControlsLabel": "Spelstyrning",
+    "invertControlsLabel": "Invertera spelstyrning",
+    "weaterSwitchText": "Blockera spel vid fint väder",
+    "selectPet": "Välj husdjur",
+    "name": "Namn",
+    "gyroMode": "Gyro-läge",
+    "gyroModeNormal": "Normal",
+    "gyroModeChaos": "Kaos",
+    "invert":"Invertera",
+    "saveButtonText": "SPARA",
+    "selectYourPet": "Välj ditt husdjur",
+    "enemy": "Enemy: ",
+    "savePetAndNameSelctionButtons": "Spara",
+    "nameYourPet": "Namnge ditt husdjur",
+    "abortNamingPetButton": "Avbryt"
+  },
+  "statistics": {
+    "noResults": "Inga resultat ännu",
+    "notCompletedMaze": "Du har inte klarat denna labyrint ännu!",
+    "nextButtonText": "Nästa",
+    "level": "Bana ",
+    "previousButtonText": "Förra",
+    "top10NormalLabel":"Topp 10 - Normal",
+    "top10ChaosLabel":"Topp 10 - Kaos",
+    "goBackButton": "TILLBAKA"
+  },
+  "gameAlerts": {
+    "mazeCompleteTitle": "Bra jobbat!",
+    "mazeCompleteMessage": "{{petName}} flydde! 🌈❤️",
+    "mazeCompleteButtonCancel": "Stanna kvar",
+    "mazeCompleteButtonText": "Nästa bana",
+    "mazeCompleteNewRecordMessage": "⭐ NYTT REKORD: {{time}}! ⭐",
+    "gameCompleteMessage": "Du har räddat {{petName}} från ALLA faror! \nMen har du samlat alla stjärnor? ⭐",
+    "gameCompleteButtonText": "Till bana 1"
+  },
+  "game": {
+    "level": "Bana ",
+    "gameTimeUnit": "s",
+    "gameButtonContinue": "Fortsätt",
+    "gameButtonRestart": "Starta om",
+    "gameButtonReady": "REDO!",
+    "mazeFirstTryTitle": "Rädda {{petName}}!",
+    "tryCount": "Försök: ",
+    "time": "Tid: ",
+    "bestTime": "Bästa tid: ",
+    "gameButtonToMenu": "Till menyn",
+    "nextButtonText": "Nästa",
+    "previousButtonText": "Förra"
+  },
+    "BadgeDisplayComponent": {
+    "normalBadgeText": "Normal",
+    "chaosBadgeText": "Kaos"
   }
 }
