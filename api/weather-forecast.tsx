@@ -74,7 +74,7 @@ export const WeatherForecaster: React.FC<WeatherForecasterProps> = ({ onWeatherU
       'snow': '❄️',
       'snowshowers_day': '🌨️',
       'thunderstorm': '⛈️',
-      'fog': '🌫️'
+      'fog': '😶‍🌫️'
     };
     
     for (const [key, emoji] of Object.entries(icons))
