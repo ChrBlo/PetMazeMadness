@@ -11,6 +11,26 @@
   "message": "Ut och lek med dig istället!",
   "buttonText": "OK, du har rätt!"
 },
+"settings":{
+  "screenTitle": "Inställningar",
+  "weaterLabel": "Väder",
+  "selectPetLabel": "Husdjur",
+  "gameControlsLabel": "Spelstyrning",
+  "invertControlsLabel": "Invertera spelstyrning",
+  "weaterSwitchText": "Blockera spel vid fint väder",
+  "selectPet": "Välj husdjur",
+  "name": "Namn",
+  "gyroMode": "Gyro-läge",
+  "gyroModeNormal": "Normal",
+  "gyroModeChaos": "Kaos",
+  "invert":"Invertera",
+  "saveButtonText": "SPARA",
+  "selectYourPet": "Välj ditt husdjur",
+  "enemy": "Enemy: ",
+  "savePetAndNameSelctionButtons": "Spara",
+  "nameYourPet": "Namnge ditt husdjur",
+  "abortNamingPetButton": "Avbryt"
+},
 "game": {
   "title": "Rädda {{petName}}!",
   "attempts": "Försök",

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Modal, ScrollView, StyleSheet, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { GradientButton } from '../../components/gradient-button';
 import { getDefaultPet, getPetById, Pet, pets } from '../../data/pets';
@@ -7,7 +8,8 @@ import { CRUDManager } from '../../utils/CRUD-manager';
 import { SettingsScreenProps } from '../root-layout';
 
 export default function SettingsScreen({ route, navigation }: SettingsScreenProps) {
-    
+  const { t } = useTranslation();
+  
   const [selectedGyroMode, setSelectedGyroMode] = useState<GyroMode>(route.params?.gyroMode || GyroMode.NORMAL);
   const [weatherCheckEnabled, setWeatherCheckEnabled] = useState(route.params?.weatherCheckEnabled ?? true);
   const [showPetSelector, setShowPetSelector] = useState(false);
@@ -68,12 +70,12 @@ export default function SettingsScreen({ route, navigation }: SettingsScreenProp
         >
     <View style={styles.container}>
       
-      <Text style={styles.title}>Inställningar</Text>
+        <Text style={styles.title}>{t('settings.screenTitle')}</Text>
     
-      <Text style={styles.settingsLabel}>Väder</Text>
+      <Text style={styles.settingsLabel}>{t('settings.weaterLabel')}</Text>
       <View style={styles.settingRow}>
         <Text style={styles.settingsText}>
-          Blockera spel vid fint väder
+          {t('settings.weaterSwitchText')}
         </Text>
         <Switch
           value={weatherCheckEnabled}
@@ -83,45 +85,45 @@ export default function SettingsScreen({ route, navigation }: SettingsScreenProp
       </View>
 
       <View>
-        <Text style={styles.settingsLabel}>Husdjur</Text>
+        <Text style={styles.settingsLabel}>{t('settings.selectPetLabel')}</Text>
       
         <TouchableOpacity style={styles.settingRow} onPress={() => setShowPetSelector(true)}>
-          <Text style={styles.settingsText}>Välj husdjur</Text>
+          <Text style={styles.settingsText}>{t('settings.selectPet')}</Text>
           <View style={styles.petPreview}>
             <Text style={styles.petEmoji}>{selectedPet.emoji}</Text>
           </View>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.settingRow} onPress={handleNameEdit}>
-          <Text style={styles.settingsText}>Namn</Text>
+          <Text style={styles.settingsText}>{t('settings.name')}</Text>
           <Text style={styles.petNameDisplay}>{selectedPet.name}</Text>
         </TouchableOpacity>
       </View>
 
-      <Text style={styles.settingsLabel}>Spelstyrning</Text>
+      <Text style={styles.settingsLabel}>{t('settings.gameControlsLabel')}</Text>
       <View style={styles.settingRow}>
 
-        <Text style={styles.settingsText}>Gyro-läge</Text>
+        <Text style={styles.settingsText}>{t('settings.gyroMode')}</Text>
         <View style={styles.segmentedControl}>
           <TouchableOpacity
             style={[styles.segment, selectedGyroMode === GyroMode.NORMAL && styles.activeSegment]}
             onPress={() => setSelectedGyroMode(GyroMode.NORMAL)}
           >
-            <Text style={styles.segmentText}>Normal</Text>
+            <Text style={styles.segmentText}>{t('settings.gyroModeNormal')}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.segment, selectedGyroMode === GyroMode.CHAOS && styles.activeSegment]}
             onPress={() => setSelectedGyroMode(GyroMode.CHAOS)}
           >
-            <Text style={styles.segmentText}>Kaos</Text>
+            <Text style={styles.segmentText}>{t('settings.gyroModeChaos')}</Text>
           </TouchableOpacity>
         </View>
       </View>
 
-      <Text style={styles.settingsLabel}>Invertera spelstyrning</Text>
+      <Text style={styles.settingsLabel}>{t('settings.invertControlsLabel')}</Text>
       <View style={styles.settingRow}>
         <Text style={styles.settingsText}>
-          Invertera
+          {t('settings.invert')}
         </Text>
         <Switch
           value={invertedGameControls}
@@ -131,7 +133,7 @@ export default function SettingsScreen({ route, navigation }: SettingsScreenProp
       </View>
 
       <GradientButton
-        title="SPARA"
+        titleKey="settings.saveButtonText"
         onPress={goBack}
         theme="blue"
         style={styles.backButton}
@@ -147,7 +149,7 @@ export default function SettingsScreen({ route, navigation }: SettingsScreenProp
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Välj ditt husdjur</Text>
+            <Text style={styles.modalTitle}>{t('settings.selectYourPet')}</Text>
             <ScrollView style={styles.petGrid}>
               {pets.map((pet) => (
                 <TouchableOpacity
@@ -161,7 +163,7 @@ export default function SettingsScreen({ route, navigation }: SettingsScreenProp
                   <Text style={styles.petOptionEmoji}>{pet.emoji}</Text>
                   <Text style={styles.petOptionName}>{pet.name}</Text>
                   <View style={styles.separator} />
-                  <Text style={styles.petOptionName}>Fiende: </Text>
+                  <Text style={styles.petOptionName}>{t('settings.enemy')}</Text>
                   <Text style={styles.petOptionName}>{pet.enemyEmoji}</Text>
                 </TouchableOpacity>
               ))}
@@ -170,7 +172,7 @@ export default function SettingsScreen({ route, navigation }: SettingsScreenProp
               style={styles.modalCloseButton}
               onPress={() => setShowPetSelector(false)}
             >
-              <Text style={styles.modalCloseText}>Spara</Text>
+              <Text style={styles.modalCloseText}>{t('settings.savePetAndNameSelctionButtons')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -185,7 +187,7 @@ export default function SettingsScreen({ route, navigation }: SettingsScreenProp
       >
         <View style={styles.modalOverlay}>
           <View style={styles.nameModalContent}>
-            <Text style={styles.modalTitle}>Namnge ditt husdjur</Text>
+            <Text style={styles.modalTitle}>{t('settings.nameYourPet')}</Text>
             <Text style={styles.petEmoji}>{selectedPet.emoji}</Text>
             <TextInput
               style={styles.nameInput}
@@ -205,10 +207,10 @@ export default function SettingsScreen({ route, navigation }: SettingsScreenProp
             </TouchableOpacity>
             <View style={styles.nameModalButtons}>
               <TouchableOpacity style={styles.nameButton} onPress={handleNameEditCancel}>
-                <Text style={styles.nameButtonText}>Avbryt</Text>
+                <Text style={styles.nameButtonText}>{t('settings.abortNamingPetButton')}</Text>
               </TouchableOpacity>
               <TouchableOpacity style={[styles.nameButton, styles.saveButton]} onPress={handleNameSave}>
-                <Text style={styles.nameButtonText}>Spara</Text>
+                <Text style={styles.nameButtonText}>{t('settings.savePetAndNameSelctionButtons')}</Text>
               </TouchableOpacity>
             </View>
           </View>

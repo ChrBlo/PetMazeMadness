@@ -11,6 +11,26 @@
     "message": "Go out and play instead!",
     "buttonText": "OK, you're right!"
   },
+  "settings":{
+    "screenTitle": "Settings",
+    "weaterLabel": "Weather",
+    "selectPetLabel": "Pet",
+    "gameControlsLabel": "Game controls",
+    "invertControlsLabel": "Invert game controls",
+    "weaterSwitchText": "Block gameplay if nice weather",
+    "selectPet": "Select pet",
+    "name": "Name",
+    "gyroMode": "Gyro-mode",
+    "gyroModeNormal": "Normal",
+    "gyroModeChaos": "Chaos",
+    "invert":"Invert",
+    "saveButtonText": "SAVE",
+    "selectYourPet": "Select your pet",
+    "enemy": "Enemy: ",
+    "savePetAndNameSelctionButtons": "Save",
+    "nameYourPet": "Name your pet",
+    "abortNamingPetButton": "Cancel"
+},
   "game": {
     "title": "Save {{petName}}!",
     "attempts": "Attempts",
