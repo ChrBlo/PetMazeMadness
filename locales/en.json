@@ -6,18 +6,11 @@
     "starButtonLabel": "START",
     "loadingText":"Loading..."
   },
-  "weatherAlert": {
-    "title": "The weather is nice!",
-    "message": "Go out and play instead!",
-    "buttonText": "OK, you're right!"
-  },
   "settings":{
     "screenTitle": "Settings",
-    "weaterLabel": "Weather",
     "selectPetLabel": "Pet",
     "gameControlsLabel": "Game controls",
     "invertControlsLabel": "Invert game controls",
-    "weaterSwitchText": "Block gameplay if nice weather",
     "selectPet": "Select pet",
     "name": "Name",
     "gyroMode": "Gyro-mode",

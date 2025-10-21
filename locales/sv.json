@@ -6,11 +6,6 @@
     "starButtonLabel": "STARTA",
     "loadingText":"Laddar spel..."
   },
-  "weatherAlert": {
-    "title": "Det är fint väder ute!",
-    "message": "Ut och lek med dig istället!",
-    "buttonText": "OK, du har rätt!"
-  },
   "settings":{
     "screenTitle": "Inställningar",
     "weaterLabel": "Väder",
@@ -26,7 +21,7 @@
     "invert":"Invertera",
     "saveButtonText": "SPARA",
     "selectYourPet": "Välj ditt husdjur",
-    "enemy": "Enemy: ",
+    "enemy": "Fiende: ",
     "savePetAndNameSelctionButtons": "Spara",
     "nameYourPet": "Namnge ditt husdjur",
     "abortNamingPetButton": "Avbryt"
