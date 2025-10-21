@@ -1,6 +1,7 @@
 import { useAudioPlayer } from 'expo-audio';
 import React, { useEffect, useRef } from 'react';
 import { Animated, StyleSheet, Text, View } from 'react-native';
+import { typography } from '../utils/typography';
 
 interface CountdownOverlayProps {
   isVisible: boolean;
@@ -95,7 +96,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   countdownText: {
-    fontSize: 120,
+    fontSize: typography.huge,
     fontWeight: 'bold',
     color: '#fff',
     textShadowColor: 'rgba(0, 0, 0, 0.5)',

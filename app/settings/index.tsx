@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Modal, ScrollView, StyleSheet, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { GradientButton } from '../../components/gradient-button';
+import PetImage from '../../components/pet-image';
 import { getDefaultPet, getPetById, Pet, pets } from '../../data/pets';
 import { GyroMode } from '../../hooks/useGameSensors';
 import { CRUDManager } from '../../utils/CRUD-manager';
+import { typography } from '../../utils/typography';
 import { SettingsScreenProps } from '../root-layout';
-import PetImage from '../../components/pet-image';
 
 export default function SettingsScreen({ route, navigation }: SettingsScreenProps) {
   const { t } = useTranslation();
@@ -222,14 +223,14 @@ const styles = StyleSheet.create({
     paddingTop: 30,
   },
   title: {
-    fontSize: 24,
+    fontSize: typography.h3,
     fontWeight: 'bold',
     color: '#eee',
     marginTop: 30,
     textAlign: 'center',
   },
   settingsLabel: {
-    fontSize: 18,
+    fontSize: typography.h5,
     fontWeight: 'bold',
     color: '#5ccf9fff',
     marginTop: 35,
@@ -238,13 +239,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    fontSize: 16,
+    fontSize: typography.body,
     color: '#eee',
     marginTop: 5,
     marginBottom: 10,
   },
   settingsText: {
-    fontSize: 16,
+    fontSize: typography.body,
     color: '#eee',
   },
   petPreview: {
@@ -252,11 +253,8 @@ const styles = StyleSheet.create({
     padding: 6,
     borderRadius: 6,
   },
-  // petEmoji: {
-  //   fontSize: 24,
-  // },
   petNameDisplay: {
-    fontSize: 16,
+    fontSize: typography.body,
     color: '#5ccf9fff',
     fontWeight: 'bold',
   },
@@ -269,7 +267,7 @@ const styles = StyleSheet.create({
   backButtonText: {
     textAlign: 'center',
     color: '#ffffffff',
-    fontSize: 20,
+    fontSize: typography.h4,
     fontWeight: 'bold',
   },
   modalOverlay: {
@@ -287,7 +285,7 @@ const styles = StyleSheet.create({
     marginBottom: 140,
   },
   modalTitle: {
-    fontSize: 20,
+    fontSize: typography.h4,
     fontWeight: 'bold',
     color: '#eee',
     textAlign: 'center',
@@ -308,12 +306,8 @@ const styles = StyleSheet.create({
   selectedPetOption: {
     backgroundColor: '#5da6d6ff',
   },
-  // petOptionEmoji: {
-  //   fontSize: 24,
-  //   marginRight: 15,
-  // },
   petOptionName: {
-    fontSize: 16,
+    fontSize: typography.body,
     color: '#eee',
     fontWeight: 'bold',
   },
@@ -326,7 +320,7 @@ const styles = StyleSheet.create({
   modalCloseText: {
     color: 'white',
     textAlign: 'center',
-    fontSize: 16,
+    fontSize: typography.body,
     fontWeight: 'bold',
   },
   nameModalContent: {
@@ -340,7 +334,7 @@ const styles = StyleSheet.create({
   nameInput: {
     backgroundColor: '#666',
     color: '#eee',
-    fontSize: 18,
+    fontSize: typography.h5,
     padding: 15,
     borderRadius: 8,
     width: '100%',
@@ -362,7 +356,7 @@ const styles = StyleSheet.create({
   },
   nameButtonText: {
     color: 'white',
-    fontSize: 16,
+    fontSize: typography.body,
     fontWeight: 'bold',
   },
   clearButton: {
@@ -379,7 +373,7 @@ const styles = StyleSheet.create({
   },
   clearButtonText: {
     color: '#eee',
-    fontSize: 14,
+    fontSize: typography.small,
     fontWeight: 'bold',
   },
   segmentedControl: {
@@ -397,7 +391,7 @@ const styles = StyleSheet.create({
   },
   segmentText: {
     color: 'white',
-    fontSize: 14,
+    fontSize: typography.small,
     fontWeight: 'bold',
   },
   separator: {

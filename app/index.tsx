@@ -1,15 +1,16 @@
 import { useFocusEffect } from "@react-navigation/native";
 import { Image } from 'expo-image';
 import React, { useCallback, useEffect, useState } from "react";
-import { ActivityIndicator, Alert, StatusBar, StyleSheet, Text, View } from "react-native";
+import { useTranslation } from 'react-i18next';
+import { ActivityIndicator, StatusBar, StyleSheet, Text, View } from "react-native";
 import { GradientButton } from "../components/gradient-button";
+import { LanguageSwitcher } from '../components/language-switcher';
 import { getDefaultPet } from '../data/pets';
 import { GyroMode } from '../hooks/useGameSensors';
 import { CRUDManager } from "../utils/CRUD-manager";
 import { ScoreManager } from "../utils/score-manager";
+import { typography } from "../utils/typography";
 import { StartScreenProps } from './root-layout';
-import { useTranslation } from 'react-i18next';
-import { LanguageSwitcher } from '../components/language-switcher';
 
 export default function StartScreen({ route, navigation }: StartScreenProps) {
   const { t } = useTranslation();
@@ -145,19 +146,19 @@ const styles = StyleSheet.create({
   },
   title: {
     color: '#fcfcfc',
-    fontSize: 32,
+    fontSize: typography.h1,
     fontWeight: 'bold',
     marginBottom: 60,
     textAlign: 'center',
   },
   description: {
     color: '#fcfcfc',
-    fontSize: 22,
+    fontSize: typography.h35,
     marginBottom: 20,
     textAlign: 'center',
   },
   instructions: {
-    fontSize: 18,
+    fontSize: typography.h5,
     color: '#919191ff',
     textAlign: 'center',
     marginBottom: 30,
@@ -171,7 +172,7 @@ const styles = StyleSheet.create({
   },
   startButtonText: {
     color: '#ffffffff',
-    fontSize: 26,
+    fontSize: typography.h2,
     fontWeight: 'bold',
     textAlign: 'center',
   },
@@ -182,7 +183,7 @@ const styles = StyleSheet.create({
   },
   settingsButtonText: {
     color: '#ffffffff',
-    fontSize: 20,
+    fontSize: typography.h4,
     fontWeight: 'bold',
     textAlign: 'center',
   },
@@ -195,7 +196,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     color: '#fcfcfc',
-    fontSize: 16,
+    fontSize: typography.body,
     marginTop: 8,
     marginBottom: 10,
   },

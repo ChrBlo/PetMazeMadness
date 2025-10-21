@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { typography } from '../utils/typography';
 
 export function LanguageSwitcher() {
 
@@ -28,6 +29,6 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   flag: {
-    fontSize: 35,
+    fontSize: typography.h1,
   }
 });

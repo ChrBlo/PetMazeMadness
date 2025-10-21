@@ -11,6 +11,7 @@ import { getDefaultPet } from '../../data/pets';
 import { GyroMode } from "../../hooks/useGameSensors";
 import { formatTime } from "../../utils/game-helpers";
 import { CompletionRecord, ScoreManager } from "../../utils/score-manager";
+import { typography } from "../../utils/typography";
 import { GameStatsScreenProps } from "../root-layout";
 
 const WALL_CELL = 1;
@@ -233,7 +234,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   levelText: {
-    fontSize: 24,
+    fontSize: typography.h3,
     fontWeight: 'bold',
     color: '#eee',
   },
@@ -255,7 +256,7 @@ const styles = StyleSheet.create({
   },
   goToStartMenuText: {
     color: '#ffffffff',
-    fontSize: 20,
+    fontSize: typography.h4,
     fontWeight: 'bold',
     textAlign: 'center',
   },
@@ -267,7 +268,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   leaderboardTitle: {
-    fontSize: 18,
+    fontSize: typography.h5,
     fontWeight: 'bold',
     color: '#5da6d6ff',
     textAlign: 'center',
@@ -285,18 +286,18 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   rank: {
-    fontSize: 16,
+    fontSize: typography.body,
     fontWeight: 'bold',
     color: '#5da6d6ff',
     width: 30,
   },
   petInfo: {
-    fontSize: 14,
+    fontSize: typography.small,
     color: '#eee',
     flex: 1,
   },
   time: {
-    fontSize: 14,
+    fontSize: typography.small,
     fontWeight: 'bold',
     color: '#5da6d6ff',
   },
@@ -313,7 +314,7 @@ const styles = StyleSheet.create({
     color: '#5ccf9fff',
   },
   extraLives: {
-    fontSize: 12,
+    fontSize: typography.tiny,
     color: '#ff6b6b',
     fontWeight: 'bold',
     width: 40,
@@ -337,7 +338,7 @@ const styles = StyleSheet.create({
   },
   levelButtonText: {
     color: 'white',
-    fontSize: 14,
+    fontSize: typography.small,
     fontWeight: 'bold',
   },
   disabledButton: {
@@ -359,7 +360,7 @@ const styles = StyleSheet.create({
   },
   lockedText: {
     color: '#fff',
-    fontSize: 20,
+    fontSize: typography.h4,
     fontWeight: 'bold',
     textAlign: 'center',
   },

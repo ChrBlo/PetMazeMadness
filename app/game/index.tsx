@@ -7,7 +7,7 @@ import { useAtom, useSetAtom } from 'jotai';
 import LottieView from "lottie-react-native";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from 'react-i18next';
-import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Alert, Dimensions, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { isDeadAtom, isGameWonAtom, recordDeathAtom, recordWinAtom, resetGameStateAtom } from '../../atoms/gameAtoms';
 import { CountdownAnimation } from '../../components/countdown-animation';
 import { GradientButton } from "../../components/gradient-button";
@@ -25,8 +25,8 @@ import { useRespawnLogic } from "../../hooks/useRespawnLogic";
 import { CRUDManager } from "../../utils/CRUD-manager";
 import { findNearestSafeCell, getMazeCell, getPosition } from "../../utils/game-helpers";
 import { LevelStars, ScoreManager } from '../../utils/score-manager';
+import { typography } from "../../utils/typography";
 import { GameScreenProps } from "../root-layout";
-import { Dimensions } from 'react-native';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
@@ -871,7 +871,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    fontSize: 24,
+    fontSize: typography.h3,
     fontWeight: 'bold',
     color: '#eee',
     textAlign: 'center',
@@ -914,7 +914,7 @@ const styles = StyleSheet.create({
     zIndex: 1000,
   },
   explosionText: {
-    fontSize: 28,
+    fontSize: typography.h2,
   },
   controls: {
     marginTop: 5,
@@ -932,7 +932,7 @@ const styles = StyleSheet.create({
   },
   playButtonText: {
     color: 'white',
-    fontSize: 18,
+    fontSize: typography.h5,
     fontWeight: 'bold',
   },
   goBackButton: {
@@ -945,7 +945,7 @@ const styles = StyleSheet.create({
   },
   goBackButtonText: {
     color: 'white',
-    fontSize: 18,
+    fontSize: typography.h5,
     fontWeight: 'bold',
   },
   stats: {
@@ -955,7 +955,7 @@ const styles = StyleSheet.create({
     width: '76%',
   },
   statsText: {
-    fontSize: 16,
+    fontSize: typography.body,
     color: '#bbb',
     fontWeight: 'bold',
     textAlign: 'center',
@@ -968,7 +968,7 @@ const styles = StyleSheet.create({
     width: '76%',
   },
   gameTimerText: {
-    fontSize: 16,
+    fontSize: typography.body,
     color: '#bbb',
     fontWeight: 'bold',
     textAlign: 'center',
@@ -985,7 +985,7 @@ const styles = StyleSheet.create({
   },
   levelButtonText: {
     color: 'white',
-    fontSize: 14,
+    fontSize: typography.small,
     fontWeight: 'bold',
   },
   disabledButton: {
@@ -997,7 +997,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   levelText: {
-    fontSize: 24,
+    fontSize: typography.h3,
     fontWeight: 'bold',
     color: '#eee',
     marginBottom: -25,

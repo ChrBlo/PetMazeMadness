@@ -1,7 +1,8 @@
 import { Image } from 'expo-image';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { StyleSheet, Text, View } from 'react-native';
+import { typography } from '../utils/typography';
 
 interface LevelStarsDisplayProps {
   earnedStars: number;
@@ -93,7 +94,7 @@ const styles = StyleSheet.create({
     height: 32,
   },
   badgeText: {
-    fontSize: 16,
+    fontSize: typography.body,
     color: '#bbb',
     fontWeight: 'bold',
     textAlign: 'center',
