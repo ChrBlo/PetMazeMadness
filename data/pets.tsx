@@ -1,73 +1,67 @@
+import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
+import { ImageSourcePropType } from 'react-native';
+
 export interface Pet {
   id: string;
-  emoji: string;
+  emoji: ImageSourcePropType;
   name: string;
-  enemyEmoji?: string;
+  enemyEmoji: ImageSourcePropType;
 }
 
-export const DEATH_EMOJI = '💀';
+// export const DEATH_EMOJI = '💀';
+export const DeathIcon = ({ size = 24, color = 'black' }) => (
+  <FontAwesome6 name="skull" size={size} color={color} />
+);
 
 export const pets: Pet[] = [
   {
     id: 'hamster',
-    emoji: '🐹',
+    emoji: require('../assets/images/pets/pet_hamster.png'),
     name: 'Fjutten',
-    enemyEmoji: '🐈'
+    enemyEmoji: require('../assets/images/enemies/enemy_cat.png')
   },
-  {
-    id: 'mouse',
-    emoji: '🐭',
-    name: 'Bengt',
-    enemyEmoji: '🦅'
-  },
-  {
-    id: 'rabbit',
-    emoji: '🐰',
-    name: 'Hopplös',
-    enemyEmoji: '🐢'
-  },
+  // {
+  //   id: 'rabbit',
+  //   emoji: '🐰',
+  //   name: 'Hopplös',
+  //   enemyEmoji: '🐢'
+  // },
   {
     id: 'cat',
-    emoji: '🐱',
+    emoji: require('../assets/images/pets/pet_cat.png'),
     name: 'Mördarkatten',
-    enemyEmoji: '🐕'
+    enemyEmoji: require('../assets/images/enemies/enemy_dog.png')
   },
   {
     id: 'dog',
-    emoji: '🐶',
+    emoji: require('../assets/images/pets/pet_dog.png'),
     name: 'Fluff',
-    enemyEmoji: '🍫'
+    enemyEmoji: require('../assets/images/enemies/enemy_cat.png')
   },
   {
     id: 'frog',
-    emoji: '🐸',
+    emoji: require('../assets/images/pets/pet_frog.png'),
     name: 'Boll',
-    enemyEmoji: '🐍'
-  },
-  {
-    id: 'pig',
-    emoji: '🐷',
-    name: 'Fläsk',
-    enemyEmoji: '🥓'
+    enemyEmoji: require('../assets/images/enemies/enemy_cat.png')
   },
   {
     id: 'chick',
-    emoji: '🐥',
+    emoji: require('../assets/images/pets/pet_chick.png'),
     name: 'Nugget',
-    enemyEmoji: '🐍'
-  },
-  {
-    id: 'crocodile',
-    emoji: '🐊',
-    name: 'Schnappi',
-    enemyEmoji: '👜'
+    enemyEmoji: require('../assets/images/enemies/enemy_cat.png')
   },
   {
     id: 'goat',
-    emoji: '🐐',
+    emoji: require('../assets/images/pets/pet_goat.png'),
     name: 'Bosse',
-    enemyEmoji: '🦖'
+    enemyEmoji: require('../assets/images/enemies/enemy_trex.png')
   }
+  // {
+  //   id: 'trex',
+  //   emoji: require('../assets/images/pets/pet_trex.png'),
+  //   name: 'Rawr',
+  //   enemyEmoji: require('../assets/images/pets/enemy_comet.png')
+  // }
 ];
 
 export const getDefaultPet = (): Pet => pets[0];
