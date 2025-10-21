@@ -26,9 +26,28 @@ import { CRUDManager } from "../../utils/CRUD-manager";
 import { findNearestSafeCell, getMazeCell, getPosition } from "../../utils/game-helpers";
 import { LevelStars, ScoreManager } from '../../utils/score-manager';
 import { GameScreenProps } from "../root-layout";
+import { Dimensions } from 'react-native';
 
-const MAZE_SIZE = 300;
-const BALL_SIZE = 20;
+const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+
+const getResponsiveMazeSize = () => {
+  const smallestDimension = Math.min(screenWidth, screenHeight);
+  const mazeSize = Math.floor(smallestDimension * 0.8); // 80% av minsta dimensionen
+  
+  // Sätt max och min gränser
+  const MIN_SIZE = 300;
+  const MAX_SIZE = 600;
+  
+  return Math.max(MIN_SIZE, Math.min(MAX_SIZE, mazeSize));
+};
+
+const MAZE_SIZE = getResponsiveMazeSize();
+const BALL_SIZE = Math.floor(MAZE_SIZE / 15);
+const DEATH_ICON_SIZE = Math.floor(BALL_SIZE * 0.8);
+const ENEMY_SIZE = Math.floor(BALL_SIZE * 1.2);
+const PET_ICON_SIZE = Math.floor(BALL_SIZE * 0.9);
+const HEADER_PET_SIZE = Math.floor(MAZE_SIZE / 5);
+
 const WALL_CELL = 1;
 const GOAL_CELL = 2;
 const DANGER_CELL = 3;
@@ -616,7 +635,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
         {!normalModeCompleted && !chaosModeCompleted && earnedStars === 0 ? (
           <View style={styles.titleContainer}>
             <Text style={styles.title}>{t('game.mazeFirstTryTitle', { petName: petName })}</Text>
-            <PetImage source={selectedPet.emoji} size={60} style={{ marginRight: 7, textAlign: 'center' }} />
+            <PetImage source={selectedPet.emoji} size={HEADER_PET_SIZE} style={{ marginRight: 7, textAlign: 'center' }} />
           </View>
           ) : (
             <LevelStarsAndBadgeDisplay 
@@ -659,7 +678,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
             ]}
           >
             <Text>
-              {isDead ? <DeathIcon /> : <PetImage source={selectedPet.emoji} size={16} />}
+              {isDead ? <DeathIcon size={DEATH_ICON_SIZE} /> : <PetImage source={selectedPet.emoji} size={PET_ICON_SIZE} />}
             </Text>
           </View>
 
@@ -689,7 +708,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
                 }
               ]}
             >
-              <PetImage source={selectedPet.enemyEmoji || getDefaultPet().enemyEmoji} size={20} style={{ zIndex: 19 }} />
+              <PetImage source={selectedPet.enemyEmoji || getDefaultPet().enemyEmoji} size={ENEMY_SIZE} style={{ zIndex: 19 }} />
             </View>
           ))}
 

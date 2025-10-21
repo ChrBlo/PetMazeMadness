@@ -43,6 +43,10 @@ export const MazeRenderer: React.FC<MazeRendererProps> = React.memo(({
   secretWallCell,
   secretSnackCell,
 }) => {
+
+  const SNACK_SIZE = Math.floor(cellSize * 0.75);
+  const GOAL_SIZE = Math.floor(cellSize * 0.85);
+
   const walls = [];
   const goals = [];
   const explosiveWalls = [];
