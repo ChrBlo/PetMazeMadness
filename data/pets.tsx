@@ -8,8 +8,7 @@ export interface Pet {
   enemyEmoji: ImageSourcePropType;
 }
 
-// export const DEATH_EMOJI = '💀';
-export const DeathIcon = ({ size = 24, color = 'black' }) => (
+export const DeathIcon = ({ size = 14, color = 'black' }) => (
   <FontAwesome6 name="skull" size={size} color={color} />
 );
 
@@ -20,12 +19,6 @@ export const pets: Pet[] = [
     name: 'Fjutten',
     enemyEmoji: require('../assets/images/enemies/enemy_cat.png')
   },
-  // {
-  //   id: 'rabbit',
-  //   emoji: '🐰',
-  //   name: 'Hopplös',
-  //   enemyEmoji: '🐢'
-  // },
   {
     id: 'cat',
     emoji: require('../assets/images/pets/pet_cat.png'),

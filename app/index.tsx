@@ -94,7 +94,7 @@ export default function StartScreen({ route, navigation }: StartScreenProps) {
       
       <Image style={styles.logo} source={require('../assets/images/gamelogo.png')}/>
       <Text style={styles.description}>
-        {t('start.description', { petEmoji: petEmoji })}
+        {t('start.description')}
       </Text>
       <Text style={styles.instructions}>
         {t('start.instructions')}
@@ -216,5 +216,7 @@ const styles = StyleSheet.create({
     left: 20,
     alignItems: 'center',
     backgroundColor: '#221c17ff',
+    zIndex: 1000,
+    elevation: 10,
   },
 });

@@ -1,10 +1,11 @@
 {
   "start":{
-    "description": "Help {{petEmoji}} escape the maze!",
+    "description": "Help your pet escape the maze!",
     "instructions": "Tilt your device in all direction to guide you pet to safety!",
     "settingsButtonLabel": "SETTINGS",
     "starButtonLabel": "START",
-    "loadingText":"Loading..."
+    "loadingText":"Loading...",
+    "invertRecommended": "Using Android? It is recommended to invert game controls in settings"
   },
   "settings":{
     "screenTitle": "Settings",
@@ -48,7 +49,7 @@
     "gameTimeUnit": "s",
     "gameButtonContinue": "Continue",
     "gameButtonRestart": "Restart",
-    "gameButtonReady": "READY!",
+    "gameButtonReady": "START!",
     "mazeFirstTryTitle": "Save {{petName}}!",
     "tryCount": "Try count: ",
     "time": "Time: ",

@@ -166,6 +166,8 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
     };
     
     await CRUDManager.saveLevelStars(currentLevelId, mergedStars);
+    // await ScoreManager.updateProgress(currentLevelId);
+    
     setLevelStarsData(mergedStars);
   };
   
@@ -614,8 +616,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
         {!normalModeCompleted && !chaosModeCompleted && earnedStars === 0 ? (
           <View style={styles.titleContainer}>
             <Text style={styles.title}>{t('game.mazeFirstTryTitle', { petName: petName })}</Text>
-            {/* <Text style={styles.titleEmoji}> {selectedPet.emoji}</Text> */}
-            <PetImage source={selectedPet.emoji} size={50} style={{ marginRight: 7, textAlign: 'center' }} />
+            <PetImage source={selectedPet.emoji} size={60} style={{ marginRight: 7, textAlign: 'center' }} />
           </View>
           ) : (
             <LevelStarsAndBadgeDisplay 
@@ -637,11 +638,10 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
         </Text>
         <View style={styles.separator} />
         <Text style={styles.statsText}>
-          {/* {extraLives > 0 ? `${selectedPet.emoji}: ${extraLives}` : ''} */}
           {extraLives > 0 && (
             <>
-              <PetImage source={selectedPet.emoji} size={16} style={{ marginRight: 4 }} />
-              <Text style={styles.statsText}>{extraLives}</Text>
+              <PetImage source={selectedPet.emoji} size={16} />
+              <Text style={styles.statsText}>   : {extraLives}</Text>
             </>
           )}
         </Text>
@@ -658,7 +658,6 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
               }
             ]}
           >
-            {/* <Text style={styles.animalEmoji}> */}
             <Text>
               {isDead ? <DeathIcon /> : <PetImage source={selectedPet.emoji} size={16} />}
             </Text>
@@ -690,7 +689,6 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
                 }
               ]}
             >
-              {/* <Text style={styles.enemyEmoji}>{selectedPet.enemyEmoji || getDefaultPet().enemyEmoji}</Text> */}
               <PetImage source={selectedPet.enemyEmoji || getDefaultPet().enemyEmoji} size={20} style={{ zIndex: 19 }} />
             </View>
           ))}
@@ -859,11 +857,6 @@ const styles = StyleSheet.create({
     color: '#eee',
     textAlign: 'center',
   },
-  // titleEmoji: {
-  //   fontSize: 50,
-  //   textAlign: 'center',
-  //   marginRight: 7,
-  // },
   gameContainer: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -893,9 +886,6 @@ const styles = StyleSheet.create({
     elevation: 5,
     zIndex: 1,
   },
-  // animalEmoji: {
-  //   fontSize: 14,
-  // },
   explosion: {
     position: 'absolute',
     width: 30,
@@ -1027,8 +1017,4 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  // enemyEmoji: {
-  //   fontSize: 16,
-  //   zIndex: 19,
-  // },
 });

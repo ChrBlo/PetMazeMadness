@@ -1,6 +1,6 @@
 {
   "start":{
-    "description": "Hjälp {{petEmoji}} ur labyrinten!",
+    "description": "Hjälp ditt husdjur ut ur labyrinten!",
     "instructions": "Luta din telefon i alla riktningar för att guida ditt husdjur mot friheten!",
     "settingsButtonLabel": "INSTÄLLNINGAR",
     "starButtonLabel": "STARTA",
@@ -50,7 +50,7 @@
     "gameTimeUnit": "s",
     "gameButtonContinue": "Fortsätt",
     "gameButtonRestart": "Starta om",
-    "gameButtonReady": "REDO!",
+    "gameButtonReady": "STARTA!",
     "mazeFirstTryTitle": "Rädda {{petName}}!",
     "tryCount": "Försök: ",
     "time": "Tid: ",

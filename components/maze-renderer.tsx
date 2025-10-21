@@ -7,6 +7,19 @@ const fruitImages = [
   require('../assets/images/snacks/fruit_cherry.png'),
 ];
 
+const simpleHash = (str: string): number => {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32bit integer
+  }
+  return Math.abs(hash);
+};
+
+const SNACK_SIZE = 24;
+const GOAL_SIZE = 26;
+
 interface MazeRendererProps { 
   mazeLayout: number[][];
   cellSize: number;
@@ -91,49 +104,50 @@ export const MazeRenderer: React.FC<MazeRendererProps> = React.memo(({
         const snackKey = `${row}-${col}`;
         if (!eatenSnacks.has(snackKey))
         {
-          // const fruits = ['🍎', '🍉', '🍌', '🍇', '🍓', '🍒'];
-          // const seed = (row * 100 + col) % fruits.length;
-          // const fruit = fruits[seed];
-
-          const seed = (row * 100 + col) % fruitImages.length;
+          const seed = simpleHash(snackKey) % fruitImages.length;
           const fruitImage = fruitImages[seed];
 
           healthSnacks.push(
-            <View
-              key={key}
+            <Image
+              key={`snack-${key}`}
+              source={fruitImage}
               style={[
                 styles.healthSnack,
                 {
-                  left: col * cellSize,
-                  top: row * cellSize,
-                  width: cellSize,
-                  height: cellSize,
+                  left: col * cellSize + (cellSize - SNACK_SIZE) / 2,
+                  top: row * cellSize + (cellSize - SNACK_SIZE) / 2,
+                  width: SNACK_SIZE,
+                  height: SNACK_SIZE,
                   zIndex: 5,
                 }
               ]}
-            >
-              <Text style={styles.healthSnackText}>{fruitImage}</Text>
-            </View>
+              contentFit="contain"
+              cachePolicy="memory-disk"
+              transition={0}
+            />
           );
         }
       }
       else if (cell === goalCell)
       {
         goals.push(
-          <View
+          <Image
             key={key}
+            source={require('../assets/images/home.png')}
             style={[
               styles.goal,
               {
-                left: col * cellSize,
-                top: row * cellSize,
-                width: cellSize,
-                height: cellSize,
+                left: col * cellSize + (cellSize - GOAL_SIZE) / 2,
+                top: row * cellSize + (cellSize - GOAL_SIZE) / 2,
+                width: GOAL_SIZE,
+                height: GOAL_SIZE,
               }
             ]}
-          >
-            <Text style={styles.goalText}>🏠</Text>
-          </View>
+            contentFit="cover"
+            cachePolicy="memory-disk"
+            recyclingKey={`wall-${cellSize}`}
+            transition={0}
+          />
         );
       }
       else if (cell === dangerCell)
@@ -163,26 +177,27 @@ export const MazeRenderer: React.FC<MazeRendererProps> = React.memo(({
         const snackKey = `${row}-${col}`;
         if (!eatenSnacks.has(snackKey))
         {
-          // const fruits = ['🍎', '🍉', '🍌', '🍇', '🍓', '🍒'];
-          const seed = (row * 100 + col) % fruitImages.length;
+          const seed = simpleHash(snackKey) % fruitImages.length;
           const fruitImage = fruitImages[seed];
 
           healthSnacks.push(
-            <View
-              key={key}
+            <Image
+              key={`snack-${key}`}
+              source={fruitImage}
               style={[
                 styles.healthSnack,
                 {
-                  left: col * cellSize,
-                  top: row * cellSize,
-                  width: cellSize,
-                  height: cellSize,
+                  left: col * cellSize + (cellSize - SNACK_SIZE) / 2,
+                  top: row * cellSize + (cellSize - SNACK_SIZE) / 2,
+                  width: SNACK_SIZE,
+                  height: SNACK_SIZE,
                   zIndex: 5,
                 }
               ]}
-            >
-              <Text style={styles.healthSnackText}>{fruitImage}</Text>
-            </View>
+              contentFit="contain"
+              cachePolicy="memory-disk"
+              transition={0}
+            />
           );
         }
       }
@@ -223,9 +238,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  goalText: {
-    fontSize: 22,
-  },
   explosiveWall: {
     position: 'absolute',
   },
@@ -233,8 +245,5 @@ const styles = StyleSheet.create({
     position: 'absolute',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  healthSnackText: {
-    fontSize: 15,
   },
 });

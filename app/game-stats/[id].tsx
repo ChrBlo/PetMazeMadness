@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { FlatList, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { GradientButton } from "../../components/gradient-button";
 import { MazeRenderer } from "../../components/maze-renderer";
+import PetImage from "../../components/pet-image";
 import { getCurrentLevel, MAZE_LEVELS } from "../../data/maze-layouts";
 import { getDefaultPet } from '../../data/pets';
 import { GyroMode } from "../../hooks/useGameSensors";
@@ -147,7 +148,7 @@ const previousLevel = () => {
                 justifyContent: 'center',
               }}
             >
-              <Text style={{ fontSize: 16 }}>{currentPet.enemyEmoji || getDefaultPet().enemyEmoji}</Text>
+              <PetImage source={currentPet.enemyEmoji} size={20} style={{ marginRight: 4 }} />
             </View>
           ))}
 
@@ -161,7 +162,7 @@ const previousLevel = () => {
               }
             ]}
           >
-            <Text style={styles.animalEmoji}>{currentPet.emoji || getDefaultPet().emoji} </Text>
+            <PetImage source={currentPet.emoji} size={16} />
           </View>
 
           {!completedLevels.has(currentLevelId) && currentLevelId > 1 && (
@@ -378,8 +379,5 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
-  },
-  animalEmoji: {
-    fontSize: 14,
   },
 });
