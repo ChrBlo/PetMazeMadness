@@ -6,12 +6,12 @@ import { getDefaultPet, getPetById, Pet, pets } from '../../data/pets';
 import { GyroMode } from '../../hooks/useGameSensors';
 import { CRUDManager } from '../../utils/CRUD-manager';
 import { SettingsScreenProps } from '../root-layout';
+import PetImage from '../../components/pet-image';
 
 export default function SettingsScreen({ route, navigation }: SettingsScreenProps) {
   const { t } = useTranslation();
   
   const [selectedGyroMode, setSelectedGyroMode] = useState<GyroMode>(route.params?.gyroMode || GyroMode.NORMAL);
-  const [weatherCheckEnabled, setWeatherCheckEnabled] = useState(route.params?.weatherCheckEnabled ?? true);
   const [showPetSelector, setShowPetSelector] = useState(false);
   const [showNameEditor, setShowNameEditor] = useState(false);
   const [selectedPet, setSelectedPet] = useState<Pet>(route.params?.selectedPet || getDefaultPet());
@@ -55,7 +55,6 @@ export default function SettingsScreen({ route, navigation }: SettingsScreenProp
     
   const goBack = () => {
     navigation.navigate('Start', {
-      weatherCheckEnabled,
       selectedPet,
       gyroMode: selectedGyroMode,
       invertedGameControls
@@ -70,19 +69,7 @@ export default function SettingsScreen({ route, navigation }: SettingsScreenProp
         >
     <View style={styles.container}>
       
-        <Text style={styles.title}>{t('settings.screenTitle')}</Text>
-    
-      <Text style={styles.settingsLabel}>{t('settings.weaterLabel')}</Text>
-      <View style={styles.settingRow}>
-        <Text style={styles.settingsText}>
-          {t('settings.weaterSwitchText')}
-        </Text>
-        <Switch
-          value={weatherCheckEnabled}
-          onValueChange={setWeatherCheckEnabled}
-          trackColor={{ false: '#666', true: '#5ccf9fff' }}
-        />
-      </View>
+      <Text style={styles.title}>{t('settings.screenTitle')}</Text>
 
       <View>
         <Text style={styles.settingsLabel}>{t('settings.selectPetLabel')}</Text>
@@ -90,7 +77,8 @@ export default function SettingsScreen({ route, navigation }: SettingsScreenProp
         <TouchableOpacity style={styles.settingRow} onPress={() => setShowPetSelector(true)}>
           <Text style={styles.settingsText}>{t('settings.selectPet')}</Text>
           <View style={styles.petPreview}>
-            <Text style={styles.petEmoji}>{selectedPet.emoji}</Text>
+            {/* <Text style={styles.petEmoji}>{selectedPet.emoji}</Text> */}
+            <PetImage source={selectedPet.emoji} size={24} />
           </View>
         </TouchableOpacity>
 
@@ -160,11 +148,11 @@ export default function SettingsScreen({ route, navigation }: SettingsScreenProp
                   ]}
                   onPress={() => handlePetSelection(pet.id)}
                 >
-                  <Text style={styles.petOptionEmoji}>{pet.emoji}</Text>
+                  <PetImage source={pet.emoji} size={24} style={{ marginRight: 15 }} />
                   <Text style={styles.petOptionName}>{pet.name}</Text>
                   <View style={styles.separator} />
                   <Text style={styles.petOptionName}>{t('settings.enemy')}</Text>
-                  <Text style={styles.petOptionName}>{pet.enemyEmoji}</Text>
+                  <PetImage source={pet.enemyEmoji} size={24} />
                 </TouchableOpacity>
               ))}
             </ScrollView>
@@ -188,7 +176,8 @@ export default function SettingsScreen({ route, navigation }: SettingsScreenProp
         <View style={styles.modalOverlay}>
           <View style={styles.nameModalContent}>
             <Text style={styles.modalTitle}>{t('settings.nameYourPet')}</Text>
-            <Text style={styles.petEmoji}>{selectedPet.emoji}</Text>
+            {/* <Text style={styles.petEmoji}>{selectedPet.emoji}</Text> */}
+            <PetImage source={selectedPet.emoji} size={50} />
             <TextInput
               style={styles.nameInput}
               value={customName}
@@ -263,9 +252,9 @@ const styles = StyleSheet.create({
     padding: 6,
     borderRadius: 6,
   },
-  petEmoji: {
-    fontSize: 24,
-  },
+  // petEmoji: {
+  //   fontSize: 24,
+  // },
   petNameDisplay: {
     fontSize: 16,
     color: '#5ccf9fff',
@@ -319,10 +308,10 @@ const styles = StyleSheet.create({
   selectedPetOption: {
     backgroundColor: '#5da6d6ff',
   },
-  petOptionEmoji: {
-    fontSize: 24,
-    marginRight: 15,
-  },
+  // petOptionEmoji: {
+  //   fontSize: 24,
+  //   marginRight: 15,
+  // },
   petOptionName: {
     fontSize: 16,
     color: '#eee',

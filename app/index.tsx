@@ -2,7 +2,6 @@ import { useFocusEffect } from "@react-navigation/native";
 import { Image } from 'expo-image';
 import React, { useCallback, useEffect, useState } from "react";
 import { ActivityIndicator, Alert, StatusBar, StyleSheet, Text, View } from "react-native";
-import { WeatherForecaster } from '../api/weather-forecast';
 import { GradientButton } from "../components/gradient-button";
 import { getDefaultPet } from '../data/pets';
 import { GyroMode } from '../hooks/useGameSensors';
@@ -16,12 +15,9 @@ export default function StartScreen({ route, navigation }: StartScreenProps) {
   const { t } = useTranslation();
 
   const [isLoading, setIsLoading] = useState(false);
-  const [weatherCheckEnabled, setWeatherCheckEnabled] = useState(true);
-  const [currentWeather, setCurrentWeather] = useState<string | null>(null);
   const [savedPet, setSavedPet] = useState(getDefaultPet());
   const selectedPet = route.params?.selectedPet || savedPet;
   const petEmoji = selectedPet.emoji || getDefaultPet().emoji;
-  const niceWeather = (currentWeather !== 'rain' && currentWeather !== 'rainshowers_day' && currentWeather !== 'thunderstorm');
   const [currentLevel, setCurrentLevel] = useState(1);
   const [invertedGameControls, setInvertedGameControls] = useState(false);
 
@@ -35,13 +31,10 @@ export default function StartScreen({ route, navigation }: StartScreenProps) {
   
   useFocusEffect(
     useCallback(() => {
-      if (route.params?.weatherCheckEnabled !== undefined) {
-        setWeatherCheckEnabled(route.params.weatherCheckEnabled);
-      }
       if (route.params?.invertedGameControls !== undefined) {
         setInvertedGameControls(route.params.invertedGameControls);
       }
-    }, [route.params?.weatherCheckEnabled, route.params?.invertedGameControls])
+    }, [route.params?.invertedGameControls])
   );
   
   useEffect(() => {
@@ -63,17 +56,6 @@ export default function StartScreen({ route, navigation }: StartScreenProps) {
   }, []);
 
   const handleStartGame = () => {
-    if (weatherCheckEnabled && niceWeather) {
-      Alert.alert(
-        t('weatherAlert.title'),
-        t('weatherAlert.message'),
-        [
-          { text: t('weatherAlert.buttonText') },
-        ]
-      );
-      return;
-    }
-
     setIsLoading(true);
 
     setTimeout(() => {
@@ -84,12 +66,11 @@ export default function StartScreen({ route, navigation }: StartScreenProps) {
         initialLevel: currentLevel,
         invertedGameControls: invertedGameControls,
       });
-    }, 800);
+    }, 600);
   };
 
   const handleGoToSettings = () => {
     navigation.navigate('Settings', {
-      weatherCheckEnabled,
       selectedPet,
       gyroMode: route.params?.gyroMode || GyroMode.NORMAL,
       invertedGameControls
@@ -103,17 +84,9 @@ export default function StartScreen({ route, navigation }: StartScreenProps) {
       gyroMode: route.params?.gyroMode || GyroMode.NORMAL,
     });
   };
-  
-  const handleWeatherUpdate = (symbolCode: string | null) => {
-    setCurrentWeather(symbolCode);
-  };
     
   return (
     <View style={styles.container}>
-
-      <View style={styles.weather}>
-        <WeatherForecaster onWeatherUpdate={handleWeatherUpdate} />
-      </View>
 
       <View style={styles.languageSwitchContainer}>
         <LanguageSwitcher />
@@ -163,11 +136,6 @@ export default function StartScreen({ route, navigation }: StartScreenProps) {
 }
 
 const styles = StyleSheet.create({
-  weather: {
-    position: 'absolute',
-    top: 15,
-    right: 15,
-  },
   container: {
     flex: 1,
     backgroundColor: '#221c17ff',

@@ -10,7 +10,6 @@ import SettingsScreen from "./settings/index";
 
 type RootStackParamList = {
   Start: {
-    weatherCheckEnabled?: boolean;
     selectedPet?: Pet;
     gyroMode?: GyroMode;
     invertedGameControls?: boolean;
@@ -22,7 +21,6 @@ type RootStackParamList = {
     invertedGameControls?: boolean;
   };
   Settings: {
-    weatherCheckEnabled?: boolean;
     selectedPet?: Pet;
     gyroMode?: GyroMode;
     invertedGameControls?: boolean;

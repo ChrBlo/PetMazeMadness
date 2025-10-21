@@ -2,6 +2,11 @@ import { Image } from 'expo-image';
 import React from 'react';
 import { StyleSheet, Text, View } from "react-native";
 
+const fruitImages = [
+  require('../assets/images/snacks/fruit_melon.png'),
+  require('../assets/images/snacks/fruit_cherry.png'),
+];
+
 interface MazeRendererProps { 
   mazeLayout: number[][];
   cellSize: number;
@@ -86,9 +91,12 @@ export const MazeRenderer: React.FC<MazeRendererProps> = React.memo(({
         const snackKey = `${row}-${col}`;
         if (!eatenSnacks.has(snackKey))
         {
-          const fruits = ['🍎', '🍉', '🍌', '🍇', '🍓', '🍒'];
-          const seed = (row * 100 + col) % fruits.length;
-          const fruit = fruits[seed];
+          // const fruits = ['🍎', '🍉', '🍌', '🍇', '🍓', '🍒'];
+          // const seed = (row * 100 + col) % fruits.length;
+          // const fruit = fruits[seed];
+
+          const seed = (row * 100 + col) % fruitImages.length;
+          const fruitImage = fruitImages[seed];
 
           healthSnacks.push(
             <View
@@ -104,7 +112,7 @@ export const MazeRenderer: React.FC<MazeRendererProps> = React.memo(({
                 }
               ]}
             >
-              <Text style={styles.healthSnackText}>{fruit}</Text>
+              <Text style={styles.healthSnackText}>{fruitImage}</Text>
             </View>
           );
         }
@@ -155,9 +163,9 @@ export const MazeRenderer: React.FC<MazeRendererProps> = React.memo(({
         const snackKey = `${row}-${col}`;
         if (!eatenSnacks.has(snackKey))
         {
-          const fruits = ['🍎', '🍉', '🍌', '🍇', '🍓', '🍒'];
-          const seed = (row * 100 + col) % fruits.length;
-          const fruit = fruits[seed];
+          // const fruits = ['🍎', '🍉', '🍌', '🍇', '🍓', '🍒'];
+          const seed = (row * 100 + col) % fruitImages.length;
+          const fruitImage = fruitImages[seed];
 
           healthSnacks.push(
             <View
@@ -173,7 +181,7 @@ export const MazeRenderer: React.FC<MazeRendererProps> = React.memo(({
                 }
               ]}
             >
-              <Text style={styles.healthSnackText}>{fruit}</Text>
+              <Text style={styles.healthSnackText}>{fruitImage}</Text>
             </View>
           );
         }
@@ -191,7 +199,6 @@ export const MazeRenderer: React.FC<MazeRendererProps> = React.memo(({
       {goals}
       {explosiveWalls}
       {healthSnacks}
-      {/* {enemies} */}
     </View>
   );
 }, (prevProps, nextProps) => {

@@ -6,24 +6,26 @@ import { Image } from 'expo-image';
 import { useAtom, useSetAtom } from 'jotai';
 import LottieView from "lottie-react-native";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from 'react-i18next';
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { isDeadAtom, isGameWonAtom, recordDeathAtom, recordWinAtom, resetGameStateAtom } from '../../atoms/gameAtoms';
 import { CountdownAnimation } from '../../components/countdown-animation';
 import { GradientButton } from "../../components/gradient-button";
 import { LevelStarsAndBadgeDisplay } from "../../components/level-stars-and-badge-display";
 import { MazeRenderer } from "../../components/maze-renderer";
+import PetImage from "../../components/pet-image";
 import { MAZE_LEVELS, MazeLevel, getCurrentLevel } from '../../data/maze-layouts';
-import { DEATH_EMOJI, getDefaultPet } from '../../data/pets';
+import { DeathIcon, getDefaultPet } from '../../data/pets';
 import { useEnemyMovement } from "../../hooks/useEnemyMovement";
 import { useGamePhysics } from '../../hooks/useGamePhysics';
 import { GyroMode, useGameSensors } from '../../hooks/useGameSensors';
 import { useGameTimer } from '../../hooks/useGameTimer';
 import { useLevelData } from "../../hooks/useLevelData";
+import { useRespawnLogic } from "../../hooks/useRespawnLogic";
 import { CRUDManager } from "../../utils/CRUD-manager";
 import { findNearestSafeCell, getMazeCell, getPosition } from "../../utils/game-helpers";
 import { LevelStars, ScoreManager } from '../../utils/score-manager';
 import { GameScreenProps } from "../root-layout";
-import { useTranslation } from 'react-i18next';
 
 const MAZE_SIZE = 300;
 const BALL_SIZE = 20;
@@ -416,15 +418,20 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
 
   // RESPAWN LOGIC --------------
   const triggerRespawn = (cellX: number, cellY: number) => {
-    const safeCell = findNearestSafeCell(cellX, cellY, MAZE_LAYOUT);
+    const respawnPosition = findSafeRespawnPosition(cellX, cellY, enemyPositions);
     
-    if (safeCell)
-    {
-      const centeredX = safeCell.x * CELL_SIZE + CELL_SIZE / 2;
-      const centeredY = safeCell.y * CELL_SIZE + CELL_SIZE / 2;
-      setBallPosition({ x: centeredX, y: centeredY });
+    if (respawnPosition) {
+      setBallPosition({ x: respawnPosition.x, y: respawnPosition.y });
+    } else {
+      // Fallback to nearest safe cell
+      const safeCell = findNearestSafeCell(cellX, cellY, MAZE_LAYOUT);
+      if (safeCell) {
+        const centeredX = safeCell.x * CELL_SIZE + CELL_SIZE / 2;
+        const centeredY = safeCell.y * CELL_SIZE + CELL_SIZE / 2;
+        setBallPosition({ x: centeredX, y: centeredY });
+      }
     }
-      
+    
     resetGameState();
     
     const newLives = extraLives - 1;
@@ -460,6 +467,8 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
       setShowExplosion(false);
       setVelocity({ x: 0, y: 0 });
       setExtraLivesUsed(0);
+
+      clearHistory();
       
       if (extraLives === 0) {
         setEatenSnacks(new Set());
@@ -501,6 +510,8 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
     setVelocity({ x: 0, y: 0 });
     setExtraLivesUsed(0);
 
+    clearHistory();
+
     setIsReady(false);
     setIsCountdownComplete(false);
   };
@@ -525,6 +536,9 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
       setBallPosition(getPosition(prevLevel, MAZE_SIZE));
       setShowExplosion(false);
       setVelocity({ x: 0, y: 0 });
+
+      clearHistory();
+
       setIsReady(false);
       setIsCountdownComplete(false);
     }
@@ -557,8 +571,20 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
     setLevelStarsData,
     setNormalModeCompleted,
     setChaosModeCompleted } = useLevelData(currentLevelId);
+  
+  const { 
+    recordPosition, 
+    findSafeRespawnPosition, 
+    clearHistory 
+  } = useRespawnLogic(CELL_SIZE, BALL_SIZE);
   //-----------------------------
 
+  useEffect(() => {
+    if (isCountdownComplete && !isDead && !isGameWon && !isRespawning) {
+      recordPosition(ballPosition.x, ballPosition.y, CELL_SIZE);
+    }
+  }, [ballPosition, isCountdownComplete, isDead, isGameWon, isRespawning, CELL_SIZE, recordPosition]);
+  
   const earnedStars = useMemo(() => {
     if (!levelStarsData) return 0;
     return ScoreManager.countEarnedStars(levelStarsData);
@@ -587,8 +613,9 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
       <View style={styles.headerContent}>
         {!normalModeCompleted && !chaosModeCompleted && earnedStars === 0 ? (
           <View style={styles.titleContainer}>
-              <Text style={styles.title}>{t('game.mazeFirstTryTitle', { petName: petName })}</Text>
-            <Text style={styles.titleEmoji}> {selectedPet.emoji}</Text>
+            <Text style={styles.title}>{t('game.mazeFirstTryTitle', { petName: petName })}</Text>
+            {/* <Text style={styles.titleEmoji}> {selectedPet.emoji}</Text> */}
+            <PetImage source={selectedPet.emoji} size={50} style={{ marginRight: 7, textAlign: 'center' }} />
           </View>
           ) : (
             <LevelStarsAndBadgeDisplay 
@@ -610,7 +637,13 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
         </Text>
         <View style={styles.separator} />
         <Text style={styles.statsText}>
-          {extraLives > 0 ? `${selectedPet.emoji}: ${extraLives}` : ''}
+          {/* {extraLives > 0 ? `${selectedPet.emoji}: ${extraLives}` : ''} */}
+          {extraLives > 0 && (
+            <>
+              <PetImage source={selectedPet.emoji} size={16} style={{ marginRight: 4 }} />
+              <Text style={styles.statsText}>{extraLives}</Text>
+            </>
+          )}
         </Text>
       </View>
       <View style={styles.gameContainer}>
@@ -625,8 +658,9 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
               }
             ]}
           >
-            <Text style={styles.animalEmoji}>
-              {isDead ? DEATH_EMOJI : selectedPet.emoji}
+            {/* <Text style={styles.animalEmoji}> */}
+            <Text>
+              {isDead ? <DeathIcon /> : <PetImage source={selectedPet.emoji} size={16} />}
             </Text>
           </View>
 
@@ -656,7 +690,8 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
                 }
               ]}
             >
-              <Text style={styles.enemyEmoji}>{selectedPet.enemyEmoji || getDefaultPet().enemyEmoji}</Text>
+              {/* <Text style={styles.enemyEmoji}>{selectedPet.enemyEmoji || getDefaultPet().enemyEmoji}</Text> */}
+              <PetImage source={selectedPet.enemyEmoji || getDefaultPet().enemyEmoji} size={20} style={{ zIndex: 19 }} />
             </View>
           ))}
 
@@ -824,11 +859,11 @@ const styles = StyleSheet.create({
     color: '#eee',
     textAlign: 'center',
   },
-  titleEmoji: {
-    fontSize: 50,
-    textAlign: 'center',
-    marginRight: 7,
-  },
+  // titleEmoji: {
+  //   fontSize: 50,
+  //   textAlign: 'center',
+  //   marginRight: 7,
+  // },
   gameContainer: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -858,9 +893,9 @@ const styles = StyleSheet.create({
     elevation: 5,
     zIndex: 1,
   },
-  animalEmoji: {
-    fontSize: 14,
-  },
+  // animalEmoji: {
+  //   fontSize: 14,
+  // },
   explosion: {
     position: 'absolute',
     width: 30,
@@ -992,8 +1027,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  enemyEmoji: {
-    fontSize: 16,
-    zIndex: 19,
-  },
+  // enemyEmoji: {
+  //   fontSize: 16,
+  //   zIndex: 19,
+  // },
 });

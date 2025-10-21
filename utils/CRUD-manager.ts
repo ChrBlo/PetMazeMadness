@@ -1,3 +1,4 @@
+import { Pet, getPetById } from '../data/pets';
 // @ts-ignore
 import store from 'react-native-simple-store';
 
@@ -47,14 +48,28 @@ export class CRUDManager{
     return stars || null;
   }
 
-  static async saveSelectedPet(pet: { id: string; name: string; emoji: string }): Promise<void> {
+  static async saveSelectedPet(pet: Pet): Promise<void> {
+
     const key = 'selected_pet';
-    await store.save(key, pet);
+
+    const serializablePet = {
+      id: pet.id,
+      name: pet.name
+    };
+
+    await store.save(key, serializablePet);
   }
 
-  static async getSelectedPet(): Promise<{ id: string; name: string; emoji: string } | null> {
+  static async getSelectedPet(): Promise<Pet | null> {
+
     const key = 'selected_pet';
-    const pet = await store.get(key);
-    return pet || null;
+
+    const savedData = await store.get(key);
+    
+    if (!savedData) return null;
+    
+    const pet = getPetById(savedData.id);
+    
+    return { ...pet, name: savedData.name };
   }
 }
