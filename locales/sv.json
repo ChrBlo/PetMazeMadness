@@ -4,7 +4,8 @@
     "instructions": "Luta din telefon i alla riktningar för att guida ditt husdjur mot friheten!",
     "settingsButtonLabel": "INSTÄLLNINGAR",
     "starButtonLabel": "STARTA",
-    "loadingText":"Laddar spel..."
+    "loadingText":"Laddar spel...",
+    "invertRecommended": "Vi rekommenderar att invertera spelkontrollerna för Android, se Inställningar"
   },
   "settings":{
     "screenTitle": "Inställningar",

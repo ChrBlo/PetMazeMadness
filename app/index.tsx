@@ -2,7 +2,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import { Image } from 'expo-image';
 import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, StatusBar, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Dimensions, Platform, StatusBar, StyleSheet, Text, View } from "react-native";
 import { GradientButton } from "../components/gradient-button";
 import { LanguageSwitcher } from '../components/language-switcher';
 import { getDefaultPet } from '../data/pets';
@@ -11,6 +11,22 @@ import { CRUDManager } from "../utils/CRUD-manager";
 import { ScoreManager } from "../utils/score-manager";
 import { typography } from "../utils/typography";
 import { StartScreenProps } from './root-layout';
+
+const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+
+const getResponsiveLogoSize = () => {
+  const baseWidth = 375; // iPhone 11 base
+  const scale = screenWidth / baseWidth;
+  
+  const MIN_HEIGHT = 200;
+  const MAX_HEIGHT = 500;
+  const baseHeight = 300;
+  
+  const scaledHeight = baseHeight * scale;
+  return Math.max(MIN_HEIGHT, Math.min(MAX_HEIGHT, scaledHeight));
+};
+
+const LOGO_HEIGHT = getResponsiveLogoSize();
 
 export default function StartScreen({ route, navigation }: StartScreenProps) {
   const { t } = useTranslation();
@@ -130,7 +146,9 @@ export default function StartScreen({ route, navigation }: StartScreenProps) {
           iconName="stats-chart-outline"
         />
       </View>
-
+      <View>
+        <Text style={styles.recommendedText}>{t('start.invertRecommended')}</Text>
+      </View>
       <StatusBar barStyle="default"/>
     </View>
   );
@@ -161,7 +179,7 @@ const styles = StyleSheet.create({
     fontSize: typography.h5,
     color: '#919191ff',
     textAlign: 'center',
-    marginBottom: 30,
+    marginBottom: 20,
     paddingHorizontal: 20,
     width: '90%',
   },
@@ -201,8 +219,8 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   logo: {
-    marginTop: -50,
-    height: 320,
+    marginTop: -30,
+    height: LOGO_HEIGHT,
     resizeMode: 'contain',
     width: '80%',
   },
@@ -213,11 +231,23 @@ const styles = StyleSheet.create({
   },
   languageSwitchContainer: {
     position: 'absolute',
-    top: 60,
-    left: 20,
+    top: Platform.select({
+      ios: 70,
+      android: 20,
+      default: 60,
+    }),
+    left: 30,
     alignItems: 'center',
     backgroundColor: '#221c17ff',
     zIndex: 1000,
     elevation: 10,
+  },
+  recommendedText: {
+    color: '#494848ff',
+    fontSize: typography.body,
+    marginTop: 20,
+    // marginBottom: 10,
+    textAlign: 'center',
+    paddingHorizontal: 20,
   },
 });

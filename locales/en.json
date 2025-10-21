@@ -5,7 +5,7 @@
     "settingsButtonLabel": "SETTINGS",
     "starButtonLabel": "START",
     "loadingText":"Loading...",
-    "invertRecommended": "Using Android? It is recommended to invert game controls in settings"
+    "invertRecommended": "It is recommended to invert game controls for Android, see settings"
   },
   "settings":{
     "screenTitle": "Settings",

@@ -32,9 +32,7 @@ const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 const getResponsiveMazeSize = () => {
   const smallestDimension = Math.min(screenWidth, screenHeight);
-  const mazeSize = Math.floor(smallestDimension * 0.8); // 80% av minsta dimensionen
-  
-  // Sätt max och min gränser
+  const mazeSize = Math.floor(smallestDimension * 0.8);
   const MIN_SIZE = 300;
   const MAX_SIZE = 600;
   
@@ -47,6 +45,8 @@ const DEATH_ICON_SIZE = Math.floor(BALL_SIZE * 0.8);
 const ENEMY_SIZE = Math.floor(BALL_SIZE * 1.2);
 const PET_ICON_SIZE = Math.floor(BALL_SIZE * 0.9);
 const HEADER_PET_SIZE = Math.floor(MAZE_SIZE / 5);
+const LOGO_SCALE_FACTOR = 0.35;
+const LOGO_HEIGHT = Math.floor(MAZE_SIZE * LOGO_SCALE_FACTOR);
 
 const WALL_CELL = 1;
 const GOAL_CELL = 2;
@@ -861,7 +861,7 @@ const styles = StyleSheet.create({
     marginLeft: 25,
   },
   logo: {
-    height: 110,
+    height: LOGO_HEIGHT,
     resizeMode: 'contain',
     width: '100%',
     transform: [{ rotate: '-15deg' }],
