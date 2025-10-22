@@ -74,7 +74,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 8,
     alignItems: 'center',
-    marginLeft: 11,
+    marginLeft: 10,
+    marginBottom: -7
   },
   star: {
     width: 24,
@@ -87,7 +88,7 @@ const styles = StyleSheet.create({
   },
   modeBadge: {
     alignItems: 'center',
-    gap: 3,
+    gap: 0,
   },
   badge: {
     width: 32,

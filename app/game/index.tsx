@@ -30,23 +30,19 @@ import { GameScreenProps } from "../root-layout";
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
-const getResponsiveMazeSize = () => {
+const getResponsiveMazeSize = (layoutSize: number) => {
+
   const smallestDimension = Math.min(screenWidth, screenHeight);
-  const mazeSize = Math.floor(smallestDimension * 0.8);
+  const baseSize = Math.floor(smallestDimension * 0.8);
+
+  const multiplier = layoutSize > 10 ? 1.2 : 1;
+  const mazeSize = Math.floor(baseSize * multiplier);
+
   const MIN_SIZE = 300;
-  const MAX_SIZE = 600;
+  const MAX_SIZE = layoutSize > 10 ? 720 : 600;
   
   return Math.max(MIN_SIZE, Math.min(MAX_SIZE, mazeSize));
 };
-
-const MAZE_SIZE = getResponsiveMazeSize();
-const BALL_SIZE = Math.floor(MAZE_SIZE / 15);
-const DEATH_ICON_SIZE = Math.floor(BALL_SIZE * 0.8);
-const ENEMY_SIZE = Math.floor(BALL_SIZE * 1.2);
-const PET_ICON_SIZE = Math.floor(BALL_SIZE * 0.9);
-const HEADER_PET_SIZE = Math.floor(MAZE_SIZE / 5);
-const LOGO_SCALE_FACTOR = 0.35;
-const LOGO_HEIGHT = Math.floor(MAZE_SIZE * LOGO_SCALE_FACTOR);
 
 const WALL_CELL = 1;
 const GOAL_CELL = 2;
@@ -89,22 +85,34 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
   const [isRespawning, setIsRespawning] = useState(false);
   const [hasStartedTimer, setHasStartedTimer] = useState(false);
   const isProcessingWin = useRef(false);
-  //GAME LEVELS
+  //GAME LEVELS AND POSITIONING
   const [currentLevelId, setCurrentLevelId] = useState(route.params?.initialLevel || 1);
   const [currentLevel, setCurrentLevel] = useState<MazeLevel>(getCurrentLevel(route.params?.initialLevel || 1));
   const [completedLevels, setCompletedLevels] = useState<Set<number>>(new Set());
+  const getStartPosition = () => getPosition(currentLevel, MAZE_SIZE);
   // PET
   const selectedPet = route.params?.selectedPet || getDefaultPet();
   const petName = selectedPet?.name || getDefaultPet().name;
-  // MAZE AND POSITIONING
-  const MAZE_LAYOUT = useMemo(() => currentLevel.layout, [currentLevel]);
-  const CELL_SIZE = useMemo(() => MAZE_SIZE / MAZE_LAYOUT.length, [MAZE_LAYOUT]);
-  const getStartPosition = () => getPosition(currentLevel, MAZE_SIZE);
   //SOUND EFFECTS
   const victory = useAudioPlayer(victorySound);
   const explosion = useAudioPlayer(explodingWallSound);
   const snack = useAudioPlayer(snackSound);
   const plop = useAudioPlayer(spawnSound);
+  
+  // const MAZE_LAYOUT = useMemo(() => currentLevel.layout, [currentLevel]);
+  // const CELL_SIZE = useMemo(() => MAZE_SIZE / MAZE_LAYOUT.length, [MAZE_LAYOUT]);
+  const MAZE_SIZE = useMemo(() => getResponsiveMazeSize(currentLevel.layout.length), [currentLevel]);
+  const MAZE_LAYOUT = useMemo(() => currentLevel.layout, [currentLevel]);
+  const CELL_SIZE = useMemo(() => MAZE_SIZE / MAZE_LAYOUT.length, [MAZE_SIZE, MAZE_LAYOUT]);
+  
+  // Derived sizes that depend on MAZE_SIZE
+  const BALL_SIZE = useMemo(() => Math.floor(MAZE_SIZE / 15), [MAZE_SIZE]);
+  const DEATH_ICON_SIZE = useMemo(() => Math.floor(BALL_SIZE * 0.8), [BALL_SIZE]);
+  const ENEMY_SIZE = useMemo(() => Math.floor(BALL_SIZE * 1.2), [BALL_SIZE]);
+  const PET_ICON_SIZE = useMemo(() => Math.floor(BALL_SIZE * 0.9), [BALL_SIZE]);
+  const HEADER_PET_SIZE = useMemo(() => Math.floor(MAZE_SIZE / 5), [MAZE_SIZE]);
+  const LOGO_SCALE_FACTOR = 0.3;
+  const LOGO_HEIGHT = useMemo(() => Math.floor(MAZE_SIZE * LOGO_SCALE_FACTOR), [MAZE_SIZE]);
     
   useEffect(() => {
     const loadInitialData = async () => {
@@ -692,38 +700,42 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
     <View style={styles.container}>
 
       <View style={styles.header}>
-      <View style={styles.headerImage}>
-        <Image 
-          style={styles.logo} 
-          source={require('../../assets/images/gamelogo.png')} 
-        />
-      </View>
-      
-      <View style={styles.headerContent}>
-        {!normalModeCompleted && !chaosModeCompleted && earnedStars === 0 ? (
-          <View style={styles.titleContainer}>
-            <Text style={styles.title}>{t('game.mazeFirstTryTitle', { petName: petName })}</Text>
-            <PetImage source={selectedPet.emoji} size={HEADER_PET_SIZE} style={{ marginRight: 7, textAlign: 'center' }} />
-          </View>
-          ) : (
-            <LevelStarsAndBadgeDisplay 
-              earnedStars={earnedStars}
-              normalModeCompleted={normalModeCompleted}
-              chaosModeCompleted={chaosModeCompleted}
-            />
-        )}
-      </View>
-      
-      </View>
-        <View style={styles.level}>
-        <Text style={styles.levelText}>{t('game.level')}{currentLevel.name}</Text>
+        <View style={styles.headerImage}>
+          <Image 
+            style={[styles.logo, { height: LOGO_HEIGHT, maxHeight: 140 }]}
+            source={require('../../assets/images/gamelogo.png')} 
+          />
+        </View>
+        
+        <View style={styles.headerContent}>
+          {!normalModeCompleted && !chaosModeCompleted && earnedStars === 0 ? (
+            <View style={styles.titleContainer}>
+              <Text style={styles.title}>{t('game.mazeFirstTryTitle', { petName: petName })}</Text>
+              <PetImage source={selectedPet.emoji} size={HEADER_PET_SIZE} style={{ marginRight: 7, textAlign: 'center' }} />
+            </View>
+            ) : (
+              <LevelStarsAndBadgeDisplay 
+                earnedStars={earnedStars}
+                normalModeCompleted={normalModeCompleted}
+                chaosModeCompleted={chaosModeCompleted}
+              />
+          )}
+        </View>
       </View>
       
       <View style={styles.stats}>
         <Text style={styles.statsText}>
           {t('game.tryCount')}{levelStats?.totalAttempts || 0}
         </Text>
+
         <View style={styles.wideSeparator} />
+
+        <View style={styles.level}>
+          <Text style={styles.levelText}>{t('game.level')}{currentLevel.name}</Text>
+        </View>
+
+        <View style={styles.wideSeparator} />
+
         <Text style={styles.statsText}>
           {extraLives > 0 && (
             <>
@@ -734,7 +746,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
         </Text>
       </View>
       <View style={styles.gameContainer}>
-        <View style={styles.maze}>
+        <View style={[styles.maze, { width: MAZE_SIZE, height: MAZE_SIZE }]}>
           {/* PET BALL */}
           <View
             style={[
@@ -742,6 +754,9 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
               {
                 left: ballPosition.x - BALL_SIZE / 2,
                 top: ballPosition.y - BALL_SIZE / 2,
+                width: BALL_SIZE,
+                height: BALL_SIZE,
+                borderRadius: BALL_SIZE / 2,
               }
             ]}
           >
@@ -796,6 +811,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
           )}
         </View>
       </View>
+
       <View style={styles.gameTimer}>
         <Text style={styles.gameTimerText}>
           {t('game.time')}{`${(gameTime / 1000).toFixed(2)}${t('game.gameTimeUnit')}`}
@@ -808,104 +824,104 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
         )}
       </View>
 
-        <View style={styles.controls}>
+      <View style={styles.controls}>
 
-          <View style={styles.flexButtonWrapper}>
-            <GradientButton 
-              titleKey="game.gameButtonToMenu"
-              onPress={() => navigation.goBack()} 
-              theme="darkBlue" 
-              style={styles.goBackButton}
-              textStyle={styles.goBackButtonText}
-            />
-          </View>
-
-          <View style={styles.separator} />
-
-          <GradientButton
-            theme="darkBeige"
-            onPress={handleGoToMazeStats}
-            iconName="stats-chart-outline"
-            style={styles.statsButton}
+        <View style={styles.flexButtonWrapper}>
+          <GradientButton 
+            titleKey="game.gameButtonToMenu"
+            onPress={() => navigation.goBack()} 
+            theme="darkBlue" 
+            style={styles.goBackButton}
+            textStyle={styles.goBackButtonText}
           />
+        </View>
 
-          <View style={styles.separator} />
-          
-          <View style={styles.flexButtonWrapper}>
-            <GradientButton 
-              title={getButtonTitle()}
-              onPress={resetGame} 
-              theme="darkGreen" 
-              style={styles.playButton}
-              textStyle={styles.playButtonText}
-            />
+        <View style={styles.separator} />
+
+        <GradientButton
+          theme="darkBeige"
+          onPress={handleGoToMazeStats}
+          iconName="stats-chart-outline"
+          style={styles.statsButton}
+        />
+
+        <View style={styles.separator} />
+        
+        <View style={styles.flexButtonWrapper}>
+          <GradientButton 
+            title={getButtonTitle()}
+            onPress={resetGame} 
+            theme="darkGreen" 
+            style={styles.playButton}
+            textStyle={styles.playButtonText}
+          />
+        </View>
+      </View>
+
+      <View style={styles.navControls}>
+
+        {/* JUMP 1 LEVEL BACK */}
+        <TouchableOpacity 
+          style={[styles.levelButton,
+            currentLevelId <= 1 && !completedLevels.has(MAZE_LEVELS.length) && styles.disabledButton
+          ]} 
+          onPress={previousLevel}
+          disabled={currentLevelId === 1 && !completedLevels.has(MAZE_LEVELS.length)}
+        >
+          <View style={styles.buttonContent}>
+            <Ionicons name="chevron-back" size={typography.h3} color="white" />
+            <Text style={styles.levelButtonText} numberOfLines={1}>{t('game.previousButtonText')}</Text>
           </View>
-        </View>
+        </TouchableOpacity>
 
-        <View style={styles.navControls}>
+        <View style={styles.separator} />
 
-          {/* JUMP 1 LEVEL BACK */}
-          <TouchableOpacity 
-            style={[styles.levelButton,
-              currentLevelId <= 1 && !completedLevels.has(MAZE_LEVELS.length) && styles.disabledButton
-            ]} 
-            onPress={previousLevel}
-            disabled={currentLevelId === 1 && !completedLevels.has(MAZE_LEVELS.length)}
-          >
-            <View style={styles.buttonContent}>
-              <Ionicons name="chevron-back" size={typography.h3} color="white" />
-              <Text style={styles.levelButtonText} numberOfLines={1}>{t('game.previousButtonText')}</Text>
-            </View>
-          </TouchableOpacity>
+        {/* JUMP 10 LEVELS BACK */}
+        <TouchableOpacity 
+          style={[styles.jumpButton,
+            currentLevelId <= 1 && !completedLevels.has(MAZE_LEVELS.length) && styles.disabledButton
+          ]} 
+          onPress={jump10Backward}
+          disabled={currentLevelId === 1 && !completedLevels.has(MAZE_LEVELS.length)}
+        >
+          <View style={styles.buttonContent}>
+            <Feather name="chevrons-left" size={typography.h4} color="white"/>
+            <Text style={styles.jumpButtonText}>10 </Text>
+          </View>
+        </TouchableOpacity>
 
-          <View style={styles.separator} />
+        <View style={styles.separator} />
 
-          {/* JUMP 10 LEVELS BACK */}
-          <TouchableOpacity 
-            style={[styles.jumpButton,
-              currentLevelId <= 1 && !completedLevels.has(MAZE_LEVELS.length) && styles.disabledButton
-            ]} 
-            onPress={jump10Backward}
-            disabled={currentLevelId === 1 && !completedLevels.has(MAZE_LEVELS.length)}
-          >
-            <View style={styles.buttonContent}>
-              <Feather name="chevrons-left" size={typography.h4} color="white"/>
-              <Text style={styles.jumpButtonText}>10 </Text>
-            </View>
-          </TouchableOpacity>
+        {/* JUMP 10 LEVELS FORWARD */}
+        <TouchableOpacity
+          style={[styles.jumpButton,
+            currentLevelId >= getMaxAccessibleLevel() && styles.disabledButton
+          ]}
+          onPress={jump10Forward}
+          disabled={currentLevelId >= getMaxAccessibleLevel()}
+        >
+          <View style={styles.buttonContent}>
+            <Text style={styles.jumpButtonText}> 10</Text>
+            <Feather name="chevrons-right" size={typography.h4} color="white"/>
+          </View>
+        </TouchableOpacity>
 
-          <View style={styles.separator} />
+        <View style={styles.separator} />
 
-          {/* JUMP 10 LEVELS FORWARD */}
-          <TouchableOpacity
-            style={[styles.jumpButton,
-              currentLevelId >= getMaxAccessibleLevel() && styles.disabledButton
-            ]}
-            onPress={jump10Forward}
-            disabled={currentLevelId >= getMaxAccessibleLevel()}
-          >
-            <View style={styles.buttonContent}>
-              <Text style={styles.jumpButtonText}> 10</Text>
-              <Feather name="chevrons-right" size={typography.h4} color="white"/>
-            </View>
-          </TouchableOpacity>
-
-          <View style={styles.separator} />
-
-          {/* JUMP 1 LEVEL FORWARD */}
-          <TouchableOpacity
-            style={[styles.levelButton, 
-              currentLevelId >= getMaxAccessibleLevel() && styles.disabledButton
-            ]}
-            onPress={nextLevel}
-            disabled={currentLevelId >= getMaxAccessibleLevel()}
-          >
-            <View style={styles.buttonContent}>
-              <Text style={styles.levelButtonText} numberOfLines={1}>{t('game.nextButtonText')}</Text>
-              <Ionicons name="chevron-forward" size={typography.h3} color="white"/>
-            </View>
-          </TouchableOpacity>
-        </View>
+        {/* JUMP 1 LEVEL FORWARD */}
+        <TouchableOpacity
+          style={[styles.levelButton, 
+            currentLevelId >= getMaxAccessibleLevel() && styles.disabledButton
+          ]}
+          onPress={nextLevel}
+          disabled={currentLevelId >= getMaxAccessibleLevel()}
+        >
+          <View style={styles.buttonContent}>
+            <Text style={styles.levelButtonText} numberOfLines={1}>{t('game.nextButtonText')}</Text>
+            <Ionicons name="chevron-forward" size={typography.h3} color="white"/>
+          </View>
+        </TouchableOpacity>
+      </View>
       
       {/* Confetti animation */}
       {showVictoryAnimation && !showGameCompletedAnimation && (
@@ -972,9 +988,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginLeft: 25,
+    marginBottom: 10,
   },
   logo: {
-    height: LOGO_HEIGHT,
     resizeMode: 'contain',
     width: '100%',
     transform: [{ rotate: '-15deg' }],
@@ -994,16 +1010,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   maze: {
-    width: MAZE_SIZE,
-    height: MAZE_SIZE,
     backgroundColor: '#f0f0f0ff',
     position: 'relative',
     borderRadius: 5,
   },
   ball: {
-    width: BALL_SIZE,
-    height: BALL_SIZE,
-    borderRadius: BALL_SIZE / 2,
     backgroundColor: '#fff56bff',
     position: 'absolute',
     alignItems: 'center',
@@ -1048,11 +1059,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   playButton: {
-    marginTop: 10,
-    // paddingHorizontal: 20,
-    paddingVertical: 15,
+    marginVertical: 5,
+    // paddingVertical: 15,
     borderRadius: 12,
-    // flex: 1,
     alignItems: 'center',
   },
   playButtonText: {
@@ -1061,17 +1070,15 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   statsButton: {
-    marginTop: 10,
+    marginVertical: 5,
     borderRadius: 12,
     alignItems: 'center',
   },
   goBackButton: {
-    marginTop: 10,
-    // paddingHorizontal: 20,
-    paddingVertical: 15,
+    marginVertical: 5,
+    // paddingVertical: 15,
     borderRadius: 12,
     alignItems: 'center',
-    // flex: 1,
   },
   goBackButtonText: {
     color: 'white',
@@ -1082,7 +1089,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   stats: {
-    marginTop: 30,
+    marginTop: 5,
     alignItems: 'center',
     flexDirection: 'row',
     width: '76%',
@@ -1092,10 +1099,10 @@ const styles = StyleSheet.create({
     color: '#bbb',
     fontWeight: 'bold',
     textAlign: 'center',
-    marginBottom: 5,
+    // marginBottom: 4,
   },
   gameTimer: {
-    marginTop: 6,
+    marginTop: 4,
     alignItems: 'center',
     flexDirection: 'row',
     width: '76%',
@@ -1132,14 +1139,14 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   level: {
-    marginTop: 10,
+    // marginTop: 10,
     alignItems: 'center',
   },
   levelText: {
     fontSize: typography.h3,
     fontWeight: 'bold',
     color: '#eee',
-    marginBottom: -35,
+    marginBottom: 4,
   },
   lottieContainer: {
     position: 'absolute',
