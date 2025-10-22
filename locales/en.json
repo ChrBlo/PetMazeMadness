@@ -30,7 +30,7 @@
     "notCompletedMaze": "You have not completed this maze yet!",
     "nextButtonText": "Next",
     "level": "Level ",
-    "previousButtonText": "Previous",
+    "previousButtonText": "Prev.",
     "top10NormalLabel":"Top 10 - Normal",
     "top10ChaosLabel":"Top 10 - Chaos",
     "goBackButton": "GO BACK"

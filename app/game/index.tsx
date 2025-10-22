@@ -1,4 +1,4 @@
-import { Ionicons } from "@expo/vector-icons";
+import { Feather, Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from '@react-navigation/native';
 import { useAudioPlayer } from 'expo-audio';
 import * as Haptics from 'expo-haptics';
@@ -512,6 +512,25 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
     }
   };
 
+  const getMaxAccessibleLevel = () => {
+    if (completedLevels.has(MAZE_LEVELS.length)) {
+      return MAZE_LEVELS.length;
+    }
+    
+    let maxLevel = 1;
+    for (let i = 1; i <= MAZE_LEVELS.length; i++) {
+      if (completedLevels.has(i))
+      {
+        maxLevel = i + 1;
+      }
+      else
+      {
+        break; 
+      }
+    }
+    return Math.min(maxLevel, MAZE_LEVELS.length);
+  };
+
   // NEXT LEVEL -----------------
   const nextLevel = () => {
 
@@ -563,6 +582,55 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
       setIsReady(false);
       setIsCountdownComplete(false);
     }
+  };
+
+  // JUMP 10 FORWARD -------------
+  const jump10Forward = () => {
+    isProcessingWin.current = false;
+    const maxAccessible = getMaxAccessibleLevel();
+    const newLevelId = Math.min(currentLevelId + 10, maxAccessible);
+
+    resetGameState();
+    resetTimer();
+    setShowVictoryAnimation(false);
+    
+    setCurrentLevelId(newLevelId);
+    const newLevel = getCurrentLevel(newLevelId);
+    setCurrentLevel(newLevel);
+    setBallPosition(getPosition(newLevel, MAZE_SIZE));
+
+    setShowExplosion(false);
+    setVelocity({ x: 0, y: 0 });
+    setExtraLivesUsed(0);
+
+    clearHistory();
+
+    setIsReady(false);
+    setIsCountdownComplete(false);
+  };
+
+  // JUMP 10 BACKWARD -------------
+  const jump10Backward = () => {
+    isProcessingWin.current = false;
+    const newLevelId = Math.max(currentLevelId - 10, 1);
+
+    resetGameState();
+    resetTimer();
+    setShowVictoryAnimation(false);
+    
+    setCurrentLevelId(newLevelId);
+    const newLevel = getCurrentLevel(newLevelId);
+    setCurrentLevel(newLevel);
+    setBallPosition(getPosition(newLevel, MAZE_SIZE));
+
+    setShowExplosion(false);
+    setVelocity({ x: 0, y: 0 });
+    setExtraLivesUsed(0);
+
+    clearHistory();
+
+    setIsReady(false);
+    setIsCountdownComplete(false);
   };
   
   // CUSTOM HOOKS ----------------
@@ -655,12 +723,12 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
         <Text style={styles.statsText}>
           {t('game.tryCount')}{levelStats?.totalAttempts || 0}
         </Text>
-        <View style={styles.separator} />
+        <View style={styles.wideSeparator} />
         <Text style={styles.statsText}>
           {extraLives > 0 && (
             <>
-              <PetImage source={selectedPet.emoji} size={16} />
-              <Text style={styles.statsText}>   : {extraLives}</Text>
+              <PetImage source={selectedPet.emoji} size={typography.h4} style={{ marginBottom: -6 }} />
+              <Text style={styles.statsText}>  : {extraLives}</Text>
             </>
           )}
         </Text>
@@ -723,7 +791,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
                 }
               ]}
             >
-              <Text style={styles.explosionText}>💥</Text>
+              <Image style={styles.explosionImage} source={require('../../assets/images/explosion.png')} />
             </View>
           )}
         </View>
@@ -732,67 +800,112 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
         <Text style={styles.gameTimerText}>
           {t('game.time')}{`${(gameTime / 1000).toFixed(2)}${t('game.gameTimeUnit')}`}
         </Text>
-        <View style={styles.separator} />
+        <View style={styles.wideSeparator} />
         {levelStats?.bestTime && (
           <Text style={styles.gameTimerText}>
             {t('game.bestTime')}{formatTime(levelStats.bestTime)}
           </Text>
         )}
       </View>
-      
-      {/* BUTTONS */}
-      <View style={styles.controls}>
-        <GradientButton 
-          titleKey="game.gameButtonToMenu"
-          onPress={() => navigation.goBack()} 
-          theme="darkBlue" 
-          style={styles.goBackButton}
-          textStyle={styles.goBackButtonText}
-        />
-        <GradientButton 
-          title={getButtonTitle()}
-          onPress={resetGame} 
-          theme="darkGreen" 
-          style={styles.playButton}
-          textStyle={styles.playButtonText}
-        />
-      </View>
 
-      <View style={styles.controls}>
-        <TouchableOpacity 
-          style={[styles.levelButton,
-            currentLevelId <= 1 && !completedLevels.has(MAZE_LEVELS.length) && styles.disabledButton
-          ]} 
-          onPress={previousLevel}
-          disabled={currentLevelId === 1 && !completedLevels.has(MAZE_LEVELS.length)}
-        >
-          <Text style={styles.levelButtonText}>
-            <Ionicons name="arrow-back" size={18} color="white" />  {t('game.previousButtonText')}
-          </Text>
-        </TouchableOpacity>
+        <View style={styles.controls}>
 
-        <View style={styles.separator} />
+          <View style={styles.flexButtonWrapper}>
+            <GradientButton 
+              titleKey="game.gameButtonToMenu"
+              onPress={() => navigation.goBack()} 
+              theme="darkBlue" 
+              style={styles.goBackButton}
+              textStyle={styles.goBackButtonText}
+            />
+          </View>
 
-        <GradientButton
-          theme="darkBeige"
-          onPress={handleGoToMazeStats}
-          iconName="stats-chart-outline"
-        />
+          <View style={styles.separator} />
 
-        <View style={styles.separator} />
+          <GradientButton
+            theme="darkBeige"
+            onPress={handleGoToMazeStats}
+            iconName="stats-chart-outline"
+            style={styles.statsButton}
+          />
 
-        <TouchableOpacity
-          style={[styles.levelButton, 
-            !completedLevels.has(currentLevelId) && currentLevelId < MAZE_LEVELS.length && styles.disabledButton
-          ]}
-          onPress={nextLevel}
-          disabled={!completedLevels.has(currentLevelId) && currentLevelId < MAZE_LEVELS.length}
-        >
-          <Text style={styles.levelButtonText}>
-            {t('game.nextButtonText')}  <Ionicons name="arrow-forward" size={18} color="white"/>
-          </Text>
-        </TouchableOpacity>
-      </View>
+          <View style={styles.separator} />
+          
+          <View style={styles.flexButtonWrapper}>
+            <GradientButton 
+              title={getButtonTitle()}
+              onPress={resetGame} 
+              theme="darkGreen" 
+              style={styles.playButton}
+              textStyle={styles.playButtonText}
+            />
+          </View>
+        </View>
+
+        <View style={styles.navControls}>
+
+          {/* JUMP 1 LEVEL BACK */}
+          <TouchableOpacity 
+            style={[styles.levelButton,
+              currentLevelId <= 1 && !completedLevels.has(MAZE_LEVELS.length) && styles.disabledButton
+            ]} 
+            onPress={previousLevel}
+            disabled={currentLevelId === 1 && !completedLevels.has(MAZE_LEVELS.length)}
+          >
+            <View style={styles.buttonContent}>
+              <Ionicons name="chevron-back" size={typography.h3} color="white" />
+              <Text style={styles.levelButtonText} numberOfLines={1}>{t('game.previousButtonText')}</Text>
+            </View>
+          </TouchableOpacity>
+
+          <View style={styles.separator} />
+
+          {/* JUMP 10 LEVELS BACK */}
+          <TouchableOpacity 
+            style={[styles.jumpButton,
+              currentLevelId <= 1 && !completedLevels.has(MAZE_LEVELS.length) && styles.disabledButton
+            ]} 
+            onPress={jump10Backward}
+            disabled={currentLevelId === 1 && !completedLevels.has(MAZE_LEVELS.length)}
+          >
+            <View style={styles.buttonContent}>
+              <Feather name="chevrons-left" size={typography.h4} color="white"/>
+              <Text style={styles.jumpButtonText}>10 </Text>
+            </View>
+          </TouchableOpacity>
+
+          <View style={styles.separator} />
+
+          {/* JUMP 10 LEVELS FORWARD */}
+          <TouchableOpacity
+            style={[styles.jumpButton,
+              currentLevelId >= getMaxAccessibleLevel() && styles.disabledButton
+            ]}
+            onPress={jump10Forward}
+            disabled={currentLevelId >= getMaxAccessibleLevel()}
+          >
+            <View style={styles.buttonContent}>
+              <Text style={styles.jumpButtonText}> 10</Text>
+              <Feather name="chevrons-right" size={typography.h4} color="white"/>
+            </View>
+          </TouchableOpacity>
+
+          <View style={styles.separator} />
+
+          {/* JUMP 1 LEVEL FORWARD */}
+          <TouchableOpacity
+            style={[styles.levelButton, 
+              currentLevelId >= getMaxAccessibleLevel() && styles.disabledButton
+            ]}
+            onPress={nextLevel}
+            disabled={currentLevelId >= getMaxAccessibleLevel()}
+          >
+            <View style={styles.buttonContent}>
+              <Text style={styles.levelButtonText} numberOfLines={1}>{t('game.nextButtonText')}</Text>
+              <Ionicons name="chevron-forward" size={typography.h3} color="white"/>
+            </View>
+          </TouchableOpacity>
+        </View>
       
       {/* Confetti animation */}
       {showVictoryAnimation && !showGameCompletedAnimation && (
@@ -913,21 +1026,33 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     zIndex: 1000,
   },
-  explosionText: {
-    fontSize: typography.h2,
+  explosionImage: {
+    width: 30,
+    height: 30,
+    position: 'absolute',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   controls: {
-    marginTop: 5,
     justifyContent: 'center',
     flexDirection: 'row',
-    width: '77%',
+    gap: 5,
+    width: '90%',
+    alignItems: 'center',
+  },
+  navControls: {
+    justifyContent: 'center',
+    flexDirection: 'row',
+    gap: 5,
+    width: '90%',
+    alignItems: 'center',
   },
   playButton: {
-    marginTop: 5,
-    paddingHorizontal: 20,
+    marginTop: 10,
+    // paddingHorizontal: 20,
     paddingVertical: 15,
     borderRadius: 12,
-    width: 170,
+    // flex: 1,
     alignItems: 'center',
   },
   playButtonText: {
@@ -935,18 +1060,26 @@ const styles = StyleSheet.create({
     fontSize: typography.h5,
     fontWeight: 'bold',
   },
+  statsButton: {
+    marginTop: 10,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
   goBackButton: {
-    marginTop: 5,
-    paddingHorizontal: 20,
+    marginTop: 10,
+    // paddingHorizontal: 20,
     paddingVertical: 15,
     borderRadius: 12,
     alignItems: 'center',
-    width: 170,
+    // flex: 1,
   },
   goBackButtonText: {
     color: 'white',
     fontSize: typography.h5,
     fontWeight: 'bold',
+  },
+  flexButtonWrapper: {
+    flex: 1,
   },
   stats: {
     marginTop: 30,
@@ -974,6 +1107,9 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   separator: {
+    width: 5,
+  },
+  wideSeparator: {
     flex: 1,
   },
   levelButton: {
@@ -981,11 +1117,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 12,
-    marginTop: 5,
+    marginTop: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
   },
   levelButtonText: {
     color: 'white',
-    fontSize: typography.small,
+    fontSize: typography.body,
     fontWeight: 'bold',
   },
   disabledButton: {
@@ -1000,7 +1139,7 @@ const styles = StyleSheet.create({
     fontSize: typography.h3,
     fontWeight: 'bold',
     color: '#eee',
-    marginBottom: -25,
+    marginBottom: -35,
   },
   lottieContainer: {
     position: 'absolute',
@@ -1035,5 +1174,23 @@ const styles = StyleSheet.create({
     position: 'absolute',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  jumpButton: {
+    backgroundColor: '#3d3d3dff',
+    paddingHorizontal: 2,
+    paddingVertical: 10,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 10,
+  },
+  buttonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  jumpButtonText: {
+    color: 'white',
+    fontSize: typography.body,
+    fontWeight: 'bold',
   },
 });

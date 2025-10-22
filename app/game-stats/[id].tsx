@@ -13,6 +13,7 @@ import { formatTime } from "../../utils/game-helpers";
 import { CompletionRecord, ScoreManager } from "../../utils/score-manager";
 import { typography } from "../../utils/typography";
 import { GameStatsScreenProps } from "../root-layout";
+import Feather from '@expo/vector-icons/Feather';
 
 const WALL_CELL = 1;
 const GOAL_CELL = 2;
@@ -90,15 +91,25 @@ export default function MazeStatisticsScreen({ route, navigation }: GameStatsScr
     </View>
   );
 
-const nextLevel = () => {
-  if (currentLevelId < maxLevel) {
-    setCurrentLevelId(currentLevelId + 1);
-  }
-};
+  const nextLevel = () => {
+    if (currentLevelId < maxLevel) {
+      setCurrentLevelId(currentLevelId + 1);
+    }
+  };
 
-const previousLevel = () => {
-  setCurrentLevelId(currentLevelId - 1);
-};
+  const previousLevel = () => {
+    setCurrentLevelId(currentLevelId - 1);
+  };
+
+  const jump10Forward = () => {
+    const newLevel = Math.min(currentLevelId + 10, maxLevel);
+    setCurrentLevelId(newLevel);
+  };
+
+  const jump10Backward = () => {
+    const newLevel = Math.max(currentLevelId - 10, 1);
+    setCurrentLevelId(newLevel);
+  };
   
   const renderLeaderboardItem = ({ item, index }: { item: CompletionRecord, index: number }) => (
     <View style={styles.leaderboardItem}>
@@ -179,29 +190,63 @@ const previousLevel = () => {
       </View>
 
       <View style={styles.controls}>
+
+        {/* JUMP 1 LEVEL BACK */}
         <TouchableOpacity 
           style={[styles.levelButton, currentLevelId <= 1 && styles.disabledButton]} 
           onPress={previousLevel}
           disabled={currentLevelId <= 1}
-          >
-          <Text style={styles.levelButtonText}>
-            <Ionicons name="arrow-back" size={18} color="white" />  {t('statistics.previousButtonText')}
-          </Text>
+        >
+          <View style={styles.buttonContent}>
+            <Feather name="chevron-left" size={typography.h3} color="white" />
+            <Text style={styles.levelButtonText} numberOfLines={1}>{t('statistics.previousButtonText')} </Text>
+          </View>
         </TouchableOpacity>
-
+        
         <View style={styles.separator} />
 
+        {/* JUMP 10 LEVELS BACK */}
+          <TouchableOpacity 
+            style={[styles.jumpButton, currentLevelId <= 10 && styles.disabledButton]} 
+            onPress={jump10Backward}
+            disabled={currentLevelId <= 1}
+          >
+            <View style={styles.buttonContent}>
+              <Feather name="chevrons-left" size={typography.h4} color="white" />
+              <Text style={styles.jumpButtonText}>10 </Text>
+            </View>
+          </TouchableOpacity>
+
+          <View style={styles.separator} />
+
+          {/* JUMP 10 LEVELS FORWARD */}
+          <TouchableOpacity
+            style={[styles.jumpButton, currentLevelId >= maxLevel - 9 && styles.disabledButton]}
+            onPress={jump10Forward}
+            disabled={currentLevelId >= maxLevel}
+          >
+            <View style={styles.buttonContent}>
+              <Text style={styles.jumpButtonText}> 10</Text>
+              <Feather name="chevrons-right" size={typography.h4} color="white"/>
+            </View>
+          </TouchableOpacity>
+        
+        <View style={styles.separator} />
+
+        {/* JUMP 1 LEVEL FORWARD */}
         <TouchableOpacity
           style={[styles.levelButton, currentLevelId >= maxLevel && styles.disabledButton]}
           onPress={nextLevel}
           disabled={currentLevelId >= maxLevel}
-          >
-          <Text style={styles.levelButtonText}>
-            {t('statistics.nextButtonText')}  <Ionicons name="arrow-forward" size={18} color="white"/>
-          </Text>
+        >
+          <View style={styles.buttonContent}>
+            <Text style={styles.levelButtonText} numberOfLines={1}>{t('statistics.nextButtonText')}</Text>
+            <Feather name="chevron-right" size={typography.h3} color="white"/>
+          </View>
         </TouchableOpacity>
       </View>
       
+      {/* GO BACK BUTTON */}
       <View style={styles.buttonContainer}>
         <GradientButton
           titleKey="statistics.goBackButton"
@@ -244,15 +289,13 @@ const styles = StyleSheet.create({
   },
   goToGameButton: {
     marginTop: 10,
-    paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 12,
-    width: '100%',
+    width: '90%',
   },
   buttonContainer: {
     width: '100%',
     alignItems: 'center',
-    paddingHorizontal: 20,
   },
   goToStartMenuText: {
     color: '#ffffffff',
@@ -261,7 +304,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   leaderboardContainer: {
-    marginTop: 30,
+    marginTop: 20,
     padding: 15,
     borderRadius: 10,
     width: '90%',
@@ -321,24 +364,27 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   controls: {
-    marginTop: 5,
     justifyContent: 'center',
     flexDirection: 'row',
-    width: '80%',
+    gap: 5,
+    width: '90%',
   },
   separator: {
-    flex:1,
+    width: 5,
   },
   levelButton: {
     backgroundColor: '#3d3d3dff',
-    paddingHorizontal: 20,
+    paddingHorizontal: 10,
     paddingVertical: 10,
     borderRadius: 12,
     marginTop: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
   },
   levelButtonText: {
     color: 'white',
-    fontSize: typography.small,
+    fontSize: typography.h5,
     fontWeight: 'bold',
   },
   disabledButton: {
@@ -380,5 +426,23 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
+  },
+  jumpButton: {
+    backgroundColor: '#5da6d6ff',
+    paddingHorizontal: 2,
+    paddingVertical: 10,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 10,
+  },
+  jumpButtonText: {
+    color: 'white',
+    fontSize: typography.body,
+    fontWeight: 'bold',
+  },
+    buttonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 });

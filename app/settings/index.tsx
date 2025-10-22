@@ -68,146 +68,146 @@ export default function SettingsScreen({ route, navigation }: SettingsScreenProp
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={true}
         >
-    <View style={styles.container}>
+      <View style={styles.innerContainer}>
       
-      <Text style={styles.title}>{t('settings.screenTitle')}</Text>
+        <Text style={styles.title}>{t('settings.screenTitle')}</Text>
 
-      <View>
-        <Text style={styles.settingsLabel}>{t('settings.selectPetLabel')}</Text>
-      
-        <TouchableOpacity style={styles.settingRow} onPress={() => setShowPetSelector(true)}>
-          <Text style={styles.settingsText}>{t('settings.selectPet')}</Text>
-          <View style={styles.petPreview}>
-            {/* <Text style={styles.petEmoji}>{selectedPet.emoji}</Text> */}
-            <PetImage source={selectedPet.emoji} size={24} />
-          </View>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.settingRow} onPress={handleNameEdit}>
-          <Text style={styles.settingsText}>{t('settings.name')}</Text>
-          <Text style={styles.petNameDisplay}>{getTranslatedPetName(selectedPet)}</Text>
-        </TouchableOpacity>
-      </View>
-
-      <Text style={styles.settingsLabel}>{t('settings.gameControlsLabel')}</Text>
-      <View style={styles.settingRow}>
-
-        <Text style={styles.settingsText}>{t('settings.gyroMode')}</Text>
-        <View style={styles.segmentedControl}>
-          <TouchableOpacity
-            style={[styles.segment, selectedGyroMode === GyroMode.NORMAL && styles.activeSegment]}
-            onPress={() => setSelectedGyroMode(GyroMode.NORMAL)}
-          >
-            <Text style={styles.segmentText}>{t('settings.gyroModeNormal')}</Text>
+        <View>
+          <Text style={styles.settingsLabel}>{t('settings.selectPetLabel')}</Text>
+        
+          <TouchableOpacity style={styles.settingRow} onPress={() => setShowPetSelector(true)}>
+            <Text style={styles.settingsText}>{t('settings.selectPet')}</Text>
+            <View style={styles.petPreview}>
+              <PetImage source={selectedPet.emoji} size={typography.h1} />
+            </View>
           </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.segment, selectedGyroMode === GyroMode.CHAOS && styles.activeSegment]}
-            onPress={() => setSelectedGyroMode(GyroMode.CHAOS)}
-          >
-            <Text style={styles.segmentText}>{t('settings.gyroModeChaos')}</Text>
+
+          <TouchableOpacity style={styles.settingRow} onPress={handleNameEdit}>
+            <Text style={styles.settingsText}>{t('settings.name')}</Text>
+            <Text style={styles.petNameDisplay}>{getTranslatedPetName(selectedPet)}</Text>
           </TouchableOpacity>
         </View>
-      </View>
 
-      <Text style={styles.settingsLabel}>{t('settings.invertControlsLabel')}</Text>
-      <View style={styles.settingRow}>
-        <Text style={styles.settingsText}>
-          {t('settings.invert')}
-        </Text>
-        <Switch
-          value={invertedGameControls}
-          onValueChange={setInvertedGameControls}
-          trackColor={{ false: '#666', true: '#5ccf9fff' }}
-        />
-      </View>
+        <Text style={styles.settingsLabel}>{t('settings.gameControlsLabel')}</Text>
+        <View style={styles.settingRow}>
 
-      <GradientButton
-        titleKey="settings.saveButtonText"
-        onPress={goBack}
-        theme="blue"
-        style={styles.backButton}
-        textStyle={styles.backButtonText}
-      />
-
-      {/* Pet Selector Modal */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={showPetSelector}
-        onRequestClose={() => setShowPetSelector(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>{t('settings.selectYourPet')}</Text>
-            <ScrollView style={styles.petGrid}>
-              {pets.map((pet) => (
-                <TouchableOpacity
-                  key={pet.id}
-                  style={[
-                    styles.petOption,
-                    selectedPet.id === pet.id && styles.selectedPetOption
-                  ]}
-                  onPress={() => handlePetSelection(pet.id)}
-                >
-                  <PetImage source={pet.emoji} size={typography.h1} style={{ marginRight: 15 }} />
-                  <Text style={styles.petOptionName}>{t(pet.name)}</Text>
-                  <View style={styles.separator} />
-                  <Text style={styles.petOptionName}>{t('settings.enemy')}</Text>
-                  <PetImage source={pet.enemyEmoji} size={typography.h1} style={{ marginRight: 10 }}/>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
+          <Text style={styles.settingsText}>{t('settings.gyroMode')}</Text>
+          <View style={styles.segmentedControl}>
             <TouchableOpacity
-              style={styles.modalCloseButton}
-              onPress={() => setShowPetSelector(false)}
+              style={[styles.segment, selectedGyroMode === GyroMode.NORMAL && styles.activeSegment]}
+              onPress={() => setSelectedGyroMode(GyroMode.NORMAL)}
             >
-              <Text style={styles.modalCloseText}>{t('settings.savePetAndNameSelctionButtons')}</Text>
+              <Text style={styles.segmentText}>{t('settings.gyroModeNormal')}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.segment, selectedGyroMode === GyroMode.CHAOS && styles.activeSegment]}
+              onPress={() => setSelectedGyroMode(GyroMode.CHAOS)}
+            >
+              <Text style={styles.segmentText}>{t('settings.gyroModeChaos')}</Text>
             </TouchableOpacity>
           </View>
         </View>
-      </Modal>
 
-      {/* Name Edit Modal */}
-      <Modal
-        animationType="fade"
-        transparent={true}
-        visible={showNameEditor}
-        onRequestClose={handleNameEditCancel}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.nameModalContent}>
-            <Text style={styles.modalTitle}>{t('settings.nameYourPet')}</Text>
-            {/* <Text style={styles.petEmoji}>{selectedPet.emoji}</Text> */}
-            <PetImage source={selectedPet.emoji} size={50} />
-            <TextInput
-              style={styles.nameInput}
-              value={customName}
-              onChangeText={setCustomName}
-              placeholder={t(getPetById(selectedPet.id).name)}
-              placeholderTextColor="#999"
-              maxLength={25}
-              autoFocus
-            />
-            <TouchableOpacity
-              style={styles.clearButton}
-              onPress={() => { setCustomName('') }}
-              activeOpacity={0.7}
-            >
-              <Text style={styles.clearButtonText}>✕</Text>
-            </TouchableOpacity>
-            <View style={styles.nameModalButtons}>
-              <TouchableOpacity style={styles.nameButton} onPress={handleNameEditCancel}>
-                <Text style={styles.nameButtonText}>{t('settings.abortNamingPetButton')}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={[styles.nameButton, styles.saveButton]} onPress={handleNameSave}>
-                <Text style={styles.nameButtonText}>{t('settings.savePetAndNameSelctionButtons')}</Text>
+        <Text style={styles.settingsLabel}>{t('settings.invertControlsLabel')}</Text>
+        <View style={styles.settingRow}>
+          <Text style={styles.settingsText}>
+            {t('settings.invert')}
+          </Text>
+          <Switch
+            value={invertedGameControls}
+            onValueChange={setInvertedGameControls}
+            trackColor={{ false: '#666', true: '#5ccf9fff' }}
+          />
+        </View>
+      </View>
+
+        <View style={styles.buttonWrapper}>
+          <GradientButton
+            titleKey="settings.saveButtonText"
+            onPress={goBack}
+            theme="blue"
+            style={styles.backButton}
+            textStyle={styles.backButtonText}
+          />
+        </View>
+
+        {/* Pet Selector Modal */}
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={showPetSelector}
+          onRequestClose={() => setShowPetSelector(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>{t('settings.selectYourPet')}</Text>
+              <ScrollView style={styles.petGrid}>
+                {pets.map((pet) => (
+                  <TouchableOpacity
+                    key={pet.id}
+                    style={[
+                      styles.petOption,
+                      selectedPet.id === pet.id && styles.selectedPetOption
+                    ]}
+                    onPress={() => handlePetSelection(pet.id)}
+                  >
+                    <PetImage source={pet.emoji} size={typography.h1} style={{ marginRight: 15 }} />
+                    <Text style={styles.petOptionName}>{t(pet.name)}</Text>
+                    <View style={styles.separator} />
+                    <Text style={styles.petOptionName}>{t('settings.enemy')}</Text>
+                    <PetImage source={pet.enemyEmoji} size={typography.h1} style={{ marginRight: 10 }}/>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+              <TouchableOpacity
+                style={styles.modalCloseButton}
+                onPress={() => setShowPetSelector(false)}
+              >
+                <Text style={styles.modalCloseText}>{t('settings.savePetAndNameSelctionButtons')}</Text>
               </TouchableOpacity>
             </View>
           </View>
-        </View>
-      </Modal>
+        </Modal>
+
+        {/* Name Edit Modal */}
+        <Modal
+          animationType="fade"
+          transparent={true}
+          visible={showNameEditor}
+          onRequestClose={handleNameEditCancel}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.nameModalContent}>
+              <Text style={styles.modalTitle}>{t('settings.nameYourPet')}</Text>
+              <PetImage source={selectedPet.emoji} size={50} />
+              <TextInput
+                style={styles.nameInput}
+                value={customName}
+                onChangeText={setCustomName}
+                placeholder={t(getPetById(selectedPet.id).name)}
+                placeholderTextColor="#999"
+                maxLength={25}
+                autoFocus
+              />
+              <TouchableOpacity
+                style={styles.clearButton}
+                onPress={() => { setCustomName('') }}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.clearButtonText}>✕</Text>
+              </TouchableOpacity>
+              <View style={styles.nameModalButtons}>
+                <TouchableOpacity style={styles.nameButton} onPress={handleNameEditCancel}>
+                  <Text style={styles.nameButtonText}>{t('settings.abortNamingPetButton')}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={[styles.nameButton, styles.saveButton]} onPress={handleNameSave}>
+                  <Text style={styles.nameButtonText}>{t('settings.savePetAndNameSelctionButtons')}</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
     
-      </View>
     </ScrollView>
   );
 }
@@ -219,8 +219,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#221c17ff',
-    padding: 20,
     paddingTop: 30,
+  },
+  innerContainer: {
+    padding: '10%',
   },
   title: {
     fontSize: typography.h3,
@@ -258,11 +260,15 @@ const styles = StyleSheet.create({
     color: '#5ccf9fff',
     fontWeight: 'bold',
   },
+  buttonWrapper: {
+    width: '100%',
+    alignSelf: 'center',
+  },
   backButton: {
-    padding: 10,
     borderRadius: 12,
     marginTop: 15,
-    width: '100%',
+    width: '80%',
+    alignSelf: 'center',
   },
   backButtonText: {
     textAlign: 'center',
@@ -277,6 +283,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalContent: {
+    marginTop: '30%',
     backgroundColor: '#2d2d2d',
     borderRadius: 15,
     padding: 20,
@@ -292,15 +299,15 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   petGrid: {
-    maxHeight: 300,
+    maxHeight: 350,
   },
   petOption: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 8,
+    padding: 10,
     paddingLeft: 14,
     borderRadius: 10,
-    marginBottom: 10,
+    marginBottom: 12,
     backgroundColor: '#666',
   },
   selectedPetOption: {
@@ -362,8 +369,7 @@ const styles = StyleSheet.create({
   clearButton: {
     position: 'absolute',
     right: 35,
-    top: '69%',
-    transform: [{ translateY: -12 }],
+    top: '66.5%',
     width: 24,
     height: 24,
     borderRadius: 12,
