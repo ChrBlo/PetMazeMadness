@@ -727,7 +727,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
         <Text style={styles.statsText}>
           {extraLives > 0 && (
             <>
-              <PetImage source={selectedPet.emoji} size={typography.h4} style={{ marginBottom: -6 }} />
+              <PetImage source={selectedPet.emoji} size={typography.h4} style={{ paddingBottom: -6 }} />
               <Text style={styles.statsText}>  : {extraLives}</Text>
             </>
           )}

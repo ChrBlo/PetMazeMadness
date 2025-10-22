@@ -1,4 +1,4 @@
-import { Ionicons } from "@expo/vector-icons";
+import Feather from '@expo/vector-icons/Feather';
 import { BlurView } from 'expo-blur';
 import { useEffect, useState } from "react";
 import { useTranslation } from 'react-i18next';
@@ -7,13 +7,12 @@ import { GradientButton } from "../../components/gradient-button";
 import { MazeRenderer } from "../../components/maze-renderer";
 import PetImage from "../../components/pet-image";
 import { getCurrentLevel, MAZE_LEVELS } from "../../data/maze-layouts";
-import { getDefaultPet } from '../../data/pets';
+import { getDefaultPet, getPetById } from '../../data/pets';
 import { GyroMode } from "../../hooks/useGameSensors";
 import { formatTime } from "../../utils/game-helpers";
 import { CompletionRecord, ScoreManager } from "../../utils/score-manager";
 import { typography } from "../../utils/typography";
 import { GameStatsScreenProps } from "../root-layout";
-import Feather from '@expo/vector-icons/Feather';
 
 const WALL_CELL = 1;
 const GOAL_CELL = 2;
@@ -111,16 +110,26 @@ export default function MazeStatisticsScreen({ route, navigation }: GameStatsScr
     setCurrentLevelId(newLevel);
   };
   
-  const renderLeaderboardItem = ({ item, index }: { item: CompletionRecord, index: number }) => (
-    <View style={styles.leaderboardItem}>
-      <Text style={styles.rank}>#{index + 1}</Text>
-      <Text style={styles.petInfo}>{item.petEmoji} {item.petName}</Text>
-      <Text style={styles.extraLives}>
-        {item.extraLivesUsed > 0 ? `${item.petEmoji}: ${item.extraLivesUsed}  ` : ``}
-      </Text>      
-      <Text style={styles.time}>    {formatTime(item.completionTime)}</Text>
-    </View>
-  );
+  const renderLeaderboardItem = ({ item, index }: { item: CompletionRecord, index: number }) => {
+    const pet = getPetById(item.petId);
+  
+    return (
+      <View style={styles.leaderboardItem}>
+        <Text style={styles.rank}>#{index + 1}</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, gap: 8 }}>
+          <PetImage source={pet.emoji} size={typography.h4} />
+          <Text style={styles.petInfo}>{item.petName}</Text>
+        </View>
+        {item.extraLivesUsed > 0 && (
+          <View style={styles.extraLives}>
+            <PetImage source={pet.emoji} size={typography.body} />
+            <Text style={styles.extraLivesText}>: {item.extraLivesUsed}</Text>
+          </View>
+        )}
+        <Text style={styles.time}>    {formatTime(item.completionTime)}</Text>
+      </View>
+    );
+  };
 
   return (
     <ScrollView
@@ -337,7 +346,6 @@ const styles = StyleSheet.create({
   petInfo: {
     fontSize: typography.small,
     color: '#eee',
-    flex: 1,
   },
   time: {
     fontSize: typography.small,
@@ -357,11 +365,15 @@ const styles = StyleSheet.create({
     color: '#5ccf9fff',
   },
   extraLives: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    width: 50,
+  },
+  extraLivesText: {
     fontSize: typography.tiny,
     color: '#ff6b6b',
     fontWeight: 'bold',
-    width: 40,
-    textAlign: 'center',
   },
   controls: {
     justifyContent: 'center',
