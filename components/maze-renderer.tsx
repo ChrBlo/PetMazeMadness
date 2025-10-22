@@ -1,6 +1,6 @@
 import { Image } from 'expo-image';
-import React from 'react';
-import { StyleSheet, Text, View } from "react-native";
+import React, { useState } from 'react';
+import { StyleSheet, View } from "react-native";
 
 const fruitImages = [
   require('../assets/images/snacks/fruit_melon.png'),
@@ -62,6 +62,8 @@ export const MazeRenderer: React.FC<MazeRendererProps> = React.memo(({
   secretSnackCell,
 }) => {
 
+  const [fruitAssignments] = useState(() => new Map<string, number>());
+  
   const SNACK_SIZE = Math.floor(cellSize * 0.75);
   const GOAL_SIZE = Math.floor(cellSize * 0.85);
 
@@ -130,8 +132,10 @@ export const MazeRenderer: React.FC<MazeRendererProps> = React.memo(({
         const snackKey = `${row}-${col}`;
         if (!eatenSnacks.has(snackKey))
         {
-          const seed = simpleHash(snackKey) % fruitImages.length;
-          const fruitImage = fruitImages[seed];
+          if (!fruitAssignments.has(snackKey)) {
+            fruitAssignments.set(snackKey, Math.floor(Math.random() * fruitImages.length));
+          }
+          const fruitImage = fruitImages[fruitAssignments.get(snackKey)!];
 
           healthSnacks.push(
             <Image
@@ -203,8 +207,10 @@ export const MazeRenderer: React.FC<MazeRendererProps> = React.memo(({
         const snackKey = `${row}-${col}`;
         if (!eatenSnacks.has(snackKey))
         {
-          const seed = simpleHash(snackKey) % fruitImages.length;
-          const fruitImage = fruitImages[seed];
+          if (!fruitAssignments.has(snackKey)) {
+            fruitAssignments.set(snackKey, Math.floor(Math.random() * fruitImages.length));
+          }
+          const fruitImage = fruitImages[fruitAssignments.get(snackKey)!];
 
           healthSnacks.push(
             <Image
