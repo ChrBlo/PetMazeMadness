@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Modal, ScrollView, StyleSheet, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { GradientButton } from '../../components/gradient-button';
 import PetImage from '../../components/pet-image';
-import { getDefaultPet, getPetById, Pet, pets } from '../../data/pets';
+import { getDefaultPet, getPetById, Pet, pets, getTranslatedPetName, getPetByIdWithTranslation } from '../../data/pets';
 import { GyroMode } from '../../hooks/useGameSensors';
 import { CRUDManager } from '../../utils/CRUD-manager';
 import { typography } from '../../utils/typography';
@@ -20,7 +20,7 @@ export default function SettingsScreen({ route, navigation }: SettingsScreenProp
   const [invertedGameControls, setInvertedGameControls] = useState(route.params?.invertedGameControls ?? false);
   
   const handlePetSelection = async (petId: string) => {
-    const newPet = getPetById(petId);
+    const newPet = getPetByIdWithTranslation(petId);
     setSelectedPet(newPet);
     setCustomName(newPet.name);
     setShowPetSelector(false);
@@ -85,7 +85,7 @@ export default function SettingsScreen({ route, navigation }: SettingsScreenProp
 
         <TouchableOpacity style={styles.settingRow} onPress={handleNameEdit}>
           <Text style={styles.settingsText}>{t('settings.name')}</Text>
-          <Text style={styles.petNameDisplay}>{selectedPet.name}</Text>
+          <Text style={styles.petNameDisplay}>{getTranslatedPetName(selectedPet)}</Text>
         </TouchableOpacity>
       </View>
 
@@ -149,11 +149,11 @@ export default function SettingsScreen({ route, navigation }: SettingsScreenProp
                   ]}
                   onPress={() => handlePetSelection(pet.id)}
                 >
-                  <PetImage source={pet.emoji} size={24} style={{ marginRight: 15 }} />
-                  <Text style={styles.petOptionName}>{pet.name}</Text>
+                  <PetImage source={pet.emoji} size={typography.h1} style={{ marginRight: 15 }} />
+                  <Text style={styles.petOptionName}>{t(pet.name)}</Text>
                   <View style={styles.separator} />
                   <Text style={styles.petOptionName}>{t('settings.enemy')}</Text>
-                  <PetImage source={pet.enemyEmoji} size={24} />
+                  <PetImage source={pet.enemyEmoji} size={typography.h1} style={{ marginRight: 10 }}/>
                 </TouchableOpacity>
               ))}
             </ScrollView>
@@ -183,7 +183,7 @@ export default function SettingsScreen({ route, navigation }: SettingsScreenProp
               style={styles.nameInput}
               value={customName}
               onChangeText={setCustomName}
-              placeholder={getPetById(selectedPet.id).name}
+              placeholder={t(getPetById(selectedPet.id).name)}
               placeholderTextColor="#999"
               maxLength={25}
               autoFocus

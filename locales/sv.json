@@ -63,5 +63,15 @@
     "BadgeDisplayComponent": {
     "normalBadgeText": "Normal",
     "chaosBadgeText": "Kaos"
+  },
+  "pets": {
+    "hamster": "Fjutten",
+    "cat": "Fräs",
+    "dog": "Voff",
+    "bunny": "Hopplös",
+    "frog": "Boll",
+    "goat": "Bosse",
+    "chick": "Pip",
+    "trex": "Rex"
   }
 }
