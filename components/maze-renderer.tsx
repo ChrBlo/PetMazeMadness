@@ -5,6 +5,9 @@ import { StyleSheet, Text, View } from "react-native";
 const fruitImages = [
   require('../assets/images/snacks/fruit_melon.png'),
   require('../assets/images/snacks/fruit_cherry.png'),
+  require('../assets/images/snacks/fruit_apple.png'),
+  require('../assets/images/snacks/fruit_grapes.png'),
+  require('../assets/images/snacks/fruit_banana.png'),
 ];
 
 const simpleHash = (str: string): number => {
