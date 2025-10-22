@@ -10,6 +10,21 @@ const fruitImages = [
   require('../assets/images/snacks/fruit_banana.png'),
 ];
 
+const wallImages = [
+  require('../assets/images/walls/rock1.png'),
+  require('../assets/images/walls/rock2.png'),
+  require('../assets/images/walls/rock3.png'),
+  require('../assets/images/walls/rock4.png'),
+  require('../assets/images/walls/rock5.png'),
+  require('../assets/images/walls/rock6.png'),
+];
+
+const getWallImage = (row: number, col: number): any => {
+  const key = `wall-${row}-${col}`;
+  const seed = simpleHash(key) % wallImages.length;
+  return wallImages[seed];
+};
+
 const simpleHash = (str: string): number => {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
@@ -64,10 +79,12 @@ export const MazeRenderer: React.FC<MazeRendererProps> = React.memo(({
           
       if (cell === wallCell || cell === secretWallCell)
       {
+        const wallImage = getWallImage(row, col);
+
         walls.push(
           <Image
             key={key}
-            source={require('../assets/images/pixelsten_removed_bg.png')}
+            source={wallImage}
             style={[
               styles.wall,
               {
@@ -87,10 +104,12 @@ export const MazeRenderer: React.FC<MazeRendererProps> = React.memo(({
       }
       else if (cell === secretSnackCell)
       {
+        const wallImage = getWallImage(row, col);
+
         walls.push(
           <Image
             key={key}
-            source={require('../assets/images/pixelsten_removed_bg.png')}
+            source={wallImage}
             style={[
               styles.wall,
               {
@@ -162,7 +181,7 @@ export const MazeRenderer: React.FC<MazeRendererProps> = React.memo(({
         explosiveWalls.push(
           <Image
             key={key}
-            source={require('../assets/images/eld.png')}
+            source={require('../assets/images/fire.png')}
             style={[
               styles.wall,
               {
