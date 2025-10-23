@@ -540,21 +540,18 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
     return Math.min(maxLevel, MAZE_LEVELS.length);
   };
 
-  // NEXT LEVEL -----------------
-  const nextLevel = () => {
-
+  const navigateToLevel = (newLevelId: number) => {
     isProcessingWin.current = false;
-    const nextId = currentLevelId >= MAZE_LEVELS.length ? 1 : currentLevelId + 1;
 
-    resetGameState(); // Jotai - reset atoms
+    resetGameState();
     resetTimer();
     setShowVictoryAnimation(false);
     
-    setCurrentLevelId(nextId);
-    const newLevel = getCurrentLevel(nextId);
+    setCurrentLevelId(newLevelId);
+    const newLevel = getCurrentLevel(newLevelId);
     setCurrentLevel(newLevel);
     setBallPosition(getPosition(newLevel, MAZE_SIZE));
-  
+
     setShowExplosion(false);
     setVelocity({ x: 0, y: 0 });
     setExtraLivesUsed(0);
@@ -565,81 +562,30 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
     setIsCountdownComplete(false);
   };
 
-  // PREVIOUS LEVEL -------------
-  const previousLevel = () => {
+  // NEXT LEVEL - just calculate new ID
+  const nextLevel = () => {
+    const nextId = currentLevelId >= MAZE_LEVELS.length ? 1 : currentLevelId + 1;
+    navigateToLevel(nextId);
+  };
 
-    isProcessingWin.current = false;
+  // PREVIOUS LEVEL - just calculate new ID
+  const previousLevel = () => {
     const lastMazeLevel = MAZE_LEVELS.length;
     const prevId = currentLevelId === 1 ? lastMazeLevel : currentLevelId - 1;
-
-    if (prevId >= 1)
-    {
-      resetGameState();
-      resetTimer();
-      setCurrentLevelId(prevId);
-
-      setShowVictoryAnimation(false);
-
-      const prevLevel = getCurrentLevel(prevId);
-      setCurrentLevel(prevLevel);
-      setBallPosition(getPosition(prevLevel, MAZE_SIZE));
-      setShowExplosion(false);
-      setVelocity({ x: 0, y: 0 });
-
-      clearHistory();
-
-      setIsReady(false);
-      setIsCountdownComplete(false);
-    }
+    navigateToLevel(prevId);
   };
 
-  // JUMP 10 FORWARD -------------
+  // JUMP 10 FORWARD - just calculate new ID
   const jump10Forward = () => {
-    isProcessingWin.current = false;
     const maxAccessible = getMaxAccessibleLevel();
     const newLevelId = Math.min(currentLevelId + 10, maxAccessible);
-
-    resetGameState();
-    resetTimer();
-    setShowVictoryAnimation(false);
-    
-    setCurrentLevelId(newLevelId);
-    const newLevel = getCurrentLevel(newLevelId);
-    setCurrentLevel(newLevel);
-    setBallPosition(getPosition(newLevel, MAZE_SIZE));
-
-    setShowExplosion(false);
-    setVelocity({ x: 0, y: 0 });
-    setExtraLivesUsed(0);
-
-    clearHistory();
-
-    setIsReady(false);
-    setIsCountdownComplete(false);
+    navigateToLevel(newLevelId);
   };
 
-  // JUMP 10 BACKWARD -------------
+  // JUMP 10 BACKWARD - just calculate new ID
   const jump10Backward = () => {
-    isProcessingWin.current = false;
     const newLevelId = Math.max(currentLevelId - 10, 1);
-
-    resetGameState();
-    resetTimer();
-    setShowVictoryAnimation(false);
-    
-    setCurrentLevelId(newLevelId);
-    const newLevel = getCurrentLevel(newLevelId);
-    setCurrentLevel(newLevel);
-    setBallPosition(getPosition(newLevel, MAZE_SIZE));
-
-    setShowExplosion(false);
-    setVelocity({ x: 0, y: 0 });
-    setExtraLivesUsed(0);
-
-    clearHistory();
-
-    setIsReady(false);
-    setIsCountdownComplete(false);
+    navigateToLevel(newLevelId);
   };
   
   // CUSTOM HOOKS ----------------
