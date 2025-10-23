@@ -562,27 +562,27 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
     setIsCountdownComplete(false);
   };
 
-  // NEXT LEVEL - just calculate new ID
+  // NEXT LEVEL - stop at last level
   const nextLevel = () => {
-    const nextId = currentLevelId >= MAZE_LEVELS.length ? 1 : currentLevelId + 1;
+    const maxAccessible = getMaxAccessibleLevel();
+    const nextId = Math.min(currentLevelId + 1, maxAccessible);
     navigateToLevel(nextId);
   };
 
-  // PREVIOUS LEVEL - just calculate new ID
+  // PREVIOUS LEVEL - stop at first level
   const previousLevel = () => {
-    const lastMazeLevel = MAZE_LEVELS.length;
-    const prevId = currentLevelId === 1 ? lastMazeLevel : currentLevelId - 1;
+    const prevId = Math.max(currentLevelId - 1, 1);
     navigateToLevel(prevId);
   };
 
-  // JUMP 10 FORWARD - just calculate new ID
+  // JUMP 10 FORWARD - stop at max accessible
   const jump10Forward = () => {
     const maxAccessible = getMaxAccessibleLevel();
     const newLevelId = Math.min(currentLevelId + 10, maxAccessible);
     navigateToLevel(newLevelId);
   };
 
-  // JUMP 10 BACKWARD - just calculate new ID
+  // JUMP 10 BACKWARD - stop at level 1
   const jump10Backward = () => {
     const newLevelId = Math.max(currentLevelId - 10, 1);
     navigateToLevel(newLevelId);
@@ -809,11 +809,9 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
 
         {/* JUMP 1 LEVEL BACK */}
         <TouchableOpacity 
-          style={[styles.levelButton,
-            currentLevelId <= 1 && !completedLevels.has(MAZE_LEVELS.length) && styles.disabledButton
-          ]} 
+          style={[styles.levelButton, currentLevelId <= 1 && styles.disabledButton]}
           onPress={previousLevel}
-          disabled={currentLevelId === 1 && !completedLevels.has(MAZE_LEVELS.length)}
+          disabled={currentLevelId <= 1}
         >
           <View style={styles.buttonContent}>
             <Ionicons name="chevron-back" size={typography.h3} color="white" />
@@ -825,11 +823,9 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
 
         {/* JUMP 10 LEVELS BACK */}
         <TouchableOpacity 
-          style={[styles.jumpButton,
-            currentLevelId <= 1 && !completedLevels.has(MAZE_LEVELS.length) && styles.disabledButton
-          ]} 
+          style={[styles.jumpButton, currentLevelId <= 1 && styles.disabledButton]}
           onPress={jump10Backward}
-          disabled={currentLevelId === 1 && !completedLevels.has(MAZE_LEVELS.length)}
+          disabled={currentLevelId <= 1}
         >
           <View style={styles.buttonContent}>
             <Feather name="chevrons-left" size={typography.h4} color="white"/>
@@ -841,9 +837,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
 
         {/* JUMP 10 LEVELS FORWARD */}
         <TouchableOpacity
-          style={[styles.jumpButton,
-            currentLevelId >= getMaxAccessibleLevel() && styles.disabledButton
-          ]}
+          style={[styles.jumpButton, currentLevelId >= getMaxAccessibleLevel() && styles.disabledButton]}
           onPress={jump10Forward}
           disabled={currentLevelId >= getMaxAccessibleLevel()}
         >
@@ -857,9 +851,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
 
         {/* JUMP 1 LEVEL FORWARD */}
         <TouchableOpacity
-          style={[styles.levelButton, 
-            currentLevelId >= getMaxAccessibleLevel() && styles.disabledButton
-          ]}
+          style={[styles.levelButton, currentLevelId >= getMaxAccessibleLevel() && styles.disabledButton]}
           onPress={nextLevel}
           disabled={currentLevelId >= getMaxAccessibleLevel()}
         >

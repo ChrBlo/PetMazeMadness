@@ -90,24 +90,28 @@ export default function MazeStatisticsScreen({ route, navigation }: GameStatsScr
     </View>
   );
 
+  const navigateToLevel = (newLevelId: number) => {
+    setCurrentLevelId(newLevelId);
+  };
+
   const nextLevel = () => {
-    if (currentLevelId < maxLevel) {
-      setCurrentLevelId(currentLevelId + 1);
-    }
+    const nextId = Math.min(currentLevelId + 1, maxLevel);
+    navigateToLevel(nextId);
   };
 
   const previousLevel = () => {
-    setCurrentLevelId(currentLevelId - 1);
+    const prevId = Math.max(currentLevelId - 1, 1);
+    navigateToLevel(prevId);
   };
 
   const jump10Forward = () => {
-    const newLevel = Math.min(currentLevelId + 10, maxLevel);
-    setCurrentLevelId(newLevel);
+    const newLevelId = Math.min(currentLevelId + 10, maxLevel);
+    navigateToLevel(newLevelId);
   };
 
   const jump10Backward = () => {
-    const newLevel = Math.max(currentLevelId - 10, 1);
-    setCurrentLevelId(newLevel);
+    const newLevelId = Math.max(currentLevelId - 10, 1);
+    navigateToLevel(newLevelId);
   };
   
   const renderLeaderboardItem = ({ item, index }: { item: CompletionRecord, index: number }) => {
@@ -216,7 +220,7 @@ export default function MazeStatisticsScreen({ route, navigation }: GameStatsScr
 
         {/* JUMP 10 LEVELS BACK */}
           <TouchableOpacity 
-            style={[styles.jumpButton, currentLevelId <= 10 && styles.disabledButton]} 
+            style={[styles.jumpButton, currentLevelId <= 1 && styles.disabledButton]} 
             onPress={jump10Backward}
             disabled={currentLevelId <= 1}
           >
@@ -230,7 +234,7 @@ export default function MazeStatisticsScreen({ route, navigation }: GameStatsScr
 
           {/* JUMP 10 LEVELS FORWARD */}
           <TouchableOpacity
-            style={[styles.jumpButton, currentLevelId >= maxLevel - 9 && styles.disabledButton]}
+            style={[styles.jumpButton, currentLevelId >= maxLevel && styles.disabledButton]}
             onPress={jump10Forward}
             disabled={currentLevelId >= maxLevel}
           >
@@ -285,7 +289,7 @@ const styles = StyleSheet.create({
   level: {
     alignItems: 'center',
     marginTop: 60,
-    marginBottom: 10,
+    marginBottom: 0,
   },
   levelText: {
     fontSize: typography.h3,
@@ -440,7 +444,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   jumpButton: {
-    backgroundColor: '#5da6d6ff',
+    backgroundColor: '#3d3d3dff',
     paddingHorizontal: 2,
     paddingVertical: 10,
     borderRadius: 12,
