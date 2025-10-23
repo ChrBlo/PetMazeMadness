@@ -77,7 +77,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
   const [showVictoryAnimation, setShowVictoryAnimation] = useState(false);
   const [showGameCompletedAnimation, setShowGameCompletedAnimation] = useState(false);
   const [victoryData, setVictoryData] = useState<{ completionTime: number; isNewRecord: boolean;} | null>(null);
-  // SCORE AND ATTEMPTS
+// SCORE AND ATTEMPTS
   const [currentAttempt, setCurrentAttempt] = useState(1);
   const [extraLives, setExtraLives] = useState(0);
   const [extraLivesUsed, setExtraLivesUsed] = useState(0);
@@ -100,13 +100,11 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
   const snack = useAudioPlayer(snackSound);
   const plop = useAudioPlayer(spawnSound);
   
-  // const MAZE_LAYOUT = useMemo(() => currentLevel.layout, [currentLevel]);
-  // const CELL_SIZE = useMemo(() => MAZE_SIZE / MAZE_LAYOUT.length, [MAZE_LAYOUT]);
   const MAZE_SIZE = useMemo(() => getResponsiveMazeSize(currentLevel.layout.length), [currentLevel]);
   const MAZE_LAYOUT = useMemo(() => currentLevel.layout, [currentLevel]);
   const CELL_SIZE = useMemo(() => MAZE_SIZE / MAZE_LAYOUT.length, [MAZE_SIZE, MAZE_LAYOUT]);
   
-  // Derived sizes that depend on MAZE_SIZE
+  // Sizes that depend on MAZE_SIZE
   const BALL_SIZE = useMemo(() => Math.floor(MAZE_SIZE / 15), [MAZE_SIZE]);
   const DEATH_ICON_SIZE = useMemo(() => Math.floor(BALL_SIZE * 0.8), [BALL_SIZE]);
   const ENEMY_SIZE = useMemo(() => Math.floor(BALL_SIZE * 1.2), [BALL_SIZE]);
@@ -184,7 +182,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
       noExtraLivesUsed: extraLivesUsed === 0,
     };
     
-    const existingStars = await CRUDManager.getLevelStars(currentLevelId);
+  const existingStars = await CRUDManager.getLevelStars(currentLevelId);
     const mergedStars = {
       completedNormalMode: existingStars?.completedNormalMode || newStars.completedNormalMode,
       completedChaosMode: existingStars?.completedChaosMode || newStars.completedChaosMode,
@@ -194,7 +192,6 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
     };
     
     await CRUDManager.saveLevelStars(currentLevelId, mergedStars);
-    // await ScoreManager.updateProgress(currentLevelId);
     
     setLevelStarsData(mergedStars);
   };
@@ -303,6 +300,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
         }
       }
     }      
+
     // check if SNACK_CELL
     if (getMazeCell(cellX, cellY, MAZE_LAYOUT) === SNACK_CELL ||
         getMazeCell(cellX, cellY, MAZE_LAYOUT) === SECRET_SNACK_CELL)
@@ -521,25 +519,6 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
     }
   };
 
-  const getMaxAccessibleLevel = () => {
-    if (completedLevels.has(MAZE_LEVELS.length)) {
-      return MAZE_LEVELS.length;
-    }
-    
-    let maxLevel = 1;
-    for (let i = 1; i <= MAZE_LEVELS.length; i++) {
-      if (completedLevels.has(i))
-      {
-        maxLevel = i + 1;
-      }
-      else
-      {
-        break; 
-      }
-    }
-    return Math.min(maxLevel, MAZE_LEVELS.length);
-  };
-
   const navigateToLevel = (newLevelId: number) => {
     isProcessingWin.current = false;
 
@@ -562,23 +541,44 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
     setIsCountdownComplete(false);
   };
 
-  // NEXT LEVEL - stop at last level
+  // NEXT LEVEL
   const nextLevel = () => {
-    const maxAccessible = getMaxAccessibleLevel();
-    const nextId = Math.min(currentLevelId + 1, maxAccessible);
+    const maxLevel = MAZE_LEVELS.length;
+    const allCompleted = completedLevels.has(maxLevel);
+    
+    let nextId;
+    if (currentLevelId >= maxLevel)
+    {
+      nextId = allCompleted ? 1 : maxLevel;
+    }
+    else
+    {
+      nextId = currentLevelId + 1;
+    }
+    
     navigateToLevel(nextId);
   };
 
-  // PREVIOUS LEVEL - stop at first level
+  // PREVIOUS LEVEL
   const previousLevel = () => {
-    const prevId = Math.max(currentLevelId - 1, 1);
+    const maxLevel = MAZE_LEVELS.length;
+    const allCompleted = completedLevels.has(maxLevel);
+    
+    let prevId;
+    if (currentLevelId <= 1) {
+
+      prevId = allCompleted ? maxLevel : 1;
+    } else {
+      prevId = currentLevelId - 1;
+    }
+    
     navigateToLevel(prevId);
   };
 
   // JUMP 10 FORWARD - stop at max accessible
   const jump10Forward = () => {
-    const maxAccessible = getMaxAccessibleLevel();
-    const newLevelId = Math.min(currentLevelId + 10, maxAccessible);
+    const maxLevel = MAZE_LEVELS.length;
+    const newLevelId = Math.min(currentLevelId + 10, maxLevel);
     navigateToLevel(newLevelId);
   };
 
@@ -643,6 +643,51 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
     return t('game.gameButtonReady');
   };
 
+  const BallComponent = useMemo(() => (
+    <View
+      style={[
+        styles.ball,
+        {
+          left: ballPosition.x - BALL_SIZE / 2,
+          top: ballPosition.y - BALL_SIZE / 2,
+          width: BALL_SIZE,
+          height: BALL_SIZE,
+          borderRadius: BALL_SIZE / 2,
+        }
+      ]}
+    >
+      {isDead ? (
+        <DeathIcon size={DEATH_ICON_SIZE} />
+      ) : (
+        <PetImage source={selectedPet.emoji} size={PET_ICON_SIZE} />
+      )}
+    </View>
+  ), [ballPosition.x, ballPosition.y, BALL_SIZE, isDead, DEATH_ICON_SIZE, selectedPet.emoji, PET_ICON_SIZE]);
+
+  const EnemyComponents = useMemo(() => 
+    enemyPositions.map(enemy => (
+      <View
+        key={enemy.id}
+        style={[
+          styles.enemy,
+          {
+            left: enemy.x - BALL_SIZE / 2,
+            top: enemy.y - BALL_SIZE / 2,
+          }
+        ]}
+      >
+        <PetImage 
+          source={selectedPet.enemyEmoji || getDefaultPet().enemyEmoji} 
+          size={ENEMY_SIZE} 
+          style={{ zIndex: 19 }} 
+        />
+      </View>
+    ))
+  , [enemyPositions, BALL_SIZE, ENEMY_SIZE, selectedPet.enemyEmoji]);
+
+  const maxLevel = MAZE_LEVELS.length;
+  const allCompleted = completedLevels.has(maxLevel);
+
   return (
     <View style={styles.container}>
 
@@ -695,22 +740,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
       <View style={styles.gameContainer}>
         <View style={[styles.maze, { width: MAZE_SIZE, height: MAZE_SIZE }]}>
           {/* PET BALL */}
-          <View
-            style={[
-              styles.ball,
-              {
-                left: ballPosition.x - BALL_SIZE / 2,
-                top: ballPosition.y - BALL_SIZE / 2,
-                width: BALL_SIZE,
-                height: BALL_SIZE,
-                borderRadius: BALL_SIZE / 2,
-              }
-            ]}
-          >
-            <Text>
-              {isDead ? <DeathIcon size={DEATH_ICON_SIZE} /> : <PetImage source={selectedPet.emoji} size={PET_ICON_SIZE} />}
-            </Text>
-          </View>
+          {BallComponent}
 
           <MazeRenderer
             mazeLayout={MAZE_LAYOUT}
@@ -725,22 +755,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
           />
 
           {/* ENEMIES */}
-          {enemyPositions.map(enemy => (
-            <View
-              key={enemy.id}
-              style={[
-                styles.enemy,
-                {
-                  left: enemy.x - BALL_SIZE / 2,
-                  top: enemy.y - BALL_SIZE / 2,
-                  width: BALL_SIZE,
-                  height: BALL_SIZE,
-                }
-              ]}
-            >
-              <PetImage source={selectedPet.enemyEmoji || getDefaultPet().enemyEmoji} size={ENEMY_SIZE} style={{ zIndex: 19 }} />
-            </View>
-          ))}
+          {EnemyComponents}
 
           {/* EXPLOSION */}
           {showExplosion && (
@@ -809,9 +824,9 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
 
         {/* JUMP 1 LEVEL BACK */}
         <TouchableOpacity 
-          style={[styles.levelButton, currentLevelId <= 1 && styles.disabledButton]}
+          style={[styles.levelButton, (currentLevelId <= 1 && !allCompleted) && styles.disabledButton]}
           onPress={previousLevel}
-          disabled={currentLevelId <= 1}
+          disabled={currentLevelId <= 1 && !allCompleted}
         >
           <View style={styles.buttonContent}>
             <Ionicons name="chevron-back" size={typography.h3} color="white" />
@@ -823,9 +838,9 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
 
         {/* JUMP 10 LEVELS BACK */}
         <TouchableOpacity 
-          style={[styles.jumpButton, currentLevelId <= 1 && styles.disabledButton]}
+          style={[styles.jumpButton, (currentLevelId <= 1 && !allCompleted) && styles.disabledButton]}
           onPress={jump10Backward}
-          disabled={currentLevelId <= 1}
+           disabled={currentLevelId <= 1 && !allCompleted}
         >
           <View style={styles.buttonContent}>
             <Feather name="chevrons-left" size={typography.h4} color="white"/>
@@ -837,9 +852,9 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
 
         {/* JUMP 10 LEVELS FORWARD */}
         <TouchableOpacity
-          style={[styles.jumpButton, currentLevelId >= getMaxAccessibleLevel() && styles.disabledButton]}
+          style={[styles.jumpButton, (currentLevelId >= maxLevel && !allCompleted) && styles.disabledButton]}
           onPress={jump10Forward}
-          disabled={currentLevelId >= getMaxAccessibleLevel()}
+          disabled={currentLevelId >= maxLevel && !allCompleted}
         >
           <View style={styles.buttonContent}>
             <Text style={styles.jumpButtonText}> 10</Text>
@@ -851,9 +866,9 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
 
         {/* JUMP 1 LEVEL FORWARD */}
         <TouchableOpacity
-          style={[styles.levelButton, currentLevelId >= getMaxAccessibleLevel() && styles.disabledButton]}
+          style={[styles.levelButton, (currentLevelId >= maxLevel && !allCompleted) && styles.disabledButton]}
           onPress={nextLevel}
-          disabled={currentLevelId >= getMaxAccessibleLevel()}
+          disabled={currentLevelId >= maxLevel && !allCompleted}
         >
           <View style={styles.buttonContent}>
             <Text style={styles.levelButtonText} numberOfLines={1}>{t('game.nextButtonText')}</Text>
