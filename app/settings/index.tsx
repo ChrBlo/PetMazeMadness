@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Modal, ScrollView, StyleSheet, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { GradientButton } from '../../components/gradient-button';
 import PetImage from '../../components/pet-image';
-import { getDefaultPet, getPetById, Pet, pets, getTranslatedPetName, getPetByIdWithTranslation } from '../../data/pets';
+import { getDefaultPet, getDisplayName, getPetById, getTranslatedPetName, Pet, pets } from '../../data/pets';
 import { GyroMode } from '../../hooks/useGameSensors';
 import { CRUDManager } from '../../utils/CRUD-manager';
 import { typography } from '../../utils/typography';
@@ -11,16 +11,18 @@ import { SettingsScreenProps } from '../root-layout';
 
 export default function SettingsScreen({ route, navigation }: SettingsScreenProps) {
   const { t } = useTranslation();
+
+  const initialPet = route.params?.selectedPet || getDefaultPet();
   
   const [selectedGyroMode, setSelectedGyroMode] = useState<GyroMode>(route.params?.gyroMode || GyroMode.NORMAL);
   const [showPetSelector, setShowPetSelector] = useState(false);
   const [showNameEditor, setShowNameEditor] = useState(false);
   const [selectedPet, setSelectedPet] = useState<Pet>(route.params?.selectedPet || getDefaultPet());
-  const [customName, setCustomName] = useState(route.params?.selectedPet?.name || getDefaultPet().name);
+  const [customName, setCustomName] = useState(getDisplayName(initialPet));
   const [invertedGameControls, setInvertedGameControls] = useState(route.params?.invertedGameControls ?? false);
   
   const handlePetSelection = async (petId: string) => {
-    const newPet = getPetByIdWithTranslation(petId);
+    const newPet = getPetById(petId);
     setSelectedPet(newPet);
     setCustomName(newPet.name);
     setShowPetSelector(false);
@@ -29,14 +31,15 @@ export default function SettingsScreen({ route, navigation }: SettingsScreenProp
   };
 
   const handleNameEdit = () => {
-    setCustomName(selectedPet.name);
+    setCustomName(getDisplayName(selectedPet));
     setShowNameEditor(true);
   };
 
   const handleNameSave = async () => {
     const originalPet = getPetById(selectedPet.id);
     const trimmedName = customName.trim();
-    const finalName = trimmedName || originalPet.name;
+    const translatedDefault = getDisplayName(originalPet);
+    const finalName = (!trimmedName || trimmedName === translatedDefault) ? originalPet.name : trimmedName;
     
     const updatedPet: Pet = {
       ...selectedPet,
@@ -84,7 +87,7 @@ export default function SettingsScreen({ route, navigation }: SettingsScreenProp
 
           <TouchableOpacity style={styles.settingRow} onPress={handleNameEdit}>
             <Text style={styles.settingsText}>{t('settings.name')}</Text>
-            <Text style={styles.petNameDisplay}>{getTranslatedPetName(selectedPet)}</Text>
+            <Text style={styles.petNameDisplay}>{getDisplayName(selectedPet)}</Text>
           </TouchableOpacity>
         </View>
 
@@ -184,7 +187,7 @@ export default function SettingsScreen({ route, navigation }: SettingsScreenProp
                 style={styles.nameInput}
                 value={customName}
                 onChangeText={setCustomName}
-                placeholder={t(getPetById(selectedPet.id).name)}
+                placeholder={getDisplayName(getPetById(selectedPet.id))}
                 placeholderTextColor="#999"
                 maxLength={25}
                 autoFocus

@@ -15,7 +15,7 @@ import { LevelStarsAndBadgeDisplay } from "../../components/level-stars-and-badg
 import { MazeRenderer } from "../../components/maze-renderer";
 import PetImage from "../../components/pet-image";
 import { MAZE_LEVELS, MazeLevel, getCurrentLevel } from '../../data/maze-layouts';
-import { DeathIcon, getDefaultPet } from '../../data/pets';
+import { DeathIcon, getDefaultPet, getDisplayName } from '../../data/pets';
 import { useEnemyMovement } from "../../hooks/useEnemyMovement";
 import { useGamePhysics } from '../../hooks/useGamePhysics';
 import { GyroMode, useGameSensors } from '../../hooks/useGameSensors';
@@ -92,7 +92,8 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
   const getStartPosition = () => getPosition(currentLevel, MAZE_SIZE);
   // PET
   const selectedPet = route.params?.selectedPet || getDefaultPet();
-  const petName = selectedPet?.name || getDefaultPet().name;
+  const defaultPet = getDefaultPet();
+  const petName = getDisplayName(selectedPet) || getDisplayName(defaultPet);
   //SOUND EFFECTS
   const victory = useAudioPlayer(victorySound);
   const explosion = useAudioPlayer(explodingWallSound);

@@ -64,8 +64,6 @@ export const pets: Pet[] = [
   }
 ];
 
-export const getDefaultPet = (): Pet => pets[0];
-
 export const getPetById = (id: string): Pet => {
   return pets.find(pet => pet.id === id) || getDefaultPet();
 };
@@ -74,10 +72,17 @@ export const getTranslatedPetName = (pet: Pet): string => {
   return i18n.t(pet.name);
 };
 
-export const getPetByIdWithTranslation = (id: string): Pet => {
-  const pet = pets.find(pet => pet.id === id) || getDefaultPet();
+export const getDisplayName = (pet: Pet): string => {
+  if (pet.name.startsWith('pets.')) {
+    return getTranslatedPetName(pet);
+  }
+  return pet.name;
+};
+
+export const getDefaultPet = (): Pet => {
+  const defaultPet = pets[0];
   return {
-    ...pet,
-    name: getTranslatedPetName(pet)
+    ...defaultPet,
+    name: i18n.t(defaultPet.name)
   };
 };

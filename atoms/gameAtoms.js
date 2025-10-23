@@ -1,5 +1,6 @@
 import { atom } from "jotai";
 import { ScoreManager } from "../utils/score-manager";
+import { getDisplayName } from "../data/pets";
 
 export const isGameWonAtom = atom(false);
 export const isDeadAtom = atom(false);
@@ -20,13 +21,13 @@ export const recordWinAtom = atom(null, async (get, set, winData) => {
     winData.currentLevelId,
     winData.completionTime,
     winData.selectedPet.id,
-    winData.selectedPet.name,
+    getDisplayName(winData.selectedPet),
     winData.selectedPet.emoji,
     winData.currentAttempt,
     winData.totalDeaths || 0,
     winData.extraLivesUsed,
     winData.gyroMode
-    );
+  );
     
   return result;
 });

@@ -43,11 +43,11 @@ export default function MazeStatisticsScreen({ route, navigation }: GameStatsScr
   const CELL_SIZE = MAZE_SIZE / MAZE_LAYOUT.length;
   const [completedLevels, setCompletedLevels] = useState<Set<number>>(new Set());
 
-  const enemyPositions = currentLevel.enemies?.map(enemy => ({
-    id: enemy.id,
-    x: enemy.path[0].x * CELL_SIZE + CELL_SIZE / 2,
-    y: enemy.path[0].y * CELL_SIZE + CELL_SIZE / 2
-  })) || [];
+  // const enemyPositions = currentLevel.enemies?.map(enemy => ({
+  //   id: enemy.id,
+  //   x: enemy.path[0].x * CELL_SIZE + CELL_SIZE / 2,
+  //   y: enemy.path[0].y * CELL_SIZE + CELL_SIZE / 2
+  // })) || [];
 
   useEffect(() => {
     const loadData = async () => {
@@ -66,8 +66,8 @@ export default function MazeStatisticsScreen({ route, navigation }: GameStatsScr
 
   useEffect(() => {
     const loadCompletedLevels = async () => {
-      const gamProgress = await ScoreManager.getGameProgress();
-      setCompletedLevels(new Set(gamProgress.completedLevels));
+      const gameProgress = await ScoreManager.getGameProgress();
+      setCompletedLevels(new Set(gameProgress.completedLevels));
     };
     loadCompletedLevels();
   }, []);
