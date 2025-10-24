@@ -565,10 +565,12 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
     const allCompleted = completedLevels.has(maxLevel);
     
     let prevId;
-    if (currentLevelId <= 1) {
-
+    if (currentLevelId <= 1)
+    {
       prevId = allCompleted ? maxLevel : 1;
-    } else {
+    }
+    else
+    {
       prevId = currentLevelId - 1;
     }
     

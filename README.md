@@ -1,6 +1,6 @@
 ## PET MAZE MADNESS 🐹
 A thrilling maze game built with React Native and Expo. 
-This project was created as a school assigment designed to encourage us students to explore React Native core components and Expo SDK components, and will not be developed any further.
+This project was created as a school assigment designed to encourage us students to explore React Native core components and Expo SDK components.
 
 ## How to Play 🎮
 Guide your pet through dangerous mazes using your device's motion sensors.
@@ -27,7 +27,7 @@ Used React Native Core Components:
 - [X] View: Layout and container components
 - [X] Text: Display text
 - [X] ActivityIndicator: Spins to indicate buffering when starting game
-- [X] Switch: For game settings, like weather-block etc.
+- [X] Switch: For game settings
 - [X] TextInput: User input (pet name)
 - [X] Modal: Pet selection and pet name edit
 - [X] ScrollView: used inside modal for pet selection & maze[id] statistics screen
@@ -45,7 +45,6 @@ Used Expo SDK 54 Components:
 - [X] Localization + i18next (expo-localization & react-i18next): For multi-language-support
 
 Other External modules/APIs used:
-- [X] yr.no weather forecast open API (https://developer.yr.no/doc) - Used in a game settings that blocks game if nice weather
 - [X] added react-native-simple-store for storing score data
 - [X] added jotai for simpler state handling (fixed bug with walls beeing hit several times)
 - [X] added LottieView (lottie-react-native) from LottiFiles - added animation on maze-completion 
