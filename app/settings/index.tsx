@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Modal, ScrollView, StyleSheet, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { GradientButton } from '../../components/gradient-button';
 import PetImage from '../../components/pet-image';
-import { getDefaultPet, getDisplayName, getPetById, getTranslatedPetName, Pet, pets } from '../../data/pets';
+import { getDefaultPet, getDisplayName, getPetById, Pet, pets } from '../../data/pets';
 import { GyroMode } from '../../hooks/useGameSensors';
 import { CRUDManager } from '../../utils/CRUD-manager';
 import { typography } from '../../utils/typography';
@@ -58,6 +58,7 @@ export default function SettingsScreen({ route, navigation }: SettingsScreenProp
   };
     
   const goBack = () => {
+    CRUDManager.saveInvertedControls(invertedGameControls);
     navigation.navigate('Start', {
       selectedPet,
       gyroMode: selectedGyroMode,

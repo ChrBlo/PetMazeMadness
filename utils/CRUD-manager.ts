@@ -72,4 +72,13 @@ export class CRUDManager{
     
     return { ...pet, name: savedData.name };
   }
+
+  static async saveInvertedControls(inverted: boolean): Promise<void> {
+    await store.save('inverted_game_controls', inverted);
+  }
+
+  static async getInvertedControls(): Promise<boolean> {
+    const inverted = await store.get('inverted_game_controls');
+    return inverted ?? false;
+  }
 }

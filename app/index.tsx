@@ -57,11 +57,23 @@ export default function StartScreen({ route, navigation }: StartScreenProps) {
   useEffect(() => {
     const loadSavedPet = async () => {
       const pet = await CRUDManager.getSelectedPet();
-      if (pet) {
+      if (pet)
+      {
         setSavedPet(pet);
       }
     };
     loadSavedPet();
+  }, []);
+
+  useEffect(() => {
+    const loadSavedSetting = async () => {
+      const inverted = await CRUDManager.getInvertedControls();
+      if (inverted)
+      {
+        setInvertedGameControls(inverted);
+      }
+    };
+    loadSavedSetting();
   }, []);
 
   useEffect(() => {
