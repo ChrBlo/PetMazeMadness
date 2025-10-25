@@ -12,13 +12,15 @@ interface UseGameSensorsReturn {
   gyroData: SensorData;
 }
 
-export const useGameSensors = (gyroMode: GyroMode): UseGameSensorsReturn => {
+export const useGameSensors = (gyroMode: GyroMode, isActive: boolean): UseGameSensorsReturn => {
   const [accelData] = useAtom(accelDataAtom);
   const [gyroData] = useAtom(gyroDataAtom);
   const subscribeAccel = useSetAtom(subscribeAccelAtom);
   const subscribeGyro = useSetAtom(subscribeGyroAtom);
 
   useEffect(() => {
+    if (!isActive) return;
+
     let unsubscribe: (() => void) | null = null;
 
     if (gyroMode === GyroMode.NORMAL){ unsubscribe = subscribeAccel();}
@@ -27,7 +29,7 @@ export const useGameSensors = (gyroMode: GyroMode): UseGameSensorsReturn => {
     return () => {
       unsubscribe?.();
     };
-  }, [gyroMode]);
+  }, [gyroMode, isActive]);
 
   return { accelData, gyroData };
 };

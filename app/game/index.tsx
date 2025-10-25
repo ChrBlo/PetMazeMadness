@@ -600,8 +600,10 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
   };
   
   // CUSTOM HOOKS ----------------
-  const { accelData, gyroData } = useGameSensors(gyroMode);
-  
+  const isGameActive = !isDead && !isGameWon && !isGamePaused && isCountdownComplete && !isRespawning;
+
+  const { accelData, gyroData } = useGameSensors(gyroMode, isGameActive);
+
   const { gameTime, startTimer, pauseTimer, resumeTimer, stopTimer, resetTimer } = useGameTimer(!isGameWon && !isDead && !isGamePaused && isCountdownComplete && !isRespawning);
 
   const { ballPosition, setBallPosition, velocity, setVelocity, resetPosition } = useGamePhysics({
