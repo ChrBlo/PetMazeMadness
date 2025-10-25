@@ -544,7 +544,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
   // NEXT LEVEL
   const nextLevel = () => {
     const maxLevel = MAZE_LEVELS.length;
-    const allCompleted = completedLevels.has(maxLevel);
+    const allCompleted = completedLevels.has(maxAccessible);
     
     let nextId;
     if (currentLevelId >= maxLevel)
@@ -562,7 +562,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
   // PREVIOUS LEVEL
   const previousLevel = () => {
     const maxLevel = MAZE_LEVELS.length;
-    const allCompleted = completedLevels.has(maxLevel);
+    const allCompleted = completedLevels.has(maxAccessible);
     
     let prevId;
     if (currentLevelId <= 1)
@@ -580,7 +580,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
   // JUMP 10 FORWARD - stop at max accessible
   const jump10Forward = () => {
     const maxLevel = MAZE_LEVELS.length;
-    const newLevelId = Math.min(currentLevelId + 10, maxLevel);
+    const newLevelId = Math.min(currentLevelId + 10, maxAccessible);
     navigateToLevel(newLevelId);
   };
 
@@ -687,8 +687,23 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
     ))
   , [enemyPositions, BALL_SIZE, ENEMY_SIZE, selectedPet.enemyEmoji]);
 
+  const getMaxAccessible = () => {
+    if (allCompleted) return maxLevel;
+    
+    let maxAccessible = 1;
+    for (let i = 1; i <= maxLevel; i++) {
+      if (completedLevels.has(i)) {
+        maxAccessible = i + 1;
+      } else {
+        break;
+      }
+    }
+    return Math.min(maxAccessible, maxLevel);
+  };
+  
   const maxLevel = MAZE_LEVELS.length;
   const allCompleted = completedLevels.has(maxLevel);
+  const maxAccessible = getMaxAccessible();
 
   return (
     <View style={styles.container}>
@@ -858,9 +873,9 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
 
         {/* JUMP 10 LEVELS FORWARD */}
         <TouchableOpacity
-          style={[styles.jumpButton, (currentLevelId >= maxLevel && !allCompleted) && styles.disabledButton]}
+          style={[styles.jumpButton, (currentLevelId >= maxAccessible && !allCompleted) && styles.disabledButton]}
           onPress={jump10Forward}
-          disabled={currentLevelId >= maxLevel && !allCompleted}
+          disabled={currentLevelId >= maxAccessible && !allCompleted}
         >
           <View style={styles.buttonContent}>
             <Text style={styles.jumpButtonText}> 10</Text>
@@ -872,9 +887,9 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
 
         {/* JUMP 1 LEVEL FORWARD */}
         <TouchableOpacity
-          style={[styles.levelButton, (currentLevelId >= maxLevel && !allCompleted) && styles.disabledButton]}
+          style={[styles.levelButton, (currentLevelId >= maxAccessible && !allCompleted) && styles.disabledButton]}
           onPress={nextLevel}
-          disabled={currentLevelId >= maxLevel && !allCompleted}
+          disabled={currentLevelId >= maxAccessible && !allCompleted}
         >
           <View style={styles.buttonContent}>
             <Text style={styles.levelButtonText} numberOfLines={1}>{t('game.nextButtonText')}</Text>
