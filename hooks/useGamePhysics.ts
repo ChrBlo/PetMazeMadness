@@ -56,8 +56,11 @@ export const useGamePhysics = ({gyroMode, accelData, gyroData, checkCollision, i
 
   const updateBallPosition = () => {
 
-    if (isGameWon || isDead) return;
-
+    if (isGameWon || isDead)
+    {
+      return;
+    }
+    
     setBallPosition(prevPosition => {
       let newVelX = velocityRef.current.x;
       let newVelY = velocityRef.current.y;

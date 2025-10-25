@@ -1,7 +1,7 @@
 {
   "start":{
     "description": "Hjälp ditt husdjur ut ur labyrinten!",
-    "instructions": "Luta din telefon i alla riktningar för att guida ditt husdjur mot friheten!",
+    "instructions": "Luta din enhet i alla riktningar för att guida ditt husdjur mot friheten!",
     "settingsButtonLabel": "INSTÄLLNINGAR",
     "starButtonLabel": "STARTA",
     "loadingText":"Laddar spel...",

@@ -24,7 +24,7 @@ export const subscribeAccelAtom = atom(
       accelSubscription = Accelerometer.addListener((data) => {
         set(accelDataAtom, data);
       });
-      Accelerometer.setUpdateInterval(16);
+      Accelerometer.setUpdateInterval(32);
     }
     
     // Return unsubscribe function

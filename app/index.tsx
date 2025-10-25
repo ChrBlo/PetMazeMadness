@@ -92,7 +92,7 @@ export default function StartScreen({ route, navigation }: StartScreenProps) {
       navigation.navigate('Game', {
         selectedPet,
         gyroMode: route.params?.gyroMode || GyroMode.NORMAL,
-        initialLevel: currentLevel,
+        // initialLevel: currentLevel,
         invertedGameControls: invertedGameControls,
       });
     }, 600);
