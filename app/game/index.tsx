@@ -77,7 +77,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
   const [showVictoryAnimation, setShowVictoryAnimation] = useState(false);
   const [showGameCompletedAnimation, setShowGameCompletedAnimation] = useState(false);
   const [victoryData, setVictoryData] = useState<{ completionTime: number; isNewRecord: boolean;} | null>(null);
-// SCORE AND ATTEMPTS
+  // SCORE AND ATTEMPTS
   const [currentAttempt, setCurrentAttempt] = useState(1);
   const [extraLives, setExtraLives] = useState(0);
   const [extraLivesUsed, setExtraLivesUsed] = useState(0);
@@ -86,8 +86,8 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
   const [hasStartedTimer, setHasStartedTimer] = useState(false);
   const isProcessingWin = useRef(false);
   //GAME LEVELS AND POSITIONING
-  const [currentLevelId, setCurrentLevelId] = useState(route.params?.initialLevel || 1);
-  const [currentLevel, setCurrentLevel] = useState<MazeLevel>(getCurrentLevel(route.params?.initialLevel || 1));
+  const [currentLevelId, setCurrentLevelId] = useState(() => route.params?.initialLevel || 1);
+  const [currentLevel, setCurrentLevel] = useState<MazeLevel>(() => getCurrentLevel(route.params?.initialLevel || 1));
   const [completedLevels, setCompletedLevels] = useState<Set<number>>(new Set());
   const getStartPosition = () => getPosition(currentLevel, MAZE_SIZE);
   // PET
@@ -118,7 +118,16 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
       resetGameState();
       
       const progress = await ScoreManager.getGameProgress();
-      setCompletedLevels(new Set(progress.completedLevels));
+      const completed = new Set(progress.completedLevels);
+      setCompletedLevels(completed);
+
+      if (!route.params?.initialLevel) {
+        const startLevel = progress.currentLevel;
+        const levelData = getCurrentLevel(startLevel);
+        
+        setCurrentLevelId(startLevel);
+        setCurrentLevel(levelData);
+      }
       
       const savedLives = await CRUDManager.getExtraLives();
       setExtraLives(savedLives);
@@ -700,7 +709,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
     }
     return Math.min(maxAccessible, maxLevel);
   };
-  
+
   const maxLevel = MAZE_LEVELS.length;
   const allCompleted = completedLevels.has(maxLevel);
   const maxAccessible = getMaxAccessible();
