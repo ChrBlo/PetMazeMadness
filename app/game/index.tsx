@@ -718,26 +718,30 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
       </View>
       
       <View style={styles.stats}>
-        <Text style={styles.statsText}>
-          {t('game.tryCount')}{levelStats?.totalAttempts || 0}
-        </Text>
-
-        <View style={styles.wideSeparator} />
-
-        <View style={styles.level}>
-          <Text style={styles.levelText}>{t('game.level')}{currentLevel.name}</Text>
+        <View style={[styles.statsSide, { justifyContent: 'flex-start' }]}>
+          <Text style={styles.statsText} numberOfLines={1}>
+            {t('game.tryCount')}{levelStats?.totalAttempts || 0}
+          </Text>
         </View>
 
-        <View style={styles.wideSeparator} />
+        <View style={styles.smallSeparator} />
 
-        <Text style={styles.statsText}>
-          {extraLives > 0 && (
-            <>
-              <PetImage source={selectedPet.emoji} size={typography.h4} style={{ paddingBottom: -6 }} />
-              <Text style={styles.statsText}>  : {extraLives}</Text>
-            </>
-          )}
-        </Text>
+        <View style={styles.level} >
+          <Text style={styles.levelText} numberOfLines={1}>{t('game.level')}{currentLevel.name}</Text>
+        </View>
+
+        <View style={styles.smallSeparator} />
+
+        <View style={[styles.statsSide, { justifyContent: 'flex-end' }]}>
+          <Text style={styles.statsText}>
+            {extraLives > 0 && (
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <PetImage source={selectedPet.emoji} size={typography.h4} style={{ paddingBottom: -6 }} />
+                <Text style={styles.statsText} numberOfLines={1}>  : {extraLives}</Text>
+              </View>
+            )}
+          </Text>
+        </View>
       </View>
       <View style={styles.gameContainer}>
         <View style={[styles.maze, { width: MAZE_SIZE, height: MAZE_SIZE }]}>
@@ -1048,26 +1052,34 @@ const styles = StyleSheet.create({
     marginTop: 5,
     alignItems: 'center',
     flexDirection: 'row',
-    width: '76%',
+    width: '80%',
+  },
+  statsSide: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'nowrap',
   },
   statsText: {
     fontSize: typography.body,
     color: '#bbb',
     fontWeight: 'bold',
     textAlign: 'center',
-    // marginBottom: 4,
   },
   gameTimer: {
     marginTop: 4,
     alignItems: 'center',
     flexDirection: 'row',
-    width: '76%',
+    width: '80%',
   },
   gameTimerText: {
     fontSize: typography.body,
     color: '#bbb',
     fontWeight: 'bold',
     textAlign: 'center',
+  },
+  smallSeparator: {
+    width: 1,
   },
   separator: {
     width: 5,
@@ -1095,7 +1107,6 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   level: {
-    // marginTop: 10,
     alignItems: 'center',
   },
   levelText: {

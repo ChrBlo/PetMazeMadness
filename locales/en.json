@@ -51,7 +51,7 @@
     "gameButtonRestart": "Restart",
     "gameButtonReady": "START!",
     "mazeFirstTryTitle": "Save {{petName}}!",
-    "tryCount": "Try count: ",
+    "tryCount": "Tries: ",
     "time": "Time: ",
     "bestTime": "Best time: ",
     "gameButtonToMenu": "To menu",
