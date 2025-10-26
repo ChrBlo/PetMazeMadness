@@ -193,10 +193,12 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
 
   const checkAndSaveStars = async (completionTime: number) => {
     const totalSnacks = MAZE_LAYOUT.flat().filter(cell => cell === SNACK_CELL).length;
+    const hasSecretSnack = MAZE_LAYOUT.flat().some(cell => cell === SECRET_SNACK_CELL);
+    const chaosModeOrSecretComplete = gyroMode === GyroMode.CHAOS || (eatenSnacks.size === totalSnacks && totalSnacks > 0 && hasSecretSnack);
     
     const newStars: LevelStars['stars'] = {
       completedNormalMode: gyroMode === GyroMode.NORMAL,
-      completedChaosMode: gyroMode === GyroMode.CHAOS,
+      completedChaosMode: chaosModeOrSecretComplete,
       allSnacksEaten: eatenSnacks.size === totalSnacks && totalSnacks > 0,
       underMazeTimeLimit: currentLevel.timeLimit ? completionTime <= currentLevel.timeLimit : false,
       noExtraLivesUsed: extraLivesUsed === 0,

@@ -34,7 +34,6 @@ export default function StartScreen({ route, navigation }: StartScreenProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [savedPet, setSavedPet] = useState(getDefaultPet());
   const selectedPet = route.params?.selectedPet || savedPet;
-  const petEmoji = selectedPet.emoji || getDefaultPet().emoji;
   const [currentLevel, setCurrentLevel] = useState(1);
   const [invertedGameControls, setInvertedGameControls] = useState(false);
 
@@ -92,7 +91,6 @@ export default function StartScreen({ route, navigation }: StartScreenProps) {
       navigation.navigate('Game', {
         selectedPet,
         gyroMode: route.params?.gyroMode || GyroMode.NORMAL,
-        // initialLevel: currentLevel,
         invertedGameControls: invertedGameControls,
       });
     }, 600);
