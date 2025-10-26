@@ -105,9 +105,9 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
   const CELL_SIZE = useMemo(() => MAZE_SIZE / MAZE_LAYOUT.length, [MAZE_SIZE, MAZE_LAYOUT]);
   
   // Sizes that depend on MAZE_SIZE
-  const BALL_SIZE = useMemo(() => Math.floor(MAZE_SIZE / 15), [MAZE_SIZE]);
-  const DEATH_ICON_SIZE = useMemo(() => Math.floor(BALL_SIZE * 0.8), [BALL_SIZE]);
-  const ENEMY_SIZE = useMemo(() => Math.floor(BALL_SIZE * 1.2), [BALL_SIZE]);
+  const BALL_SIZE = 20;
+  const DEATH_ICON_SIZE = useMemo(() => Math.floor(CELL_SIZE * 0.8), [CELL_SIZE]);
+  const ENEMY_SIZE = useMemo(() => Math.floor(CELL_SIZE * 0.8), [CELL_SIZE]);
   const PET_ICON_SIZE = useMemo(() => Math.floor(BALL_SIZE * 0.9), [BALL_SIZE]);
   const HEADER_PET_SIZE = useMemo(() => Math.floor(MAZE_SIZE / 5), [MAZE_SIZE]);
   const LOGO_SCALE_FACTOR = 0.3;
