@@ -49,6 +49,11 @@ export const useGamePhysics = ({gyroMode, accelData, gyroData, checkCollision, i
   useEffect(() => { velocityRef.current = velocity; }, [velocity]);
   useEffect(() => { invertedRef.current = inverted; }, [inverted]);
 
+  useEffect(() => {
+    setBallPosition(initialPosition);
+    setVelocity({ x: 0, y: 0 });
+  }, [initialPosition]);
+
   const resetPosition = () => {
     setBallPosition(initialPosition);
     setVelocity({ x: 0, y: 0 });

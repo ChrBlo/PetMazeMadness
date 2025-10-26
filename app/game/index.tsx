@@ -89,7 +89,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
   const [currentLevelId, setCurrentLevelId] = useState(() => route.params?.initialLevel || 1);
   const [currentLevel, setCurrentLevel] = useState<MazeLevel>(() => getCurrentLevel(route.params?.initialLevel || 1));
   const [completedLevels, setCompletedLevels] = useState<Set<number>>(new Set());
-  const getStartPosition = () => getPosition(currentLevel, MAZE_SIZE);
+  // const getStartPosition = () => getPosition(currentLevel, MAZE_SIZE);
   // PET
   const selectedPet = route.params?.selectedPet || getDefaultPet();
   const defaultPet = getDefaultPet();
@@ -103,15 +103,26 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
   const MAZE_SIZE = useMemo(() => getResponsiveMazeSize(currentLevel.layout.length), [currentLevel]);
   const MAZE_LAYOUT = useMemo(() => currentLevel.layout, [currentLevel]);
   const CELL_SIZE = useMemo(() => MAZE_SIZE / MAZE_LAYOUT.length, [MAZE_SIZE, MAZE_LAYOUT]);
-  
+    
   // Sizes that depend on MAZE_SIZE
   const BALL_SIZE = 20;
-  const DEATH_ICON_SIZE = useMemo(() => Math.floor(CELL_SIZE * 0.8), [CELL_SIZE]);
+  const DEATH_ICON_SIZE = useMemo(() => Math.floor(BALL_SIZE * 0.8), [CELL_SIZE]);
   const ENEMY_SIZE = useMemo(() => Math.floor(CELL_SIZE * 0.8), [CELL_SIZE]);
   const PET_ICON_SIZE = useMemo(() => Math.floor(BALL_SIZE * 0.9), [BALL_SIZE]);
   const HEADER_PET_SIZE = useMemo(() => Math.floor(MAZE_SIZE / 5), [MAZE_SIZE]);
   const LOGO_SCALE_FACTOR = 0.3;
   const LOGO_HEIGHT = useMemo(() => Math.floor(MAZE_SIZE * LOGO_SCALE_FACTOR), [MAZE_SIZE]);
+  const initialPosition = useMemo(() => {
+    const pos = getPosition(currentLevel, MAZE_SIZE);
+    console.log('📍 Position calc:', {
+      levelId: currentLevel.id,
+      layoutSize: currentLevel.layout.length,
+      MAZE_SIZE,
+      startPos: currentLevel.startPosition,
+      calculated: pos
+    });
+    return pos
+  }, [currentLevel, MAZE_SIZE]);
     
   useEffect(() => {
     const loadInitialData = async () => {
@@ -613,7 +624,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
     checkCollision,
     isGameWon,
     isDead: isDead || isGamePaused || !isCountdownComplete || isRespawning, // Pause, countdown & respawn treates as death in gamePhysics
-    initialPosition: getStartPosition(),
+    initialPosition,
     inverted: invertedGameControls
   });
 
