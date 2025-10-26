@@ -113,15 +113,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
   const LOGO_SCALE_FACTOR = 0.3;
   const LOGO_HEIGHT = useMemo(() => Math.floor(MAZE_SIZE * LOGO_SCALE_FACTOR), [MAZE_SIZE]);
   const initialPosition = useMemo(() => {
-    const pos = getPosition(currentLevel, MAZE_SIZE);
-    console.log('📍 Position calc:', {
-      levelId: currentLevel.id,
-      layoutSize: currentLevel.layout.length,
-      MAZE_SIZE,
-      startPos: currentLevel.startPosition,
-      calculated: pos
-    });
-    return pos
+    return getPosition(currentLevel, MAZE_SIZE);
   }, [currentLevel, MAZE_SIZE]);
     
   useEffect(() => {
@@ -192,7 +184,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
   };
 
   const checkAndSaveStars = async (completionTime: number) => {
-    const totalSnacks = MAZE_LAYOUT.flat().filter(cell => cell === SNACK_CELL).length;
+    const totalSnacks = MAZE_LAYOUT.flat().filter(cell => cell === SNACK_CELL || cell === SECRET_SNACK_CELL).length;
     const hasSecretSnack = MAZE_LAYOUT.flat().some(cell => cell === SECRET_SNACK_CELL);
     const chaosModeOrSecretComplete = gyroMode === GyroMode.CHAOS || (eatenSnacks.size === totalSnacks && totalSnacks > 0 && hasSecretSnack);
     
@@ -204,7 +196,14 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
       noExtraLivesUsed: extraLivesUsed === 0,
     };
     
-  const existingStars = await CRUDManager.getLevelStars(currentLevelId);
+    console.log('⭐ Stars earned:');
+    console.log('  ✅ Normal mode:', newStars.completedNormalMode);
+    console.log('  ✅ Chaos mode/Secret:', newStars.completedChaosMode);
+    console.log('  ✅ All snacks eaten:', newStars.allSnacksEaten);
+    console.log('  ✅ Under time limit:', newStars.underMazeTimeLimit);
+    console.log('  ✅ No extra lives:', newStars.noExtraLivesUsed);
+    
+    const existingStars = await CRUDManager.getLevelStars(currentLevelId);
     const mergedStars = {
       completedNormalMode: existingStars?.completedNormalMode || newStars.completedNormalMode,
       completedChaosMode: existingStars?.completedChaosMode || newStars.completedChaosMode,
