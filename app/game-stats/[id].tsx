@@ -192,7 +192,7 @@ export default function MazeStatisticsScreen({ route, navigation }: GameStatsScr
           </View>
 
           {!completedLevels.has(currentLevelId) && currentLevelId > 1 && (
-            <BlurView intensity={60} tint="dark" style={[StyleSheet.absoluteFill, {zIndex:20}]}>
+            <BlurView intensity={90} tint="dark" style={[StyleSheet.absoluteFill, {zIndex:150}]}>
               <View style={styles.lockedOverlay}>
                 <Text style={styles.lockedText}>
                   {t('statistics.notCompletedMaze')}
@@ -209,7 +209,7 @@ export default function MazeStatisticsScreen({ route, navigation }: GameStatsScr
               ballY={currentLevel.startPosition.y * CELL_SIZE + CELL_SIZE / 2}
               ballSize={BALL_SIZE}
               spotlightMultiplier={4}
-              opacity={0.75}
+              opacity={completedLevels.has(currentLevelId) ? 0.70 : 0.90}
             />
           )}
         </View>
@@ -438,6 +438,7 @@ const styles = StyleSheet.create({
     fontSize: typography.h4,
     fontWeight: 'bold',
     textAlign: 'center',
+    zIndex: 200,
   },
   ball: {
     width: BALL_SIZE,
