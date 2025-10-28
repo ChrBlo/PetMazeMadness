@@ -112,5 +112,5 @@ Sound effects from https://pixabay.com
 - https://pixabay.com/sound-effects/search/fart/ - used sound file called: "fart"
 - https://pixabay.com/sound-effects/search/woopee/ - used sound file called: "woopee.."
 - https://pixabay.com/sound-effects/search/plop/ - used sound file called: "plopp"
-- https://pixabay.com/sound-effects/search/woopee/ - used sound file called: "woopee.."
+- https://pixabay.com/sound-effects/search/ghost/ - used sound file called: "Ghost Horror Sound"
 

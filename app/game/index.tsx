@@ -10,11 +10,12 @@ import { useTranslation } from 'react-i18next';
 import { Alert, Dimensions, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { isDeadAtom, isGameWonAtom, recordDeathAtom, recordWinAtom, resetGameStateAtom } from '../../atoms/gameAtoms';
 import { CountdownAnimation } from '../../components/countdown-animation';
+import { DarkMazeOverlay } from '../../components/dark-maze-overlay';
 import { GradientButton } from "../../components/gradient-button";
 import { LevelStarsAndBadgeDisplay } from "../../components/level-stars-and-badge-display";
 import { MazeRenderer } from "../../components/maze-renderer";
 import PetImage from "../../components/pet-image";
-import { MAZE_LEVELS, MazeLevel, getCurrentLevel } from '../../data/maze-layouts';
+import { getCurrentLevel, MAZE_LEVELS, MazeLevel } from '../../data/maze-layouts';
 import { DeathIcon, getDefaultPet, getDisplayName } from '../../data/pets';
 import { useEnemyMovement } from "../../hooks/useEnemyMovement";
 import { useGamePhysics } from '../../hooks/useGamePhysics';
@@ -22,12 +23,12 @@ import { GyroMode, useGameSensors } from '../../hooks/useGameSensors';
 import { useGameTimer } from '../../hooks/useGameTimer';
 import { useLevelData } from "../../hooks/useLevelData";
 import { useRespawnLogic } from "../../hooks/useRespawnLogic";
+import { useStalkerEnemies } from "../../hooks/useStalkerEnemies";
 import { CRUDManager } from "../../utils/CRUD-manager";
 import { findNearestSafeCell, getMazeCell, getPosition } from "../../utils/game-helpers";
 import { LevelStars, ScoreManager } from '../../utils/score-manager';
 import { typography } from "../../utils/typography";
 import { GameScreenProps } from "../root-layout";
-import { DarkMazeOverlay } from '../../components/dark-maze-overlay';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
@@ -314,7 +315,46 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
           return true;
         }
       }
-    }      
+    }
+
+    // Check activated stalkers
+    for (const stalker of stalkerPositions)
+    {
+      if (!stalker.isActivated) continue; // Skip if not activated yet
+      
+      const dx = newX - stalker.x;
+      const dy = newY - stalker.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+        
+      if (distance < ballRadius * 2)
+      {
+        if (extraLives > 0)
+        {
+            setIsRespawning(true);
+            triggerRespawn(cellX, cellY);
+            return false;
+        }
+        else
+        {
+          setExplosionPosition({ x: newX, y: newY });
+          setShowExplosion(true);
+          
+          recordDeath(currentLevelId).then((updatedStats) => {
+            if (updatedStats)
+            {
+              setLevelStats(updatedStats);
+            }
+          });
+          
+          explosion.seekTo(0);
+          explosion.play();
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+          
+          setTimeout(() => setShowExplosion(false), 1000);
+          return true;
+        }
+      }
+    }
 
     // check if SNACK_CELL
     if (getMazeCell(cellX, cellY, MAZE_LAYOUT) === SNACK_CELL ||
@@ -529,6 +569,8 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
       setIsCountdownComplete(false);
       setIsReady(true);
       setHasStartedTimer(false);
+
+      resetStalkers();
     
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     }
@@ -642,6 +684,23 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
   } = useRespawnLogic(CELL_SIZE, BALL_SIZE);
   //-----------------------------
 
+  const { getStalkerPositions, resetStalkers } = useStalkerEnemies(
+    currentLevel.stalkers || [],
+    CELL_SIZE,
+    ballPosition,
+    !isDead && !isGameWon && isCountdownComplete && !isRespawning
+  );
+  const stalkerPositions = getStalkerPositions();
+
+  // const allEnemyPositions = useMemo(() => {
+  //   const regularEnemies = enemyPositions.map(e => ({ id: e.id, x: e.x, y: e.y }));
+  //   const activeStalkers = stalkerPositions
+  //     .filter(s => s.isActivated) // Only check collision with activated stalkers
+  //     .map(s => ({ id: s.id, x: s.x, y: s.y }));
+    
+  //   return [...regularEnemies, ...activeStalkers];
+  // }, [enemyPositions, stalkerPositions]);
+
   useEffect(() => {
     if (isCountdownComplete && !isDead && !isGameWon && !isRespawning) {
       recordPosition(ballPosition.x, ballPosition.y, CELL_SIZE);
@@ -703,6 +762,28 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
       </View>
     ))
   , [enemyPositions, BALL_SIZE, ENEMY_SIZE, selectedPet.enemyEmoji]);
+
+  const StalkerComponents = useMemo(() => 
+    stalkerPositions.map(stalker => (
+      <View
+        key={stalker.id}
+        style={[
+          styles.enemy,
+          {
+            left: stalker.x - BALL_SIZE / 2,
+            top: stalker.y - BALL_SIZE / 2,
+            opacity: stalker.opacity,
+          }
+        ]}
+      >
+        <PetImage 
+          source={require('../../assets/images/enemies/ghoul.png')}
+          size={ENEMY_SIZE} 
+          style={{ zIndex: 19 }} 
+        />
+      </View>
+    ))
+  , [stalkerPositions, BALL_SIZE, ENEMY_SIZE]);
 
   const getMaxAccessible = () => {
     if (allCompleted) return maxLevel;
@@ -794,6 +875,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
 
           {/* ENEMIES */}
           {EnemyComponents}
+          {StalkerComponents}
 
           {/* EXPLOSION */}
           {showExplosion && (
