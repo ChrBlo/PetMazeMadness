@@ -13,6 +13,7 @@ import { formatTime } from "../../utils/game-helpers";
 import { CompletionRecord, ScoreManager } from "../../utils/score-manager";
 import { typography } from "../../utils/typography";
 import { GameStatsScreenProps } from "../root-layout";
+import { DarkMazeOverlay } from '../../components/dark-maze-overlay';
 
 const WALL_CELL = 1;
 const GOAL_CELL = 2;
@@ -198,6 +199,18 @@ export default function MazeStatisticsScreen({ route, navigation }: GameStatsScr
                 </Text>
               </View>
             </BlurView>
+          )}
+              
+          {currentLevel.isDark && (
+            <DarkMazeOverlay
+              mazeWidth={MAZE_SIZE}
+              mazeHeight={MAZE_SIZE}
+              ballX={currentLevel.startPosition.x * CELL_SIZE + CELL_SIZE / 2}
+              ballY={currentLevel.startPosition.y * CELL_SIZE + CELL_SIZE / 2}
+              ballSize={BALL_SIZE}
+              spotlightMultiplier={4}
+              opacity={0.75}
+            />
           )}
         </View>
       </View>

@@ -27,6 +27,7 @@ import { findNearestSafeCell, getMazeCell, getPosition } from "../../utils/game-
 import { LevelStars, ScoreManager } from '../../utils/score-manager';
 import { typography } from "../../utils/typography";
 import { GameScreenProps } from "../root-layout";
+import { DarkMazeOverlay } from '../../components/dark-maze-overlay';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
@@ -195,13 +196,6 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
       underMazeTimeLimit: currentLevel.timeLimit ? completionTime <= currentLevel.timeLimit : false,
       noExtraLivesUsed: extraLivesUsed === 0,
     };
-    
-    console.log('⭐ Stars earned:');
-    console.log('  ✅ Normal mode:', newStars.completedNormalMode);
-    console.log('  ✅ Chaos mode/Secret:', newStars.completedChaosMode);
-    console.log('  ✅ All snacks eaten:', newStars.allSnacksEaten);
-    console.log('  ✅ Under time limit:', newStars.underMazeTimeLimit);
-    console.log('  ✅ No extra lives:', newStars.noExtraLivesUsed);
     
     const existingStars = await CRUDManager.getLevelStars(currentLevelId);
     const mergedStars = {
@@ -815,6 +809,18 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
               <Image style={styles.explosionImage} source={require('../../assets/images/explosion.png')} />
             </View>
           )}
+
+          {currentLevel.isDark && (
+            <DarkMazeOverlay
+              mazeWidth={MAZE_SIZE}
+              mazeHeight={MAZE_SIZE}
+              ballX={ballPosition.x}
+              ballY={ballPosition.y}
+              ballSize={BALL_SIZE}
+              spotlightMultiplier={4}
+              opacity={1}
+            />
+          )}
         </View>
       </View>
 
@@ -1166,7 +1172,7 @@ const styles = StyleSheet.create({
   lottieWin: {
     width: 400,
     height: 400,
-    zIndex: 30,
+    zIndex: 200,
   },
   overlay: {
     position: 'absolute',
@@ -1175,12 +1181,12 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    zIndex: 28,
+    zIndex: 100,
   },
   gameCompleted: {
     width: 400,
     height: 400,
-    zIndex: 30,
+    zIndex: 200,
   },
   enemy: {
     position: 'absolute',
