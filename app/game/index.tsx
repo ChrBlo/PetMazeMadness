@@ -738,7 +738,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
       {isDead ? (
         <DeathIcon size={DEATH_ICON_SIZE} />
       ) : (
-        <PetImage source={selectedPet.emoji} size={PET_ICON_SIZE} />
+        <PetImage key="user-pet" source={selectedPet.emoji} size={PET_ICON_SIZE} />
       )}
     </View>
   ), [ballPosition.x, ballPosition.y, BALL_SIZE, isDead, DEATH_ICON_SIZE, selectedPet.emoji, PET_ICON_SIZE]);
@@ -756,6 +756,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
         ]}
       >
         <PetImage 
+          key="enemy"
           source={selectedPet.enemyEmoji || getDefaultPet().enemyEmoji} 
           size={ENEMY_SIZE} 
           style={{ zIndex: 19 }} 
@@ -778,6 +779,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
         ]}
       >
         <PetImage 
+          key="stalker-enemy"
           source={require('../../assets/images/enemies/ghoul.png')}
           size={ENEMY_SIZE} 
           style={{ zIndex: 19 }} 
@@ -819,7 +821,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
           {!normalModeCompleted && !chaosModeCompleted && earnedStars === 0 ? (
             <View style={styles.titleContainer}>
               <Text style={styles.title}>{t('game.mazeFirstTryTitle', { petName: petName })}</Text>
-              <PetImage source={selectedPet.emoji} size={HEADER_PET_SIZE} style={{ marginRight: 7, textAlign: 'center' }} />
+              <PetImage key="user-pet" source={selectedPet.emoji} size={HEADER_PET_SIZE} style={{ marginRight: 7, textAlign: 'center' }} />
             </View>
             ) : (
               <LevelStarsAndBadgeDisplay 
@@ -850,7 +852,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
           <Text style={styles.statsText}>
             {extraLives > 0 && (
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <PetImage source={selectedPet.emoji} size={typography.h4} style={{ paddingBottom: -6 }} />
+                <PetImage key="user-pet" source={selectedPet.emoji} size={typography.h4} style={{ paddingBottom: -6 }} />
                 <Text style={styles.statsText} numberOfLines={1}>  : {extraLives}</Text>
               </View>
             )}

@@ -38,12 +38,12 @@ export default function StartScreen({ route, navigation }: StartScreenProps) {
   const [invertedGameControls, setInvertedGameControls] = useState(false);
 
   // TA FRAM FÖR ATT RENSA SIMPLE STORAGE
-  // useEffect(() => {
-  //   const clearData = async () => {
-  //     await ScoreManager.clearAllData();
-  //   };
-  //   clearData();
-  // }, []);
+  useEffect(() => {
+    const clearData = async () => {
+      await ScoreManager.clearAllData();
+    };
+    clearData();
+  }, []);
   
   useFocusEffect(
     useCallback(() => {
