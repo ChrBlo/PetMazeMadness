@@ -52,6 +52,7 @@ const DANGER_CELL = 3;
 const SNACK_CELL = 4;
 const SECRET_WALL_CELL = 5;
 const SECRET_SNACK_CELL = 6;
+const GHOUL_TRIGGER = 7;
 
 const explodingWallSound = require('../../assets/sounds/explosion.mp3');
 const victorySound = require('../../assets/sounds/whopee.mp3');
@@ -871,6 +872,7 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
             eatenSnacks={eatenSnacks}
             secretWallCell={SECRET_WALL_CELL}
             secretSnackCell={SECRET_SNACK_CELL}
+            ghoulTrigger={GHOUL_TRIGGER}
           />
 
           {/* ENEMIES */}

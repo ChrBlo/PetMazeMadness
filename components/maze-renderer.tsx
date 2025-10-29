@@ -48,6 +48,7 @@ interface MazeRendererProps {
   eatenSnacks: Set<string>;
   secretWallCell: number;
   secretSnackCell: number;
+  ghoulTrigger: number;
 }
 
 export const MazeRenderer: React.FC<MazeRendererProps> = React.memo(({
@@ -60,6 +61,7 @@ export const MazeRenderer: React.FC<MazeRendererProps> = React.memo(({
   eatenSnacks,
   secretWallCell,
   secretSnackCell,
+  ghoulTrigger,
 }) => {
 
   const [fruitAssignments] = useState(() => new Map<string, number>());
@@ -71,6 +73,7 @@ export const MazeRenderer: React.FC<MazeRendererProps> = React.memo(({
   const goals = [];
   const explosiveWalls = [];
   const healthSnacks = [];
+  const ghoulTriggers = [];
     
   for (let row = 0; row < mazeLayout.length; row++)
   {
@@ -153,6 +156,7 @@ export const MazeRenderer: React.FC<MazeRendererProps> = React.memo(({
               ]}
               contentFit="contain"
               cachePolicy="memory-disk"
+              recyclingKey={`snack-${cellSize}`}
               transition={0}
             />
           );
@@ -175,7 +179,7 @@ export const MazeRenderer: React.FC<MazeRendererProps> = React.memo(({
             ]}
             contentFit="cover"
             cachePolicy="memory-disk"
-            recyclingKey={`wall-${cellSize}`}
+            recyclingKey={`goal-${cellSize}`}
             transition={0}
           />
         );
@@ -228,10 +232,33 @@ export const MazeRenderer: React.FC<MazeRendererProps> = React.memo(({
               ]}
               contentFit="contain"
               cachePolicy="memory-disk"
+              recyclingKey={`snack-${cellSize}`}
               transition={0}
             />
           );
         }
+      }
+      else if (cell === ghoulTrigger)
+      {
+        ghoulTriggers.push(
+          <Image
+            key={key}
+            source={require('../assets/images/crack.png')}
+            style={[
+              styles.ghoulTrigger,
+              {
+                left: col * cellSize,
+                top: row * cellSize,
+                width: cellSize,
+                height: cellSize,
+              }
+            ]}
+            contentFit="cover"
+            cachePolicy="memory-disk"
+            recyclingKey={`ghoultrigger-${cellSize}`}
+            transition={0}
+          />
+        );
       }
     }
   }
@@ -246,6 +273,7 @@ export const MazeRenderer: React.FC<MazeRendererProps> = React.memo(({
       {goals}
       {explosiveWalls}
       {healthSnacks}
+      {ghoulTriggers}
     </View>
   );
 }, (prevProps, nextProps) => {
@@ -256,6 +284,7 @@ export const MazeRenderer: React.FC<MazeRendererProps> = React.memo(({
     prevProps.goalCell === nextProps.goalCell &&
     prevProps.dangerCell === nextProps.dangerCell &&
     prevProps.snackCell === nextProps.snackCell &&
+    prevProps.ghoulTrigger === nextProps.ghoulTrigger &&
     prevProps.eatenSnacks.size === nextProps.eatenSnacks.size &&
     Array.from(prevProps.eatenSnacks).every(snack => nextProps.eatenSnacks.has(snack))
   );
@@ -263,6 +292,9 @@ export const MazeRenderer: React.FC<MazeRendererProps> = React.memo(({
 
 const styles = StyleSheet.create({
   wall: {
+    position: 'absolute',
+  },
+  ghoulTrigger: {
     position: 'absolute',
   },
   goal: {

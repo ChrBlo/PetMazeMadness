@@ -6,6 +6,7 @@
 // 4 = snack (extra life)
 // 5 = secret wall
 // 6 = secret snack behind secret wall
+// 7 = ghoul trigger
 
 export interface MazeLevel {
   id: number;
@@ -2757,7 +2758,7 @@ export const MAZE_LEVELS: MazeLevel[] = [
     layout: [
       [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
       [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-      [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+      [1, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
       [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
       [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
       [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
