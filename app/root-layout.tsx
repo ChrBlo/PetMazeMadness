@@ -1,8 +1,10 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator, NativeStackScreenProps } from "@react-navigation/native-stack";
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { ActivityIndicator, View } from "react-native";
 import { Pet } from "../data/pets";
 import { GyroMode } from "../hooks/useGameSensors";
+import { initLanguage } from "../i18n/i18n";
 import MazeStatisticsScreen from "./game-stats/[id]";
 import GameScreen from "./game/index";
 import StartScreen from "./index";
@@ -40,6 +42,22 @@ export type GameStatsScreenProps = NativeStackScreenProps<RootStackParamList, "G
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function RootLayout() {
+  const [isI18nInitialized, setIsI18nInitialized] = useState(false);
+
+  useEffect(() => {
+    initLanguage().then(() => {
+      setIsI18nInitialized(true);
+    });
+  }, []);
+
+  if (!isI18nInitialized) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color="#45da9cff" />
+      </View>
+    );
+  }
+
   return (
     <>
       <NavigationContainer>

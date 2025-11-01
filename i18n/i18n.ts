@@ -13,7 +13,11 @@ const resources = {
 
 const LANGUAGE_KEY = 'app_language';
 
+let isInitialized = false;
+
 const initLanguage = async () => {
+  if (isInitialized) return;
+
   // Try to get saved language
   const savedLanguage = await storage.getItem(LANGUAGE_KEY);
   
@@ -21,7 +25,7 @@ const initLanguage = async () => {
   const deviceLanguage = Localization.getLocales()[0].languageCode;
   const defaultLanguage = savedLanguage || (deviceLanguage === 'sv' ? 'sv' : 'en');
 
-  i18n
+  await i18n
     .use(initReactI18next)
     .init({
       resources,
@@ -31,13 +35,14 @@ const initLanguage = async () => {
         escapeValue: false
       }
     });
+  
+  isInitialized = true;
 };
-
-initLanguage();
 
 // Save language when it changes
 i18n.on('languageChanged', (lng) => {
   storage.setItem(LANGUAGE_KEY, lng);
 });
 
+export { initLanguage };
 export default i18n;
