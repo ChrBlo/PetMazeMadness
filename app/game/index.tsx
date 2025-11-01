@@ -905,6 +905,8 @@ export default function GameScreen({ route, navigation }: GameScreenProps) {
               ballSize={BALL_SIZE}
               spotlightMultiplier={4}
               opacity={1}
+              stalkerPositions={stalkerPositions}
+              stalkerSpotlightMultiplier={2}
             />
           )}
         </View>

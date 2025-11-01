@@ -11,6 +11,8 @@ interface DarkMazeOverlayProps {
   spotlightMultiplier?: number;
   borderRadius?: number;
   opacity?: number;
+  stalkerPositions?: { x: number; y: number; isActivated: boolean }[];
+  stalkerSpotlightMultiplier?: number;
 }
 
 export const DarkMazeOverlay: React.FC<DarkMazeOverlayProps> = ({
@@ -22,13 +24,19 @@ export const DarkMazeOverlay: React.FC<DarkMazeOverlayProps> = ({
   spotlightMultiplier = 4,
   borderRadius = 5,
   opacity = 1,
+  stalkerPositions = [],
+  stalkerSpotlightMultiplier  = 2,
 }) => {
   const spotlightRadius = (ballSize * spotlightMultiplier) / 2;
+  const stalkerSpotlightRadius = (ballSize * stalkerSpotlightMultiplier) / 2;
+  const activatedStalkers = stalkerPositions.filter(s => s.isActivated);
 
   return (
     <View style={[styles.darkOverlay, { width: mazeWidth, height: mazeHeight }]} pointerEvents="none">
-      <Svg width={mazeWidth -4} height={mazeHeight -4}>
+      <Svg width={mazeWidth - 4} height={mazeHeight - 4}>
+        
         <Defs>
+
           <ClipPath id="rounded-corners">
             <Rect
               x="0"
@@ -39,6 +47,7 @@ export const DarkMazeOverlay: React.FC<DarkMazeOverlayProps> = ({
               ry={borderRadius}
             />
           </ClipPath>
+
           <Mask id="spotlight">
             <Rect x="0" y="0" width={mazeWidth} height={mazeHeight} fill="white" />
             <Circle
@@ -47,17 +56,27 @@ export const DarkMazeOverlay: React.FC<DarkMazeOverlayProps> = ({
               r={spotlightRadius}
               fill="black"
             />
+            {activatedStalkers.map((stalker, index) => (
+              <Circle
+                key={`stalker-spotlight-${index}`}
+                cx={stalker.x}
+                cy={stalker.y}
+                r={stalkerSpotlightRadius}
+                fill="black"
+              />
+            )) }
           </Mask>
+
         </Defs>
-          <Rect
-            x="0"
-            y="0"
-            width={mazeWidth -4}
-            height={mazeHeight -4}
-            fill={`rgba(0, 0, 0, ${opacity})`}
-            mask="url(#spotlight)"
-            clipPath="url(#rounded-corners)"
-          />
+        <Rect
+          x="0"
+          y="0"
+          width={mazeWidth -4}
+          height={mazeHeight -4}
+          fill={`rgba(0, 0, 0, ${opacity})`}
+          mask="url(#spotlight)"
+          clipPath="url(#rounded-corners)"
+        />
       </Svg>
     </View>
   );
